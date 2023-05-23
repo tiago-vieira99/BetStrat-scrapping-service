@@ -1,0 +1,30 @@
+import requests
+from flask import jsonify
+from bs4 import BeautifulSoup
+from obj.match import Match
+
+BASE_URL = 'https://www.academiadasapostas.com'
+
+def scrapeDataFromPage():
+    response = requests.get('https://www.academiadasapostas.com/stats/team/chile/deportivo-antofagasta/6392#team_id=6392&competition_id=438&page=1&season_id=0')
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        # Perform scraping operations using BeautifulSoup here
+        table = soup.find('table', class_="next-games")
+        # then we can iterate through each row and extract either header or row values:
+        header = []
+        rows = []
+        for i, row in enumerate(table.find_all('tr')):
+            if i == 0:
+                header = [el.text.strip() for el in row.find_all('th')]
+            else:
+                rows.append([el.text.strip() for el in row.find_all('td')])
+
+        matches = []
+
+        for r in rows:
+            matches.append(Match(r[0], r[3], r[5], r[4]).to_dict())
+
+        return matches
+    else:
+        raise Exception(f'Failed to scrape data from {BASE_URL}. Error: {response.status_code}')
