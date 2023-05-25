@@ -6,22 +6,14 @@ app = Flask(__name__)
 @app.route('/last-matches/<int:n>', methods=['GET'])
 def get_last_n_matches(n):
     try:
-        # matches = scraping.getLastNMatches(n)
-        # return jsonify(matches)
-        print(n)
+        return jsonify(scrapping.getLastNMatchesFromAdA(request.data, n))
     except Exception as e:
         return jsonify({'error': str(e)})
 
-@app.route('/next-match/<string:team>', methods=['GET'])
-def get_next_match(team):
+@app.route('/next-match', methods=['GET'])
+def get_next_match():
     try:
-        print(request.data)
-        return jsonify(scrapping.scrapeDataFromPage())        
-        # match = scraping.getNextMatch()
-        # if match:
-        #     return jsonify(match)
-        # else:
-        #     return jsonify({'message': 'No upcoming match found.'})
+        return jsonify(scrapping.getNextMatchFromAdA(request.data))
     except Exception as e:
         return jsonify({'error': str(e)})
 
