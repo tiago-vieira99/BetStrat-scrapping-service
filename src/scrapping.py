@@ -25,7 +25,7 @@ def getLastNMatchesFromAdA(url, n):
             if count == n:
                 break
             if r[4] != 'vs':
-                matches.append(Match(r[0], r[3], r[5], r[4]).to_dict())
+                matches.append(Match(r[0], r[3], r[5], r[4].replace("-",":")).to_dict())
                 count = count + 1
 
         return matches

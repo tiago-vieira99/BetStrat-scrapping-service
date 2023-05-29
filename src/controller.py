@@ -3,14 +3,14 @@ import scrapping
 
 app = Flask(__name__)
 
-@app.route('/last-matches/<int:n>', methods=['GET'])
+@app.route('/last-matches/<int:n>', methods=['POST'])
 def get_last_n_matches(n):
     try:
         return jsonify(scrapping.getLastNMatchesFromAdA(request.data, n))
     except Exception as e:
         return jsonify({'error': str(e)})
 
-@app.route('/next-match', methods=['GET'])
+@app.route('/next-match', methods=['POST'])
 def get_next_match():
     try:
         return jsonify(scrapping.getNextMatchFromAdA(request.data))
