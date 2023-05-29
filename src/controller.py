@@ -18,4 +18,4 @@ def get_next_match():
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    app.run(host="localhost", port=8000, debug=True)
+    app.run(host="scrapper-service", port=8000, debug=True)
