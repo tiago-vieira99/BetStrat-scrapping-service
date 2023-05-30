@@ -25,6 +25,7 @@ def getLiveResultsFromAdA():
     #delete the cookies  
     driver.delete_all_cookies()  
 
+    print(driver.page_source)
     table = driver.find_element(By.ID, "fh_main_tab")
     moreButton = table.find_elements(By.CLASS_NAME, "footer")
 
