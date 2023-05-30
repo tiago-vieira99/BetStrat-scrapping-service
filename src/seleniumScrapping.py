@@ -25,7 +25,6 @@ def getLiveResultsFromAdA():
     #delete the cookies  
     driver.delete_all_cookies()  
 
-    print(driver.page_source)
     table = driver.find_element(By.ID, "fh_main_tab")
     moreButton = table.find_elements(By.CLASS_NAME, "footer")
 
@@ -39,8 +38,10 @@ def getLiveResultsFromAdA():
         moreButton = table.find_elements(By.CLASS_NAME, "footer")
 
     liveMatches = driver.find_elements(By.CLASS_NAME, "live-subscription")
+    print("oiiio oiii ")
 
     for match in liveMatches:
+        print(match.find_element(By.CLASS_NAME, "team-a").text)
         if len(match.find_elements(By.CLASS_NAME, "gameinlive")) == 0:
             continue
         matchTime = match.find_element(By.CLASS_NAME, "game_running").text
