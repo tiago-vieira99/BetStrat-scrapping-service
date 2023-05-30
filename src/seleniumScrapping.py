@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 import time
 import scrapping
+from obj.match import Match
 
 def set_chrome_options() -> Options:
     """Sets chrome options for Selenium.
@@ -33,22 +34,25 @@ def getLiveResultsFromAdA():
         actions.move_to_element(moreButton[0])
         actions.click(moreButton[0])
         actions.perform()
-        time.sleep(2)  
+        time.sleep(1)  
         table = driver.find_element(By.ID, "fh_main_tab")
         moreButton = table.find_elements(By.CLASS_NAME, "footer")
 
     liveMatches = driver.find_elements(By.CLASS_NAME, "live-subscription")
 
+    matchesToBet = []
+
     for match in liveMatches:
         if len(match.find_elements(By.CLASS_NAME, "gameinlive")) == 0:
             continue
+
         matchTime = match.find_element(By.CLASS_NAME, "game_running").text
         matchScore = match.find_element(By.CLASS_NAME, "score").text
-        print(matchScore)
+
         if (matchScore == '0 - 0') and ((matchTime == 'Intervalo') or (int(matchTime) > 39 and int(matchTime) < 61)):
-            print("hey hey")
-        print(match.find_element(By.CLASS_NAME, "team-a").text)
-        matchUrl = match.find_elements(By.CLASS_NAME, "gameinlive")[1].find_element(By.TAG_NAME, "a").get_attribute("href")
-        scrapping.getLiveMatchStatsFromAdA(matchUrl)
+            matchUrl = match.find_elements(By.CLASS_NAME, "gameinlive")[1].find_element(By.TAG_NAME, "a").get_attribute("href")
+            if scrapping.getLiveMatchStatsFromAdA(matchUrl):
+                matchesToBet.append(Match('', match.find_element(By.CLASS_NAME, "team-a").text, match.find_element(By.CLASS_NAME, "team-b").text, '').to_dict())
 
     driver.close()
+    return matchesToBet
