@@ -28,23 +28,18 @@ def getLiveResultsFromAdA():
     table = driver.find_element(By.ID, "fh_main_tab")
     moreButton = table.find_elements(By.CLASS_NAME, "footer")
 
-    print("check1")
-
     while len(moreButton) > 0:
         actions = ActionChains(driver)
         actions.move_to_element(moreButton[0])
         actions.click(moreButton[0])
         actions.perform()
-        print("click")
         time.sleep(2)  
         table = driver.find_element(By.ID, "fh_main_tab")
         moreButton = table.find_elements(By.CLASS_NAME, "footer")
 
     liveMatches = driver.find_elements(By.CLASS_NAME, "live-subscription")
-    print("oiiio oiii ")
 
     for match in liveMatches:
-        print(match.find_element(By.CLASS_NAME, "team-a").text)
         if len(match.find_elements(By.CLASS_NAME, "gameinlive")) == 0:
             continue
         matchTime = match.find_element(By.CLASS_NAME, "game_running").text
