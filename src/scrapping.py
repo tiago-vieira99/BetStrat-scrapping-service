@@ -6,6 +6,7 @@ import re
 
 def getLastNMatchesFromAdA(url, n):
     response = requests.get(url)
+    print("\ngetting last " + n + " match stats: " + url)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         # Perform scraping operations using BeautifulSoup here
@@ -36,6 +37,7 @@ def getLastNMatchesFromAdA(url, n):
 
 def getNextMatchFromAdA(url):
     response = requests.get(url)
+    print("\ngetting next match: " + url)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         # Perform scraping operations using BeautifulSoup here
