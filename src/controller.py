@@ -26,4 +26,5 @@ def get_live_matches():
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
+    print("scrapper service is running...")
     app.run(host="0.0.0.0", port=8000, debug=True)
