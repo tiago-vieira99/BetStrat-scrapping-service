@@ -283,6 +283,8 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
                 if allLeagues is False and r[1] != 'Round':
                     continue
                 result = ''
+                if 'abor' in r[13]:
+                    continue
                 if 'pso' in r[13] or 'aet' in r[13]:
                     result = r[13].split(',')[1].split(')')[0].strip()
                 else:
