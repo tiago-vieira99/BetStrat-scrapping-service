@@ -28,6 +28,8 @@ def getLastNMatchesFromAdA(url, n):
         for r in rows:
             if count == n:
                 break
+            if 'Adiado' in r[4]:
+                continue
             if r[4] != 'vs':
                 matches.append(Match(r[0], r[3], r[5], r[4].replace("-",":"), '').to_dict())
                 count = count + 1
@@ -283,7 +285,7 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
                 if allLeagues is False and r[1] != 'Round':
                     continue
                 result = ''
-                if 'abor' in r[13]:
+                if 'abor' in r[13] or 'resch' in r[13]:
                     continue
                 if 'pso' in r[13] or 'aet' in r[13]:
                     result = r[13].split(',')[1].split(')')[0].strip()
