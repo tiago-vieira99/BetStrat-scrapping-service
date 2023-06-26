@@ -7,17 +7,63 @@ app = Flask(__name__)
 @app.route('/last-matches/<int:n>', methods=['POST'])
 def get_last_n_matches(n):
     try:
-        return jsonify(scrapping.getLastNMatchesFromAdA(request.data, n))
+        allLeagues = False
+        if request.args.get("allleagues") == 'true':
+            allLeagues = True
+
+        if "worldfootball" in request.data.decode("utf-8"):
+            return jsonify(scrapping.getLastNMatchesFromWF(request.data, n, request.args.get("team"), allLeagues, request.args.get("season"))) 
+        else:
+            return jsonify(scrapping.getLastNMatchesFromAdA(request.data, n))
     except Exception as e:
         return jsonify({'error': str(e)})
 
 @app.route('/next-match', methods=['POST'])
 def get_next_match():
     try:
-        return jsonify(scrapping.getNextMatchFromAdA(request.data))
+        allLeagues = False
+        if request.args.get("allleagues") == 'true':
+            allLeagues = True
+
+        if "worldfootball" in request.data.decode("utf-8"):
+            return jsonify(scrapping.getNextMatchFromWF(request.data, request.args.get("team"), request.args.get("season"), allLeagues)) 
+        else:   
+            return jsonify(scrapping.getNextMatchFromAdA(request.data))
     except Exception as e:
         return jsonify({'error': str(e)})
     
+@app.route('/next-league-match', methods=['POST'])
+def get_next_league_match():
+    try:
+        return jsonify(seleniumScrapping.getLeagueNextMatchFromAdA(request.data))
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+@app.route('/football-stats/all-season-matches', methods=['POST'])
+def get_all_season_matches():
+    try:
+        allLeagues = False
+        if request.args.get("allleagues") == 'true':
+            allLeagues = True
+
+        if "worldfootball" in request.data.decode("utf-8"):
+            return jsonify(scrapping.getSeasonMatchesFromWF(request.data, request.args.get("team"), request.args.get("season"), allLeagues))    
+        elif "fbref" in request.data.decode("utf-8"):
+            return jsonify(scrapping.getSeasonMatchesFromFBRef(request.data, request.args.get("team"), allLeagues))
+        elif "zerozero" in request.data.decode("utf-8"):
+            return jsonify(scrapping.getSeasonMatchesFromZZ(request.data, request.args.get("team"), allLeagues))
+        else:
+            return 'url not supported'
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+@app.route('/lmp-prognosticos', methods=['GET'])
+def get_lmp_prognosticos():
+    try:
+        return jsonify(scrapping.getLMPprgnosticos())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
 @app.route('/live-matches', methods=['GET'])
 def get_live_matches():
     try:

@@ -52,7 +52,23 @@ def getLiveResultsFromAdA():
         if (matchScore == '0 - 0') and ((matchTime == 'Intervalo') or (int(matchTime) > 39 and int(matchTime) < 61)):
             matchUrl = match.find_elements(By.CLASS_NAME, "gameinlive")[1].find_element(By.TAG_NAME, "a").get_attribute("href")
             if scrapping.getLiveMatchStatsFromAdA(matchUrl):
-                matchesToBet.append(Match('', match.find_element(By.CLASS_NAME, "team-a").text, match.find_element(By.CLASS_NAME, "team-b").text, '').to_dict())
+                matchesToBet.append(Match('', match.find_element(By.CLASS_NAME, "team-a").text, match.find_element(By.CLASS_NAME, "team-b").text, '', '').to_dict())
 
     driver.close()
     return matchesToBet
+
+def getLeagueNextMatchFromAdA(url):
+    print("\ngetting next match: " + str(url))
+    driver = webdriver.Chrome(options=set_chrome_options())
+    driver.get(url.decode("utf-8"))
+    #delete the cookies  
+    driver.delete_all_cookies()
+    leagueButton = driver.find_elements(By.CLASS_NAME, "competition")[1]
+
+    print(leagueButton.text)
+
+    # actions = ActionChains(driver)
+    # actions.move_to_element(moreButton[0])
+    # actions.click(moreButton[0])
+    # actions.perform()
+    # time.sleep(1)  
