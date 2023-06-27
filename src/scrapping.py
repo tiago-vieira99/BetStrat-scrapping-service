@@ -215,6 +215,131 @@ def getSeasonMatchesFromWF(url, team, season, allLeagues):
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
 
+def getNextMatchFromZZ(url, team):
+    print("\ngetting next match for " + team + ": " + str(url, 'utf-8'))
+    matches = []
+    
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        compsData = soup.find_all('div', id="team_games")[0].find_all('tr')
+        compNumMatches = 0
+        mainCompName = ''
+        for i, comp in enumerate(compsData):
+            if len(comp.find_all('td', class_='double')) > 0:
+                if compNumMatches < int(comp.find_all('td', class_='double')[1].text.strip()):
+                    compNumMatches = int(comp.find_all('td', class_='double')[1].text.strip())
+                    mainCompName = comp.find('div', class_='text').text.strip()
+
+        div_table = soup.find_all('div', id="team_games")[1]
+        table = div_table.find('table', class_="zztable")
+    
+        # then we can iterate through each row and extract either header or row values:
+        header = []
+        rows = []
+        for i, row in enumerate(table.find_all('tr')):
+            rows.append([el.text.strip() for el in row])
+
+        # response2 = requests.get(url.decode("utf-8")+"&page=2")
+        # if response2.status_code == 200:
+        #     soup2 = BeautifulSoup(response2.content, 'html.parser')
+        #     # Perform scraping operations using BeautifulSoup here
+        #     div_table2 = soup2.find_all('div', id="team_games")[0]
+        #     table2 = div_table2.find('table', class_="zztable")
+            
+        #     if len(table2.find_all('tr')) > 0:
+        #         rows = rows[:-1]
+        #     for i, row in enumerate(table2.find_all('tr')):
+        #         rows.append([el.text.strip() for el in row])
+
+        #     if len(table2.find_all('tr')) > 0:
+        #         rows = rows[:-1]
+        # else:
+        #     raise Exception(f'Failed to scrape data from {url}. Error: {response2.status_code}')
+        
+        for r in rows:
+            result = ""
+
+            if r[5] == '-':
+                if r[3] == '(C)':
+                    matches.append(Match(r[1], team, r[4], result, r[6]).to_dict())
+                else:
+                    matches.append(Match(r[1], r[4], team, result, r[6]).to_dict())
+
+        matches.reverse()
+        print(str(len(matches)) + " matches scrapped for " + team)
+        return matches[0]
+    else:
+        raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
+
+def getLastNMatchesFromZZ(url, n, team):
+    print("\ngetting last " + str(n) + " match stats: " + str(url))
+    matches = []
+    
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        compsData = soup.find_all('div', id="team_games")[0].find_all('tr')
+        compNumMatches = 0
+        mainCompName = ''
+        for i, comp in enumerate(compsData):
+            if len(comp.find_all('td', class_='double')) > 0:
+                if compNumMatches < int(comp.find_all('td', class_='double')[1].text.strip()):
+                    compNumMatches = int(comp.find_all('td', class_='double')[1].text.strip())
+                    mainCompName = comp.find('div', class_='text').text.strip()
+
+        div_table = soup.find_all('div', id="team_games")[1]
+        table = div_table.find('table', class_="zztable")
+    
+        # then we can iterate through each row and extract either header or row values:
+        header = []
+        rows = []
+        for i, row in enumerate(table.find_all('tr')):
+            rows.append([el.text.strip() for el in row])
+
+        # response2 = requests.get(url.decode("utf-8")+"&page=2")
+        # if response2.status_code == 200:
+        #     soup2 = BeautifulSoup(response2.content, 'html.parser')
+        #     # Perform scraping operations using BeautifulSoup here
+        #     div_table2 = soup2.find_all('div', id="team_games")[0]
+        #     table2 = div_table2.find('table', class_="zztable")
+            
+        #     if len(table2.find_all('tr')) > 0:
+        #         rows = rows[:-1]
+        #     for i, row in enumerate(table2.find_all('tr')):
+        #         rows.append([el.text.strip() for el in row])
+
+        #     if len(table2.find_all('tr')) > 0:
+        #         rows = rows[:-1]
+        # else:
+        #     raise Exception(f'Failed to scrape data from {url}. Error: {response2.status_code}')
+        
+        for r in rows:
+            result = ""
+            print(r)
+
+            if r[5] != '-' and '-' in r[5]:
+                result = r[5].split('-')[0] + ":" + r[5].split('-')[1][0]
+                if r[3] == '(C)':
+                    matches.append(Match(r[1], team, r[4], result, r[6]).to_dict())
+                else:
+                    matches.append(Match(r[1], r[4], team, result, r[6]).to_dict())
+
+        # matches.reverse()
+        print(str(len(matches)) + " matches scrapped for " + team)
+        count = 0
+        lastMatches = []
+        for r in matches:
+            if count == n:
+                break
+            lastMatches.append(r)
+            count = count + 1
+        return lastMatches
+    else:
+        raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
+
 def getNextMatchFromWF(url, team, season, allLeagues):
     print("\ngetting next match for " + team + ": " + str(url, 'utf-8'))
     matches = []
@@ -243,7 +368,7 @@ def getNextMatchFromWF(url, team, season, allLeagues):
             if (len(r) > 15) and (flag is True):
                 if allLeagues is False and r[1] != 'Round':
                     continue
-                if len(r[13]) < 4:
+                if len(r[13]) < 4 and r[13] == '-:-':
                     date = datetime.strptime(r[3], "%d/%m/%Y")
                     if r[7] == 'H':
                         matches.append(Match(date.strftime('%Y-%m-%d'), team, r[11], '', competition).to_dict())
@@ -288,10 +413,10 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
                 if 'abor' in r[13] or 'resch' in r[13]:
                     continue
                 if 'pso' in r[13] or 'aet' in r[13]:
-                    result = r[13].split(',')[1].split(')')[0].strip()
+                    result = r[13].replace('pso','').replace('aet','')
                 else:
                     result = r[13].split(' ')[0]
-                if len(r[13]) > 4:
+                if len(r[13]) > 4 or r[13] != '-:-':
                     date = datetime.strptime(r[3], "%d/%m/%Y")
                     if r[7] == 'H':
                         matches.append(Match(date.strftime('%Y-%m-%d'), team, r[11], result, competition).to_dict())

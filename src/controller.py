@@ -13,6 +13,8 @@ def get_last_n_matches(n):
 
         if "worldfootball" in request.data.decode("utf-8"):
             return jsonify(scrapping.getLastNMatchesFromWF(request.data, n, request.args.get("team"), allLeagues, request.args.get("season"))) 
+        elif "zerozero" in request.data.decode("utf-8"):
+            return jsonify(scrapping.getLastNMatchesFromZZ(request.data, n, request.args.get("team"))) 
         else:
             return jsonify(scrapping.getLastNMatchesFromAdA(request.data, n))
     except Exception as e:
@@ -27,6 +29,8 @@ def get_next_match():
 
         if "worldfootball" in request.data.decode("utf-8"):
             return jsonify(scrapping.getNextMatchFromWF(request.data, request.args.get("team"), request.args.get("season"), allLeagues)) 
+        elif "zerozero" in request.data.decode("utf-8"):
+            return jsonify(scrapping.getNextMatchFromZZ(request.data, request.args.get("team"))) 
         else:   
             return jsonify(scrapping.getNextMatchFromAdA(request.data))
     except Exception as e:
