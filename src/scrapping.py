@@ -513,9 +513,11 @@ def getLMPprgnosticos():
             if response.status_code == 200: 
                 soup2 = BeautifulSoup(response2.content, 'html.parser')
                 date = soup2.find_all('div', class_='elementor-widget-ohio_heading')[1].find('div', class_='subtitle').text.strip()
+                homeAnalise = soup2.find_all('div', class_='elementor-widget-text-editor')[4].text.strip()
+                awayAnalise = soup2.find_all('div', class_='elementor-widget-text-editor')[6].text.strip()
                 prognostico = soup2.find_all('div', class_="elementor-col-14")[2].text.strip()
                 odd = soup2.find_all('div', class_="elementor-col-14")[6].text.strip().replace('.',',')
-                prognosticos.append(date + ';' + match + ' -> ' + prognostico + ';' + odd)
+                prognosticos.append(date + ';' + match + ' -> ' + prognostico + ';' + odd + ';' + homeAnalise + ';' + awayAnalise)
             else:
                 raise Exception(f'Failed to scrape data from LMP Apostas. Error: {response.status_code}') 
 

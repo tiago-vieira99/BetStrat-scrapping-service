@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 import scrapping
 import seleniumScrapping
+import experiments
 
 app = Flask(__name__)
 
@@ -72,6 +73,34 @@ def get_lmp_prognosticos():
 def get_live_matches():
     try:
         return jsonify(seleniumScrapping.getLiveResultsFromAdA())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+@app.route('/first-half-goal-candidates', methods=['GET'])
+def get_first_half_goal_candidates():
+    try:
+        return jsonify(experiments.scrappAdAStatsBulk())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+@app.route('/over25-candidates', methods=['GET'])
+def get_over25_candidates():
+    try:
+        return jsonify(experiments.scrappAdAStatsBulk())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+@app.route('/over25-candidates-betexplorer', methods=['GET'])
+def get_over25_betExplorer():
+    try:
+        return jsonify(experiments.getMatchStatsFromBetExplorer(request.data))
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+@app.route('/over25-leaguestats-betexplorer', methods=['GET'])
+def get_leaguestats_betExplorer():
+    try:
+        return jsonify(experiments.getLeagueOverStatsFromBetExplorer(request.data))
     except Exception as e:
         return jsonify({'error': str(e)})
 
