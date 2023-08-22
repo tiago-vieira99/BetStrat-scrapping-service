@@ -90,6 +90,13 @@ def get_over25_candidates():
     except Exception as e:
         return jsonify({'error': str(e)})
     
+@app.route('/btts-candidates', methods=['GET'])
+def get_btts_candidates():
+    try:
+        return jsonify(experiments.scrappBTTSAdAStatsBulk())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
 @app.route('/over25-candidates-betexplorer', methods=['GET'])
 def get_over25_betExplorer():
     try:

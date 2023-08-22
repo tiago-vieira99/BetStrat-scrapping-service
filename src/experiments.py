@@ -37,6 +37,16 @@ def scrappAdAStatsBulk():
     driver.close()
     return matches
 
+def scrappBTTSAdAStatsBulk():
+    driver = webdriver.Chrome(options=set_chrome_options())
+    matches = []
+    for i in range(16,32):
+        print("########## step: " + str(i))
+        matches += getBTTSCandidatesFromAdA("https://www.academiadasapostas.com/stats/livescores/2022/08/" + str(i), driver)
+        time.sleep(2)
+    driver.close()
+    return matches
+
 def getFirstHalfGoalCandidatesFromAdA(url, driver):
     
     matchesToBet = []
@@ -396,6 +406,162 @@ def getOver25GoalCandidatesFromAdA(url, driver):
     # driver.close()
     return matchesToBet
 
+def getBTTSCandidatesFromAdA(url, driver):
+    
+    matchesToBet = []
+    
+    driver.get(url)
+    #delete the cookies  
+    driver.delete_all_cookies()  
+
+    table = driver.find_element(By.ID, "fh_main_tab")
+    moreButton = table.find_elements(By.CLASS_NAME, "footer")
+
+    while len(moreButton) > 0:
+        actions = ActionChains(driver)
+        actions.move_to_element(moreButton[0])
+        actions.click(moreButton[0])
+        actions.perform()
+        time.sleep(3)  
+        table = driver.find_element(By.ID, "fh_main_tab")
+        moreButton = table.find_elements(By.CLASS_NAME, "footer")
+
+    todayMatches = driver.find_elements(By.CLASS_NAME, "live-subscription")
+
+    for match in todayMatches:
+        if 'Cancelado' in match.find_element(By.CLASS_NAME, "status").text:
+            continue
+
+        matchUrl = match.find_element(By.CLASS_NAME, "score").find_element(By.TAG_NAME, "a").get_attribute("href")
+        allowedLeagues = ["psl", "1st-division", "superliga", "bundesliga", "2-bundesliga", "3-liga", "ligue-1", "girabola", "pro-league", "primera-division", "primera-nacional", "premier-league", "a-league", "1-liga", "premyer-liqa", "first-division-b", "1-division", "premier-liga", "serie-a", "serie-b", "serie-c", "a-pfg", "b-pfg", "canadian-championship", "stars-league", "primera-b", "primera-a", "1-hnl", "2-hnl", "arabian-gulf-league", "liga-pro", "premiership", "championship", "super-liga", "2-liga", "1-snl", "2-snl", "segunda-division", "segunda-b", "mls", "meistriliiga", "esiliiga-a", "veikkausliiga", "ligue-2", "national", "super-league", "football-league", "liga-nacional", "nb-i", "i-league", "liga-1", "persion-gulf-pro-league", "iraqi-league", "urvalsdeild", "ligat-haal", "liga-leumit", "j1-league", "j2-league", "virsliga", "a-lyga", "national-division", "liga-mx", "mocambola", "divizia-nationala", "npfl", "eliteserien", "national-league", "eredivisie", "eerste-divisie", "lpf", "division-profesional", "ekstraklasa", "i-liga", "liga-portugal-bwin", "segunda-liga", "czech-liga", "k-league-1", "k-league-2", "premier-division", "liga-i", "liga-ii", "csl", "super-liga", "allsvenskan", "superettan", "challenge-league", "thai-league-1", "vleague-1", "campeonato-nacional"]
+
+        if matchUrl.split('/')[6] not in allowedLeagues:
+            continue
+
+        matchDict = OrderedDict()
+        homeTeam = match.find_element(By.CLASS_NAME, "team-a").text
+        awayTeam = match.find_element(By.CLASS_NAME, "team-b").text
+        matchScore = match.find_element(By.CLASS_NAME, "score").text
+        if len(matchScore) < 4:
+            homeScore = '-'
+            awayScore = '-'
+            totalGoals = '-'
+        else:
+            homeScore = matchScore[0:6].split('-')[0].strip()
+            awayScore = matchScore[0:6].split('-')[1].strip()
+            totalGoals = int(homeScore) + int(awayScore)
+
+        date = match.find_element(By.CLASS_NAME, "hour").get_attribute("timestamp")
+
+        matchDict['01. date'] = str(datetime.fromtimestamp(int(date)))
+        matchDict['02. timestamp'] = (date)
+        matchDict['03. homeTeam'] = homeTeam
+        matchDict['04. awayTeam'] = awayTeam
+        matchDict['05. matchScore'] = matchScore
+        matchDict['06. totalGoals'] = totalGoals
+        matchDict['07. homeScore'] = homeScore
+        matchDict['08. awayScore'] = awayScore
+        matchDict['09. competition'] = matchUrl.split('/')[6]
+        matchStats = getBTTSMatchStatsFromAdA(matchUrl, matchUrl.split('/')[6])
+        matchDict.update(matchStats)
+        matchesToBet.append(matchDict)
+        # break
+    # driver.close()
+    return matchesToBet
+
+def getBTTSMatchStatsFromAdA(url, competition):
+    response = requests.get(url)
+    matchStats = OrderedDict()
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        print("\ngetting match stats: " + str(url))
+        
+        try:
+            regex = re.compile('stat-.*')
+            h2hMatches = soup.find(id='show_h2h').find_all("td", {"class" : regex})
+            numBttsh2h = 0
+
+            i=0
+            while i<len(h2hMatches):
+                h2hMatchResult = h2hMatches[i].text.strip()
+                if h2hMatchResult.split('-')[0] != '':
+                    if int(h2hMatchResult.split('-')[0]) > 0 and int(h2hMatchResult.split('-')[1][0]) > 0:
+                        numBttsh2h += 1
+                i+=1
+
+            h2hBttsRate = 0
+            if len(h2hMatches) > 0:
+                h2hBttsRate = 100*numBttsh2h/len(h2hMatches)
+            else:
+                h2hBttsRate = 0
+
+            #teams league position
+            homePosition = soup.find("table", {"class" : "competition-rounds"}).find_all("tr", {"style" : "background-color: #CDDFF0"})[0].find_all('td')[0].text.strip()
+            awayPosition = soup.find("table", {"class" : "competition-rounds"}).find_all("tr", {"style" : "background-color: #FFE0A6"})[0].find_all('td')[0].text.strip()
+
+            #find last league game for home and away team
+            lastHomeTeamMatchResult = ''
+            lastAwayTeamMatchResult = ''
+            lastMatchesTables = soup.find(id='ultimos_resultados').find_all("td", {"class" : regex})
+            urlHomeTeam = url.split('/')[7]
+            urlAwayTeam = url.split('/')[8]
+        
+            if len(lastMatchesTables) > 18:
+                last3HomeMatches = lastMatchesTables[0:10]
+                last3AwayMatches = lastMatchesTables[12:18]
+                #last game of homeTeam should not be at home
+                j = 0
+                for i in range(0,3):
+                    if (len(last3HomeMatches[j].text.strip()) < 3):
+                        j+=1
+                    if competition in last3HomeMatches[j].find('a')['href']:
+                        if (urlHomeTeam == last3HomeMatches[j].find('a')['href'].split('/')[8]):
+                            lastHomeTeamMatchResult = last3HomeMatches[j].text.strip()
+                            break
+                    j+=1
+                #last game of awayTeam should be at home
+                j = 0
+                for i in range(0,3):
+                    if (len(last3AwayMatches[j].text.strip()) < 3):
+                        j+=1
+                    if competition in last3AwayMatches[j].find('a')['href']: 
+                        if (urlAwayTeam == last3AwayMatches[j].find('a')['href'].split('/')[7]):
+                            lastAwayTeamMatchResult = last3AwayMatches[j].text.strip()
+                            break
+                    j+=1
+
+            matchStats['11. homePosition'] = (homePosition)
+            matchStats['12. awayPosition'] = (awayPosition)
+
+            matchStats['10. BTTS Candidate'] = False
+            if lastHomeTeamMatchResult != None and lastAwayTeamMatchResult != None:
+                firstCriteria = False
+                secondCriteria = False
+                #check if homeTeam scored in their last game (away)
+                if int(lastHomeTeamMatchResult.split('-')[1]) > 0:
+                    firstCriteria = True
+                #check if awayTeam won their last game (at home)
+                if int(lastAwayTeamMatchResult.split('-')[0]) > int(lastAwayTeamMatchResult.split('-')[1]):
+                    secondCriteria = True
+                if firstCriteria and secondCriteria:
+                    matchStats['10. BTTS Candidate'] = True
+            else: 
+                return None
+            
+            response = requests.get(url + '/odds')
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.content, 'html.parser')
+                bttsOdds = soup.find('div', {"class" : "odds_graph_20"}).find('tr', {"class" : "strong_text light"}).find_all('td', {"class" : "align_odds"})[0].text.strip()
+                matchStats['13. bttsOdds'] = (bttsOdds)
+            
+        except Exception as e:
+            print("An exception has occurred!\n" + str(e))
+
+    else:
+        raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
+    
+    return matchStats
+
 def getMatchStatsFromBetExplorer(url):
     response = requests.get(url)
     matchesToBet = []
@@ -477,3 +643,13 @@ def getLeagueOverStatsFromBetExplorer(body):
         returnObj.append(overStats)
 
     return returnObj
+
+#TODO
+# https://www.academiadasapostas.com/forum/topic/71436.0
+# https://www.academiadasapostas.com/forum/topic/144118.15
+# https://www.academiadasapostas.com/forum/topic/147469.0
+# https://www.academiadasapostas.com/forum/topic/140131.0
+# https://www.academiadasapostas.com/forum/topic/167463.0
+# https://www.academiadasapostas.com/forum/topic/168825.0
+# https://www.academiadasapostas.com/forum/topic/155184.0
+# https://projectoaposta30.blogspot.com/2017/03/simulador-de-metodos-de-apostas.html
