@@ -57,6 +57,8 @@ def get_all_season_matches():
             return jsonify(scrapping.getSeasonMatchesFromFBRef(request.data, request.args.get("team"), allLeagues))
         elif "zerozero" in request.data.decode("utf-8"):
             return jsonify(scrapping.getSeasonMatchesFromZZ(request.data, request.args.get("team"), allLeagues))
+        elif "espn" in request.data.decode("utf-8"):
+            return jsonify(scrapping.getNBASeasonMatchesFromESPN(request.data, request.args.get("team")))
         else:
             return 'url not supported'
     except Exception as e:
@@ -97,6 +99,13 @@ def get_btts_candidates():
     except Exception as e:
         return jsonify({'error': str(e)})
     
+@app.route('/corner-strats-candidates', methods=['GET'])
+def get_corner_strats_candidates():
+    try:
+        return jsonify(experiments.scrappCornerAdAStatsBulk())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
 @app.route('/over25-candidates-betexplorer', methods=['GET'])
 def get_over25_betExplorer():
     try:
@@ -108,6 +117,13 @@ def get_over25_betExplorer():
 def get_leaguestats_betExplorer():
     try:
         return jsonify(experiments.getLeagueOverStatsFromBetExplorer(request.data))
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+@app.route('/lategoals', methods=['GET'])
+def get_lateGoals_ada():
+    try:
+        return jsonify(seleniumScrapping.getLateGoalsMatchesCandidatesFromAdA())
     except Exception as e:
         return jsonify({'error': str(e)})
 

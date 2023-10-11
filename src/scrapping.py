@@ -153,7 +153,7 @@ def getSeasonMatchesFromZZ(url, team, allLeagues):
                 continue    
 
             if "-" in r[5]:
-                result = r[5].split('-')[0] + ":" + r[5].split('-')[1][0]
+                result = r[5].split('-')[0] + ":" + r[5].split('-')[1]
             else:
                 continue
 
@@ -524,3 +524,46 @@ def getLMPprgnosticos():
         return prognosticos
     else:
         raise Exception(f'Failed to scrape data from LMP Apostas. Error: {response.status_code}')
+    
+def getNBASeasonMatchesFromESPN(url, team):
+    print("\ngetting all season matches: " + str(url, 'utf-8'))
+    matches = []
+
+    HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
+    
+    response = requests.get(url, headers=HEADERS)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        # Perform scraping operations using BeautifulSoup here
+        allMatches = soup.find_all('tr', class_="Table__even")
+        allMatches = allMatches[1:]
+
+        # add playoff matches to allMatches list if there is any
+
+        for match in allMatches:
+            if "Post" in match.text:
+                continue
+
+            matchStatsUrl = match.find_all('a')[2]['href']
+            response2 = requests.get(matchStatsUrl, headers=HEADERS)
+            soup2 = BeautifulSoup(response2.content, 'html.parser')
+            homeHTPoints = int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[0].find_all('td')[1].text) + int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[0].find_all('td')[2].text)
+            awayHTPoints = int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[1].find_all('td')[1].text) + int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[1].find_all('td')[2].text)
+
+            htResult = str(homeHTPoints) + ':' + str(awayHTPoints)
+
+            awayTeam = ''
+            homeTeam = ''
+            if '@' in match.find_all('td')[1].text:
+                awayTeam = team
+                homeTeam = match.find_all('td')[1].text[2:]
+            else:
+                homeTeam = team
+                awayTeam = match.find_all('td')[1].text[2:]
+
+
+            matches.append(Match(match.find_all('td')[0].text, homeTeam.strip(), awayTeam.strip(), htResult + ';' + match.find_all('td')[2].text[1:].strip(), 'NBA').to_dict())    
+
+        return matches
+    else:
+        raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
