@@ -547,8 +547,8 @@ def getNBASeasonMatchesFromESPN(url, team):
             matchStatsUrl = match.find_all('a')[2]['href']
             response2 = requests.get(matchStatsUrl, headers=HEADERS)
             soup2 = BeautifulSoup(response2.content, 'html.parser')
-            homeHTPoints = int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[0].find_all('td')[1].text) + int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[0].find_all('td')[2].text)
-            awayHTPoints = int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[1].find_all('td')[1].text) + int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[1].find_all('td')[2].text)
+            awayHTPoints = int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[0].find_all('td')[1].text) + int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[0].find_all('td')[2].text)
+            homeHTPoints = int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[1].find_all('td')[1].text) + int(soup2.find_all('tbody', class_="Table__TBODY")[0].find_all('tr', class_="Table__TR--sm")[1].find_all('td')[2].text)
 
             htResult = str(homeHTPoints) + ':' + str(awayHTPoints)
 
