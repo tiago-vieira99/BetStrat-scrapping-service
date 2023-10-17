@@ -552,18 +552,30 @@ def getNBASeasonMatchesFromESPN(url, team):
 
             htResult = str(homeHTPoints) + ':' + str(awayHTPoints)
 
+            ftResult = match.find_all('td')[2].text[0:1].strip()
             awayTeam = ''
             homeTeam = ''
+            ftScore = ''
             if '@' in match.find_all('td')[1].text:
                 awayTeam = team
                 homeTeam = match.find_all('td')[1].text[2:]
+                if ftResult is 'W':
+                    ftScore = match.find_all('td')[2].text[1:].strip().replace('-',':').split(':')[1] + ':' + match.find_all('td')[2].text[1:].strip().replace('-',':').split(':')[0]
+                else:
+                    ftScore = match.find_all('td')[2].text[1:].strip().replace('-',':')
             else:
                 homeTeam = team
                 awayTeam = match.find_all('td')[1].text[2:]
+                if ftResult is 'L':
+                    ftScore = match.find_all('td')[2].text[1:].strip().replace('-',':').split(':')[1] + ':' + match.find_all('td')[2].text[1:].strip().replace('-',':').split(':')[0]
+                else:
+                    ftScore = match.find_all('td')[2].text[1:].strip().replace('-',':')
+                
+            if ' OT' in ftScore:
+                ftScore = ftScore.replace(' OT', '') + ' OT'
 
-
-            matches.append(Match(match.find_all('td')[0].text, homeTeam.strip(), awayTeam.strip(), htResult + ';' + match.find_all('td')[2].text[1:].strip(), 'NBA').to_dict())    
-
+            matches.append(Match(match.find_all('td')[0].text, homeTeam.strip(), awayTeam.strip(), htResult + ';' + ftScore, 'NBA').to_dict())    
+            # break
         return matches
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')

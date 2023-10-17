@@ -76,7 +76,7 @@ def getLeagueNextMatchFromAdA(url):
 def getLateGoalsMatchesCandidatesFromAdA():
     driver = webdriver.Chrome(options=set_chrome_options())
     matchesToBet = []
-    driver.get("http://www.academiadasapostas.com/stats/livescores/")
+    driver.get("http://www.academiadasapostas.com/stats/livescores/2023/10/07")
     #delete the cookies  
     driver.delete_all_cookies()  
 
