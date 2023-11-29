@@ -64,6 +64,17 @@ def get_all_season_matches():
     except Exception as e:
         return jsonify({'error': str(e)})
     
+@app.route('/league-teams', methods=['POST'])
+def get_all_league_teams():
+    try:
+
+        if "worldfootball" in request.data.decode("utf-8"):
+            return jsonify(scrapping.getLeagueTeamsFromWF(request.data))    
+        else:
+            return 'url not supported'
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
 @app.route('/lmp-prognosticos', methods=['GET'])
 def get_lmp_prognosticos():
     try:

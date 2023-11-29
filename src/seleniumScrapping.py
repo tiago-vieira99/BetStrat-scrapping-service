@@ -52,7 +52,7 @@ def getLiveResultsFromAdA():
         if (matchScore == '0 - 0') and ((matchTime == 'Intervalo') or (int(matchTime) > 39 and int(matchTime) < 61)):
             matchUrl = match.find_elements(By.CLASS_NAME, "gameinlive")[1].find_element(By.TAG_NAME, "a").get_attribute("href")
             if scrapping.getLiveMatchStatsFromAdA(matchUrl):
-                matchesToBet.append(Match('', match.find_element(By.CLASS_NAME, "team-a").text, match.find_element(By.CLASS_NAME, "team-b").text, '', '').to_dict())
+                matchesToBet.append(Match('', match.find_element(By.CLASS_NAME, "team-a").text, match.find_element(By.CLASS_NAME, "team-b").text, '', '', '').to_dict())
 
     driver.close()
     return matchesToBet
@@ -116,7 +116,7 @@ def getLateGoalsMatchesCandidatesFromAdA():
         try:
             score = getLateGoalsMatchFromAdA(matchUrl)
             date = match.find_element(By.CLASS_NAME, "hour").get_attribute("timestamp")
-            matchesToBet.append(Match(date, match.find_element(By.CLASS_NAME, "team-a").text, match.find_element(By.CLASS_NAME, "team-b").text, score, '').to_dict())
+            matchesToBet.append(Match(date, match.find_element(By.CLASS_NAME, "team-a").text, match.find_element(By.CLASS_NAME, "team-b").text, score, '', '').to_dict())
         except Exception as e:
             print("An exception has occurred: " + repr(e))
         # break
