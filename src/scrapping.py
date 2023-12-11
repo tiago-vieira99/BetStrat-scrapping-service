@@ -445,7 +445,7 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
 
 def getLeagueTeamsFromWF(url):
     print("\ngetting league teams: " + str(url))
-    teams = []
+    teams = {}
     
     response = requests.get(url)
     if response.status_code == 200:
@@ -460,8 +460,8 @@ def getLeagueTeamsFromWF(url):
             if i != 0:
                 rows.append([el.text.strip() for el in row])
 
-        for r in rows:
-            teams.append(r[5].split('\n')[0])
+        for i, r in enumerate(rows):
+            teams[r[5].split('\n')[0]] = i+1;
             # break
         return teams
     else:
