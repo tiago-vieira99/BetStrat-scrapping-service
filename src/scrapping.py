@@ -414,20 +414,24 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
                 if allLeagues is False and r[1] != 'Round':
                     continue
                 ftResult = ''
-                if 'pso' in r[13] or 'aet' in r[13]:
+                if 'pso' in r[13] or 'aet' in r[13] or 'dec' in r[13]:
                     ftResult = r[13].split(',')[1].split(')')[0].strip()
-                    htResult = r[13].split(',')[0].split('(')[1].strip()
+                    htResult = r[13].split(',')[0].split('(')[1].strip().replace(',','')
+                elif 'n.P.' in r[13]:
+                    ftResult = r[13].split(',')[1].strip()
+                    htResult = r[13].split(',')[0].split('(')[1].strip().replace(',','')
                 else:
                     ftResult = r[13].split(' ')[0]
-                    htResult = r[13].split(' ')[1].replace('(','').replace(')','')
-                    print(htResult)
+                    htResult = r[13].split(' ')[1].replace('(','').replace(')','').replace(',','')
                 if ':' in ftResult:
                     if r[7] == 'H':
                         matches.append(Match(r[3], team, r[11], ftResult, htResult, competition).to_dict())
                     else:
                         ftResult = ftResult.split(':')[1] + ':' + ftResult.split(':')[0]
                         htResult = htResult.split(':')[1] + ':' + htResult.split(':')[0]
-                        matches.append(Match(r[3], r[11], team, ftResult, htResult, competition).to_dict())                
+                        matches.append(Match(r[3], r[11], team, ftResult, htResult, competition).to_dict())    
+                else:
+                    print(r)            
 
         print(str(len(matches)) + " matches scrapped for " + team)
         matches.sort(key=lambda match: datetime.strptime(match["date"], "%d/%m/%Y"))
