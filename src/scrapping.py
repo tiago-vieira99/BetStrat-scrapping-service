@@ -404,6 +404,7 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
         flag = False
         competition = ''
         for r in rows:
+            print(r)
             if len(r) < 10:
                 if ('Friendlies' in r[1]) or (season not in r[1]):
                     flag = False
@@ -414,7 +415,7 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
                 if allLeagues is False and r[1] != 'Round':
                     continue
                 ftResult = ''
-                if 'pso' in r[13] or 'aet' in r[13] or 'dec' in r[13]:
+                if ('pso' in r[13] or 'aet' in r[13] or 'dec' in r[13]) and ',' in r[13]:
                     ftResult = r[13].split(',')[1].split(')')[0].strip()
                     htResult = r[13].split(',')[0].split('(')[1].strip().replace(',','')
                 elif 'n.P.' in r[13]:

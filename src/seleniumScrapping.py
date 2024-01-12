@@ -20,6 +20,15 @@ def set_chrome_options() -> Options:
     chrome_prefs["profile.default_content_settings"] = {"images": 2}
     return chrome_options
 
+
+def selenium_sample():
+    driver = webdriver.Chrome(options=set_chrome_options())
+    driver.get("http://www.invisalign.co.uk/find-a-doctor#v=results&c=Newcastle&cy=gb&pr=4&s=e")
+    #delete the cookies  
+    driver.delete_all_cookies()  
+
+    driver.close()
+
 def getLiveResultsFromAdA():
     driver = webdriver.Chrome(options=set_chrome_options())
     driver.get("http://www.academiadasapostas.com/stats/livescores/")
