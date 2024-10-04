@@ -18,7 +18,7 @@ def set_chrome_options() -> Options:
     Chrome options for headless browser is enabled.
     """
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
@@ -780,18 +780,21 @@ def getMatchStatsFromBetExplorer(url):
             #     if "1.5" in table.find_elements(By.TAG_NAME, "tr")[1].text.split('\n')[1].split(' ')[0]:
             #         over15Odd = table.find_elements(By.TAG_NAME, "td")[5].get_attribute("data-odd").strip()
             import datetime
-            matchStats['01. date'] = (matchDate)
-            matchStats['02. timestamp'] = str(time.mktime(datetime.datetime.strptime(matchDate, "%d.%m.%Y - %H:%M").timetuple()))
-            matchStats['03. homeTeam'] = (homeTeam)
-            matchStats['04. awayTeam'] = (awayTeam)
-            matchStats['05. matchScore'] = (matchScore)
-            matchStats['06. homeGoals'] = matchScore.split(':')[0]
-            matchStats['07. awayGoals'] = matchScore.split(':')[1]
-            matchStats['08. bttsOdd'] = (bttsOdd).replace('.', ',')
-            # matchStats['08. under25Odd'] = (over25Odd).replace('.', ',')
-            # matchStats['09. under15Odd'] = (over15Odd).replace('.', ',')
-           
-            matchesToBet.append(matchStats)
+            try:
+                matchStats['01. date'] = (matchDate)
+                matchStats['02. timestamp'] = str(time.mktime(datetime.datetime.strptime(matchDate, "%d.%m.%Y - %H:%M").timetuple()))
+                matchStats['03. homeTeam'] = (homeTeam)
+                matchStats['04. awayTeam'] = (awayTeam)
+                matchStats['05. matchScore'] = (matchScore)
+                matchStats['06. homeGoals'] = matchScore.split(':')[0]
+                matchStats['07. awayGoals'] = matchScore.split(':')[1]
+                matchStats['08. bttsOdd'] = (bttsOdd).replace('.', ',')
+                # matchStats['08. under25Odd'] = (over25Odd).replace('.', ',')
+                # matchStats['09. under15Odd'] = (over15Odd).replace('.', ',')
+            
+                matchesToBet.append(matchStats)
+            except Exception as e:
+                print("The error is: ",e)
             # break
 
         driver.close()
