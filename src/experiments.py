@@ -30,9 +30,9 @@ def set_chrome_options() -> Options:
 def scrappAdAStatsBulk():
     driver = webdriver.Chrome(options=set_chrome_options())
     matches = []
-    for i in range(29,32):
+    for i in range(1,2):
         print("########## step: " + str(i))
-        matches += getOver25GoalCandidatesFromAdA("https://www.academiadasapostas.com/stats/livescores/2023/05/" + str(i), driver)
+        matches += getOver25GoalCandidatesFromAdA("https://www.academiadasapostas.com/stats/livescores/2024/09/" + str(i), driver)
         time.sleep(2)
     driver.close()
     return matches
@@ -772,7 +772,7 @@ def getMatchStatsFromBetExplorer(url):
             over15Odd = ""
             bttsOdd = ""
             if len(overTables) > 0:
-                bttsOdd = overTables[0].find_elements(By.TAG_NAME, "td")[4].get_attribute("data-odd").strip()
+                bttsOdd = overTables[0].find_elements(By.TAG_NAME, "td")[3].get_attribute("data-odd").strip()
             # for table in overTables:
             #     # print(table.text)
             #     if "2.5" in table.find_elements(By.TAG_NAME, "tr")[1].text.split('\n')[1].split(' ')[0]:
