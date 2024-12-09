@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import time
 import os
-import ScraperFC as sfc
+#import ScraperFC as sfc
 from collections import Counter
 import pandas as pd
 
