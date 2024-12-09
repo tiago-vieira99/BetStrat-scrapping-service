@@ -5,8 +5,8 @@ import re
 import time
 import os
 #import ScraperFC as sfc
-from collections import Counter
-import pandas as pd
+#from collections import Counter
+#import pandas as pd
 
 def calculate_stake(odd, target_profit):
     # Calculate the stake required based on the target profit and the odd
