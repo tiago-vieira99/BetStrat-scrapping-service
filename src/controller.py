@@ -3,6 +3,9 @@ import scrapping
 import seleniumScrapping
 import experiments
 import difflib
+import json
+import test
+from collections import OrderedDict
 
 app = Flask(__name__)
 
@@ -109,10 +112,72 @@ def get_first_half_goal_candidates():
 @app.route('/over25-candidates', methods=['GET'])
 def get_over25_candidates():
     try:
-        return jsonify(experiments.scrappAdAStatsBulk())
+        for i in range(1,2):
+            data = (experiments.scrappAdAStatsBulk(str(i)))
+            f = open(str(i) + "-data.json", "x")
+            f.write(json.dumps(data, indent=4))
+            f.close()
+        return "ok"
     except Exception as e:
         return jsonify({'error': str(e)})
 
+@app.route('/friendly-matches', methods=['POST'])
+def friendly_matches():
+    try:
+        data = request.get_json()
+        for element in data:
+            print(element['3. match'])
+            mins = test.get_goals_mins(element)
+            #print(str(len(mins))+ " !! " + str(int(element['total goals'][0])))
+            #if len(mins) == int(element['total goals'][0]):
+            element['4. goals_mins'] = ''.join(mins)
+            if len(mins) > 1 and int(mins[1].replace("'","").strip()) <= 60:
+                element['5. <60m'] = "GREEN"
+            if len(mins) > 1:
+                element['6. +1.5'] = True
+            if len(mins) > 2:
+                element['7. +2.5'] = True
+        return data
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/simulate/wins-margin-v2', methods=['POST'])
+def sofascore():
+    try:
+        result = []
+        initial_target = 2
+        data = request.get_json()
+        #return test.simulate_sequence_w_recovery(list(map(int, data['sequence'].replace(" ","").split(","))), float(data['odd'].replace(",", ".")) * 0.9, initial_target)
+        for element in data:
+            sequence = element['negative sequence']
+            odd = element['odd']
+            result.append({
+                    "Equipa": element['Equipa'],
+                    "score": element['score'],
+                    "sequence": element['negative sequence'],
+                    "balance": test.ternary_progression(list(map(int, sequence.replace(" ","").split(","))), float(odd.replace(",", ".")) * 0.95, initial_target)
+                })
+
+        return result
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/simulate/ternary', methods=['POST'])
+def ternary():
+    try:
+        result = []
+        initial_target = 2
+        data = request.get_json()
+        return test.ternary_progression(list(map(int, data['sequence'].replace(" ","").split(","))), float(data['odd'].replace(",", ".")) * 0.95, initial_target)
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/o25tips', methods=['GET'])
+def o25tips():
+    try:
+        return scrapping.getTipsFromO25Tips()
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 @app.route('/btts-candidates', methods=['GET'])
 def get_btts_candidates():
@@ -121,6 +186,13 @@ def get_btts_candidates():
     except Exception as e:
         return jsonify({'error': str(e)})
 
+@app.route('/tomorrow-matches', methods=['GET'])
+def get_tomorrow_matches():
+    try:
+        data = request.get_json()
+        return jsonify(scrapping.getTomorrowMatchesFromWF(data['season']))
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 @app.route('/corner-strats-candidates', methods=['GET'])
 def get_corner_strats_candidates():

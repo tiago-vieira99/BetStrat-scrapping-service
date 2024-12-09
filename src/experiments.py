@@ -12,6 +12,7 @@ from selenium.webdriver import ActionChains
 import time
 import scrapping
 from collections import OrderedDict
+import traceback
 
 def set_chrome_options() -> Options:
     """Sets chrome options for Selenium.
@@ -27,12 +28,12 @@ def set_chrome_options() -> Options:
     chrome_prefs["profile.default_content_settings"] = {"images": 2}
     return chrome_options
 
-def scrappAdAStatsBulk():
+def scrappAdAStatsBulk(month):
     driver = webdriver.Chrome(options=set_chrome_options())
     matches = []
-    for i in range(1,2):
+    for i in range(1,3):
         print("########## step: " + str(i))
-        matches += getOver25GoalCandidatesFromAdA("https://www.academiadasapostas.com/stats/livescores/2024/09/" + str(i), driver)
+        matches += getOver25GoalCandidatesFromAdA("https://www.academiadasapostas.com/stats/livescores/2024/"+ month + "/" + str(i), driver)
         time.sleep(2)
     driver.close()
     return matches
@@ -199,6 +200,34 @@ def getFinishedMatchFirstHalfGoalsFromAdA(url):
         return table.find_all('td', 'ht-score')[0].text.strip()        
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
+
+def getFirstGoalMinuteFromAdA(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # Find all 'tr' rows that contain a goal event
+        goal_event = soup.find('span', title="Goal")
+
+        # Initialize variable for the first goal minute
+        first_goal_minute = None
+
+        # Navigate to the parent 'tr'
+        parent_tr = goal_event.find_parent('tr')
+
+        # Find the 'td' element that contains the minute (ignore empty ones)
+        goal_minute_tds = parent_tr.find_all('td', class_='match-sum-wd-minute')
+
+        # Loop through the goal events and find the first valid minute
+        for goal in goal_minute_tds:
+            print(goal.text.strip())
+            if "'" in goal.text.strip():  # Ensure it's not empty
+                first_goal_minute = goal.text.strip().replace("'", "")  # Remove the apostrophe
+                break
+            
+        return first_goal_minute
+    else:
+        raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
     
 
 ################## test Over 1.5 strategy #######################
@@ -253,12 +282,14 @@ def getMatchStatsFromAdA(url):
 
             regex = re.compile('stat-.*')
             h2hMatches = soup.find(id='show_h2h').find_all("td", {"class" : regex})
+            h2hTotalGoals = 0
             numOversh2h = 0
 
             i=0
             while i<len(h2hMatches):
                 h2hMatchResult = h2hMatches[i].text.strip()
                 if h2hMatchResult.split('-')[0] != '':
+                    h2hTotalGoals += int(h2hMatchResult.split('-')[0]) + int(h2hMatchResult.split('-')[1][0])
                     if int(h2hMatchResult.split('-')[0]) + int(h2hMatchResult.split('-')[1][0]) > 2:
                         numOversh2h += 1
                 i+=1
@@ -303,8 +334,13 @@ def getMatchStatsFromAdA(url):
                 v2Odd = v1Odds[0].find_all("td")[3].text.strip()
 
             #teams league position
-            homePosition = soup.find("table", {"class" : "competition-rounds"}).find_all("tr", {"style" : "background-color: #CDDFF0"})[0].find_all('td')[0].text.strip()
-            awayPosition = soup.find("table", {"class" : "competition-rounds"}).find_all("tr", {"style" : "background-color: #FFE0A6"})[0].find_all('td')[0].text.strip()
+
+            if soup.find("table", {"class" : "competition-rounds"}).find_all("tr", {"style" : "background-color: #CDDFF0"}):
+                homePosition = soup.find("table", {"class" : "competition-rounds"}).find_all("tr", {"style" : "background-color: #CDDFF0"})[0].find_all('td')[0].text.strip()
+                awayPosition = soup.find("table", {"class" : "competition-rounds"}).find_all("tr", {"style" : "background-color: #FFE0A6"})[0].find_all('td')[0].text.strip()
+            else:
+                homePosition = ''
+                awayPosition = ''
 
             #last 5 matches form
             last5HomeMatchesForm = []
@@ -338,16 +374,19 @@ def getMatchStatsFromAdA(url):
             matchStats['18. awayNoGoalsRate'] = (awayNoGoalsRate)
             matchStats['19. last3HomeMatchesTotalGoals'] = last3HomeMatchesTotalGoals
             matchStats['20. last3AwayMatchesTotalGoals'] = last3AwayMatchesTotalGoals
-            matchStats['21. h2hOverRate'] = round(float(h2hOverRate),2)
+            matchStats['211. h2hmatches'] = (h2hMatches)
+            matchStats['212. h2hgoals'] = (h2hTotalGoals)
             matchStats['22. underOdd'] = (underOdd)
             matchStats['23. overOdd'] = (overOdd)
             matchStats['24. v1Odd'] = (v1Odd)
             matchStats['25. v2Odd'] = (v2Odd)
             matchStats['26. last5HomeMatchesForm'] = str(last5HomeMatchesForm)
             matchStats['27. last5AwayMatchesForm'] = str(last5AwayMatchesForm)
+            matchStats['28. first goal minute'] = getFirstGoalMinuteFromAdA(url + '/live')
             
         except Exception as e:
-            print("An exception has occurred!\n" + str(e))
+            print("An exception has occurred: \t\t" + str(e))
+            print(traceback.format_exc()) 
 
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
@@ -381,10 +420,20 @@ def getOver25GoalCandidatesFromAdA(url, driver):
             continue
 
         matchUrl = match.find_element(By.CLASS_NAME, "score").find_element(By.TAG_NAME, "a").get_attribute("href")
-        allowedLeagues = ["psl", "1st-division", "superliga", "bundesliga", "2-bundesliga", "3-liga", "ligue-1", "girabola", "pro-league", "primera-division", "primera-nacional", "premier-league", "a-league", "1-liga", "premyer-liqa", "first-division-b", "1-division", "premier-liga", "serie-a", "serie-b", "serie-c", "a-pfg", "b-pfg", "canadian-championship", "stars-league", "primera-b", "primera-a", "1-hnl", "2-hnl", "arabian-gulf-league", "liga-pro", "premiership", "championship", "super-liga", "2-liga", "1-snl", "2-snl", "segunda-division", "segunda-b", "mls", "meistriliiga", "esiliiga-a", "veikkausliiga", "ligue-2", "national", "super-league", "football-league", "liga-nacional", "nb-i", "i-league", "liga-1", "persion-gulf-pro-league", "iraqi-league", "urvalsdeild", "ligat-haal", "liga-leumit", "j1-league", "j2-league", "virsliga", "a-lyga", "national-division", "liga-mx", "mocambola", "divizia-nationala", "npfl", "eliteserien", "national-league", "eredivisie", "eerste-divisie", "lpf", "division-profesional", "ekstraklasa", "i-liga", "liga-portugal-bwin", "segunda-liga", "czech-liga", "k-league-1", "k-league-2", "premier-division", "liga-i", "liga-ii", "csl", "super-liga", "allsvenskan", "superettan", "challenge-league", "thai-league-1", "vleague-1", "campeonato-nacional"]
+        #allowedLeagues = ["psl", "1st-division", "superliga", "bundesliga", "2-bundesliga", "3-liga", "ligue-1", "girabola", "pro-league", "primera-division", "primera-nacional", "premier-league", "a-league", "1-liga", "premyer-liqa", "first-division-b", "1-division", "premier-liga", "serie-a", "serie-b", "serie-c", "a-pfg", "b-pfg", "canadian-championship", "stars-league", "primera-b", "primera-a", "1-hnl", "2-hnl", "arabian-gulf-league", "liga-pro", "premiership", "championship", "super-liga", "2-liga", "1-snl", "2-snl", "segunda-division", "segunda-b", "mls", "meistriliiga", "esiliiga-a", "veikkausliiga", "ligue-2", "national", "super-league", "football-league", "liga-nacional", "nb-i", "i-league", "liga-1", "persion-gulf-pro-league", "iraqi-league", "urvalsdeild", "ligat-haal", "liga-leumit", "j1-league", "j2-league", "virsliga", "a-lyga", "national-division", "liga-mx", "mocambola", "divizia-nationala", "npfl", "eliteserien", "national-league", "eredivisie", "eerste-divisie", "lpf", "division-profesional", "ekstraklasa", "i-liga", "liga-portugal-bwin", "liga-portugal-betclic", "segunda-liga", "czech-liga", "k-league-1", "k-league-2", "premier-division", "liga-i", "liga-ii", "csl", "super-liga", "allsvenskan", "superettan", "challenge-league", "thai-league-1", "vleague-1", "campeonato-nacional"]
 
-        if matchUrl.split('/')[6] not in allowedLeagues:
-            continue
+        # allowedLeagues = ["psl", "superliga", "cup", "bundesliga", "dfb-pokal", "2-bundesliga", "ligue-1", "girabola", "pro-league", "primera-division", "copa-argentina",
+        #  "primera-nacional", "premier-league", "a-league", "1-liga", "premyer-liqa", "pro-league", "first-division-b", "1-division", "premier-liga", "serie-a", "serie-b", 
+        #  "a-pfg", "b-pfg", "canadian-championship", "stars-league", "primera-b", "primera-a", "1-hnl", "2-hnl", "arabian-gulf-league", "liga-pro", "premiership", "championship", 
+        #  "super-liga", "2-liga", "1-snl", "2-snl", "segunda-division", "copa-del-rey", "mls", "meistriliiga", "esiliiga-a", "veikkausliiga", "ligue-2", "super-league", "football-league", 
+        #  "liga-nacional", "nb-i", "i-league", "liga-1", "persion-gulf-pro-league", "iraqi-league", "urvalsdeild", "ligat-haal", "liga-leumit", "coppa-italia", "fa-cup", "j1-league", "j2-league", 
+        #  "virsliga", "a-lyga", "national-division", "liga-mx", "copa-mx" "mocambola", "divizia-nationala", "npfl", "eliteserien", "national-league", "eredivisie", "eerste-divisie", 
+        #  "lpf", "division-profesional", "ekstraklasa", "i-liga", "liga-portugal-bwin", "liga-portugal-betclic", "segunda-liga", "czech-liga", "k-league-1", "k-league-2", "premier-division", 
+        #  "liga-i", "liga-ii", "csl", "super-liga", "allsvenskan", "superettan", "challenge-league", "thai-league-1", "vleague-1", "knvb-beker", "taca-de-portugal", "taca-da-liga", 
+        #   "conmebol-libertadores", "caf-champions-league", "concacaf-champions-league", "afc-champions-league", "uefa-champions-league", "uefa-europa-league", "europa-conference-league"]
+
+        # if matchUrl.split('/')[6] not in allowedLeagues:
+        #     continue
 
         matchDict = OrderedDict()
         homeTeam = match.find_element(By.CLASS_NAME, "team-a").text
@@ -412,7 +461,7 @@ def getOver25GoalCandidatesFromAdA(url, driver):
         matchStats = getMatchStatsFromAdA(matchUrl)
         matchDict.update(matchStats)
         matchesToBet.append(matchDict)
-        # break
+        #break
     # driver.close()
     return matchesToBet
 
@@ -476,7 +525,7 @@ def getBTTSCandidatesFromAdA(url, driver):
             matchStats = getBTTSMatchStatsFromAdA(matchUrl, matchUrl.split('/')[6])
             matchDict.update(matchStats)
             matchesToBet.append(matchDict)
-            # break
+            break
     except Exception as e:
             print("An exception has occurred!\n" + str(e))
     # driver.close()
