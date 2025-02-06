@@ -1,12 +1,46 @@
 import requests
 from bs4 import BeautifulSoup
-#from googlesearch import search
+from googlesearch import search
 import re
 import time
 import os
+import csv
 #import ScraperFC as sfc
-#from collections import Counter
-#import pandas as pd
+from collections import Counter
+import pandas as pd
+import json
+import lxml
+
+def replace_month_in_csv():
+    # Mapping of month abbreviations to numbers
+    month_mapping = {
+        'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04',
+        'may': '05', 'jun': '06', 'jul': '07', 'aug': '08',
+        'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'
+    }
+
+    current_month = None
+    updated_rows = []
+
+    csv_file = "/home/newData/data2013.csv"  # Replace with your actual file path
+
+    with open(csv_file, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    for line in lines:
+        # Check for month line
+        month_match = re.match(r'^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s*$', line.strip(), re.IGNORECASE)
+        if month_match:
+            current_month = month_mapping[month_match.group(1).lower()]
+        else:
+            # Replace -99- with the current month
+            if current_month:
+                line = re.sub(r'-99-', f'-{current_month}-', line)
+            updated_rows.append(line)
+
+    # Write the updated content to a new file
+    with open(csv_file, 'w', encoding='utf-8') as file:
+        file.writelines(updated_rows)
 
 def calculate_stake(odd, target_profit):
     # Calculate the stake required based on the target profit and the odd
@@ -336,8 +370,17 @@ def convert_to_single_line(data):
 def testTeamsCount():
     # Input array of matches
     # Load the CSV file
-    csv_file = "/home/matches23-24.csv"  # Replace with your actual file path
-    data = pd.read_csv(csv_file)
+    csv_file = "/home/newData/matches22-23.csv"  # Replace with your actual file path
+    
+    comps = [ "AFC > AFC Champions League", "Albania > Kategoria Superiore", "Algeria > Ligue 1", "Argentina > Primera División", "Armenia > Premier League", "Australia > A-League", "Austria > 2. Liga", "Austria > Bundesliga", "Azerbaijan > I Liqa", "Belarus > Cempionat", "Belgium > Challenger Pro League", "Belgium > Pro League", "Bolivia > Liga Profesional", "Brazil > Copa do Brasil", "Brazil > Série A", "Brazil > Série B", "Bulgaria > Parva Liga", "Canada > Premier League", "Chile > Copa Chile", "Chile > Primera B", "Chile > Primera División", "China > League One", "China > Super League", "Colombia > Copa Colombia", "Colombia > Primera A", "Colombia > Primera B", "Costa Rica > Primera División", "Croatia > 1. HNL", "Cyprus > First Division", "Czech Republic > 1. fotbalová liga", "Czech Republic > 2. fotbalová liga", "Denmark > 1. Division", "Denmark > Superliga", "Ecuador > Serie A", "England > Championship", "England > Premier League", "FIFA > Friendlies", "Finland > Veikkausliiga Championship", "France > Ligue 1", "France > Ligue 2", "Germany > 2. Bundesliga", "Germany > Bundesliga", "Greece > Super League", "Hungary > NB I", "Ireland > Premier Division", "Israel > Liga Leumit", "Israel > Ligat ha'Al", "Italy > Serie A", "Italy > Serie B", "Japan > J1 League", "Mexico > Primera División", "Netherlands > Eerste Divisie", "Netherlands > Eredivisie", "Norway > Eliteserien", "Paraguay > Primera División", "Peru > Primera División", "Poland > I Liga", "Portugal > Primeira Liga", "Portugal > Segunda Liga", "Portugal > Taça", "Portugal > U23 Liga Revelação", "Romania > Liga 1", "Russia > Premier Liga", "Saudi Arabia > Saudi Pro League", "Scotland > Premiership", "Serbia > Prva Liga", "Serbia > Super Liga", "Slovakia > Super Liga", "Slovenia > PrvaLiga", "South Korea > K League 1", "Spain > Copa del Rey", "Spain > Primera División", "Spain > Segunda División", "Sweden > Allsvenskan", "Switzerland > Super League", "Turkey > SüperLig", "UEFA > Champions League", "UEFA > Conference League", "UEFA > Europa League", "UEFA > Youth Youth League", "Ukraine > Premyer Liga", "Uruguay > Primera División", "USA > Major League Soccer" ];
+
+    data = pd.read_csv(csv_file, sep=',', dtype='unicode')
+    rows_to_keep = []
+    for _, row in data.iterrows():
+        if comp_in_comps_list(row['competition'], comps) == True:
+            rows_to_keep.append(row)
+
+    data = pd.DataFrame(rows_to_keep)
 
     # Extract the total matches from the relevant column
     data['match'] = data['match'].fillna('').astype(str)  # Replace 'matches_column' with the actual column name
@@ -351,6 +394,7 @@ def testTeamsCount():
             errors='coerce'  # Invalid entries (e.g., '#VALUE') will become NaN
         ) >= 2
     ]
+
     matches = filtered_data['match'].tolist()
 
     # Flatten the lists into individual teams
@@ -371,19 +415,18 @@ def testTeamsCount():
     all_teams = set(matches_count.keys()).union(set(total_matches_count.keys()))
 
     # Output results in the format "Team - X / Y"
-    csv_file2 = "/home/matches24-25.csv"  # Replace with your actual file path
-    data2 = pd.read_csv(csv_file2)
+    csv_file2 = "/home/newData/matches23-24.csv"  # Replace with your actual file path
+    data2 = pd.read_csv(csv_file2, sep=',', dtype='unicode')
     results = []
     f_teams =[]
     for team in sorted(all_teams):
         x = matches_count[team]  # Count from the filtered matches
         y = total_matches_count[team]  # Count from the total matches array
         #results.append(f"{team} ; {x} ; {y} ; {x/y}")
-        if y != 0 and y >= 15 and (x / y) >= 0.8:
-            f_teams.append(team)
-            #f_teams.append(f"{team} ; {x} ; {y} ; {str(x/y)}")
+        if y != 0 and y >= 10 and (x / y) >= 0.8:
+            #f_teams.append(team)
+            f_teams.append(f"{team} ; {x} ; {y} ; {str(x/y)}")
             #print(f"{team} ; {x} ; {y} ; {x/y}")
-    
     
     # Filter the rows where the 'match' column contains the team name
     #filtered_matches = data2[data2['match'].str.contains(team, case=False, na=False)]
@@ -395,14 +438,24 @@ def testTeamsCount():
 
     # Iterate over each row in filtered_matches
     for _, row in filtered_matches.iterrows():
-        if match_in_teams_list(row['match'],f_teams) == True:
+        if match_in_teams_list(row['match'],f_teams) == True and comp_in_comps_list(row['competition'], comps) == True:
             results.append(';'.join(map(str, row[:8].values)))  # Take the first 8 columns as a string
             # Append the filtered matches as a list of values (or a specific column, depending on what you need)
             # If you want to append rows as lists of column values:
             #results.append(filtered_matches.values.tolist())
 
-    return (results)
-    #return f_teams
+    #return (results)
+    return f_teams
+
+# Function to check if both teams in a match are in the teams_list
+def comp_in_comps_list(comp, comps_list):
+    try:
+        for c in comps_list:
+            if c.replace(" ", "") in comp.replace(" ", ""):
+                return True
+    except (ValueError, AttributeError):
+        # If the match is not a valid string or can't be split into two parts, skip it
+        return False
 
 # Function to check if both teams in a match are in the teams_list
 def match_in_teams_list(match, teams_list):
@@ -439,25 +492,51 @@ def get_goals_mins(matchInfo):
     os.environ["REQUESTS_CA_BUNDLE"] = ""
     # Define the match details
     match_date = matchInfo['1. datetime']
+    match_comp = matchInfo['2. competition']
     match_teams = matchInfo['3. match']
 
     # Generate search query
-    query = f"on date {match_date} {match_teams} goals minutes from sofacore"
+    query = f"final result of match {match_teams} for competition {match_comp} played on {match_date}"
+    print(query)
 
     # Perform a Google search for the match details
-    print(f"Searching for goal times of the match: {match_teams} on {match_date}...\n")
-    urls = []
-    for url in search(query, num_results=1):
-        urls.append(url)
-        #print(f"Found URL: {url}")
-        time.sleep(3)  # Delay to avoid rate limiting
+    print(f"Searching for final result of the match: {match_teams} on {match_date}...\n")
+
+
+    API_KEY = 'AIzaSyCkHe6LF97P2JzqTUW_xoefiP306_J_9DA'
+    SEARCH_ENGINE_ID = 'd01a635f7d9ef4764'
+
+    url = f'https://www.googleapis.com/customsearch/v1?q={query}&key={API_KEY}&cx={SEARCH_ENGINE_ID}'
+    try:
+        html = requests.get(url).text
+        data = json.loads(html)
+
+        #print(html)
+        
+        if 'items' in data:
+            if 'sofascore' in data['items'][0]['link']:
+                return extract_ft_from_sofascore(data['items'][0]['link'])
+            elif 'oddspedia' in data['items'][0]['link']:
+                return extract_ft_from_oddspedia(data['items'][0]['link'])
+        else:
+            print("UPPPSSSS")
+    except: 
+        return ''
+    
+
+
+    # urls = []
+    # for url in search(query, num_results=10):
+    #     urls.append(url)
+    #     print(f"Found URL: {url}")
+    #     time.sleep(3)  # Delay to avoid rate limiting
 
     # Visit each URL and try to extract goal times
     all_goal_times = []
-    for url in urls:
-        goal_times = extract_goal_times_from_url(url)
-        if goal_times:
-            all_goal_times.extend(goal_times)
+    # for url in urls:
+    #     goal_times = extract_goal_times_from_url(url)
+    #     if goal_times:
+    #         all_goal_times.extend(goal_times)
 
     # Output the results
     # if all_goal_times:
@@ -467,6 +546,36 @@ def get_goals_mins(matchInfo):
     #     print("\nNo goal times found on searched pages.")
     
     return sorted(set(all_goal_times))
+
+def extract_ft_from_sofascore(url):
+    newUrl = url.replace("https", "http")
+    ft_result = ''
+    try:
+        response = requests.get(newUrl, verify=False)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            home_score_element = soup.find(attrs={"data-testid": "left_score"}).text
+            away_score_element = soup.find(attrs={"data-testid": "right_score"}).text
+
+            ft_result = home_score_element + '-' + away_score_element
+            return ft_result
+    except requests.RequestException as e:
+        print(f"Could not retrieve data from {url}. Error: {e}")
+        return ft_result
+
+def extract_ft_from_oddspedia(url):
+    newUrl = url.replace("https", "http")
+    ft_result = ''
+    try:
+        response = requests.get(newUrl, verify=False)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            return soup.find(attrs={"class": "event-score-text"}).text
+    except requests.RequestException as e:
+        print(f"Could not retrieve data from {url}. Error: {e}")
+        return ft_result
 
 # Define a function to extract goal times from a webpage
 def extract_goal_times_from_url(url):

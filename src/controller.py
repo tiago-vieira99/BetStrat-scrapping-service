@@ -2,9 +2,11 @@ from flask import Flask, jsonify, request
 import scrapping
 import seleniumScrapping
 import experiments
+import goalsFest
 import difflib
 import json
 import test
+import time
 from collections import OrderedDict
 
 app = Flask(__name__)
@@ -126,17 +128,19 @@ def friendly_matches():
     try:
         data = request.get_json()
         for element in data:
-            print(element['3. match'])
-            mins = test.get_goals_mins(element)
-            #print(str(len(mins))+ " !! " + str(int(element['total goals'][0])))
-            #if len(mins) == int(element['total goals'][0]):
-            element['4. goals_mins'] = ''.join(mins)
-            if len(mins) > 1 and int(mins[1].replace("'","").strip()) <= 60:
-                element['5. <60m'] = "GREEN"
-            if len(mins) > 1:
-                element['6. +1.5'] = True
-            if len(mins) > 2:
-                element['7. +2.5'] = True
+            #print(element['3. match'])
+            element['4. ft_result'] = test.get_goals_mins(element)
+            #break
+            # time.sleep(2)
+            # #print(str(len(mins))+ " !! " + str(int(element['total goals'][0])))
+            # #if len(mins) == int(element['total goals'][0]):
+            # element['4. goals_mins'] = ''.join(mins)
+            # if len(mins) > 1 and int(mins[1].replace("'","").strip()) <= 60:
+            #     element['5. <60m'] = "GREEN"
+            # if len(mins) > 1:
+            #     element['6. +1.5'] = True
+            # if len(mins) > 2:
+            #     element['7. +2.5'] = True
         return data
     except Exception as e:
         return jsonify({'error': str(e)})
@@ -190,7 +194,48 @@ def get_btts_candidates():
 def get_tomorrow_matches():
     try:
         data = request.get_json()
-        return jsonify(scrapping.getTomorrowMatchesFromWF(data['season']))
+        #return jsonify(scrapping.getTomorrowMatchesFromWF(data['season']))
+        return test.testTeamsCount()
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/goals-fest/filtered-teams', methods=['GET'])
+def gf_get_filtered_teams():
+    try:
+        data = request.get_json()
+        return goalsFest.filterTeamsBySeason(data['season'])
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/goals-fest/matches-between-teams', methods=['GET'])
+def gf_get_matches_between_teams():
+    try:
+        data = request.get_json()
+        return goalsFest.getMatchesBetweenFilteredTeams(data['previousSeason'], data['season'])
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/goals-fest/generate-csv', methods=['POST'])
+def generate_csv():
+    try:
+        #data = request.get_json()
+        return jsonify(goalsFest.generateFileForNextMatchesEbookStrategy())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/goals-fest/matches-by-teams', methods=['GET'])
+def gf_get_matches_by_teams():
+    try:
+        data = request.get_json()
+        return goalsFest.compile_matches_by_team(data['previousSeason'], data['season'])
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/goals-fest/all-matches-by-team', methods=['GET'])
+def gf_get_all_matches_by_team():
+    try:
+        data = request.get_json()
+        return goalsFest.getAllMatchesByTeam(data['season'], data['team'])
     except Exception as e:
         return jsonify({'error': str(e)})
 
@@ -284,4 +329,5 @@ def sample():
 
 if __name__ == '__main__':
     print("scrapper service is running...")
+    #test.replace_month_in_csv()
     app.run(host="0.0.0.0", port=8000, debug=True)
