@@ -10,6 +10,118 @@ from collections import Counter
 import pandas as pd
 import json
 import lxml
+from datetime import datetime, timedelta
+import pytz
+import subprocess
+import whisper
+from googleapiclient.discovery import build
+import dateutil.parser
+from openai import OpenAI
+
+def transcript_youtube_video():
+    API_KEY = "AIzaSyCkHe6LF97P2JzqTUW_xoefiP306_J_9DA"
+    CHANNEL_ID = "UCk9fXOH4sM6C8dRpWztXKFQ"
+
+    # YouTube API setup
+    youtube = build('youtube', 'v3', developerKey=API_KEY)
+    
+    # Get uploads playlist ID
+    channel_info = youtube.channels().list(
+        part='contentDetails',
+        id=CHANNEL_ID
+    ).execute()
+    uploads_playlist_id = channel_info['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+    
+    # Fetch videos from the uploads playlist
+    playlist_items = youtube.playlistItems().list(
+        part='snippet',
+        playlistId=uploads_playlist_id,
+        maxResults=5  # Check last 10 videos
+    ).execute()
+    
+    # Find the latest video with "Vamos apostar" in the title from the last 24h
+    cutoff_time = datetime.now(pytz.utc) - timedelta(days=1)
+    cutoff_time = datetime.strptime(str(cutoff_time), '%Y-%m-%d %H:%M:%S.%f%z')
+    target_video = None
+
+    print(cutoff_time)
+    
+    for item in playlist_items.get('items', []):
+        video_title = item['snippet']['title']
+        publish_time = dateutil.parser.parse(item['snippet']['publishedAt'])
+        
+        print(publish_time)
+        if datetime.strptime(str(publish_time), '%Y-%m-%d %H:%M:%S%z') < cutoff_time:
+            continue  # Skip older videos
+        
+        if "Vamos Apostar" in video_title:
+            target_video = item
+            break
+    
+    if not target_video:
+        print("No recent video found with 'Vamos apostar' in the title.")
+        return
+    
+    # Extract video details
+    video_id = target_video['snippet']['resourceId']['videoId']
+    video_url = f"https://youtu.be/{video_id}"
+
+    print(video_url)
+
+    # Download audio using yt-dlp
+    audio_file = f"{video_id}.mp3"
+    # try:
+    #     subprocess.run([
+    #         'yt-dlp',
+    #         '-x', '--audio-format', 'mp3',
+    #         '-o', audio_file,
+    #         video_url
+    #     ], check=True, capture_output=True)
+    # except subprocess.CalledProcessError as e:
+    #     print(f"Failed to download audio: {e.stderr.decode()}")
+    #     return
+
+    # Transcribe with Whisper
+    WHISPER_MODEL = "tiny"  # Choose from tiny, base, small, medium, large
+    # model = whisper.load_model(WHISPER_MODEL)
+    # result = model.transcribe(audio_file, language='pt')
+    # transcription = result['text']
+    
+    # print('transcription done!')
+    # # Save transcription
+    # with open(f"{video_id}.txt", 'w', encoding='utf-8') as f:
+    #     f.write(transcription)
+    
+    # # Cleanup audio file
+    # os.remove(audio_file)
+    # print(f"Transcription saved to {video_id}.txt")
+
+    # for backward compatibility, you can still use `https://api.deepseek.com/v1` as `base_url`.
+    client = OpenAI(api_key="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")
+    f = open(f"{video_id}.txt", "r")
+
+    response = client.chat.completions.create(
+        model="text-moderation-latest",  # Use "gpt-3.5-turbo" for cheaper/faster
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Você é um assistente que organiza tópicos detalhados de transcrições em português. "
+                    "LISTE TODOS OS TÓPICOS MENCIONADOS, SEM OMITIR DETALHES. "
+                    "Inclua até mesmo números, nomes específicos, e estratégias."
+                )
+            },
+            {
+                "role": "user",
+                "content": f"Organize em tópicos detalhados esta transcrição:\n\n{f.read()}"
+            }
+        ],
+        temperature=0.1  # Reduce creativity for factual accuracy
+    )
+
+    print(response.choices[0].message.content)
+
+    return video_url
 
 def replace_month_in_csv():
     # Mapping of month abbreviations to numbers

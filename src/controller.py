@@ -3,6 +3,7 @@ import scrapping
 import seleniumScrapping
 import experiments
 import goalsFest
+import bttsOneHalf
 import difflib
 import json
 import test
@@ -194,8 +195,8 @@ def get_btts_candidates():
 def get_tomorrow_matches():
     try:
         data = request.get_json()
-        #return jsonify(scrapping.getTomorrowMatchesFromWF(data['season']))
-        return test.testTeamsCount()
+        return jsonify(scrapping.getTomorrowMatchesFromWF(data['season']))
+        #return test.testTeamsCount()
     except Exception as e:
         return jsonify({'error': str(e)})
 
@@ -220,6 +221,14 @@ def generate_csv():
     try:
         #data = request.get_json()
         return jsonify(goalsFest.generateFileForNextMatchesEbookStrategy())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/btts-one-half/generate-csv', methods=['POST'])
+def generate_csv_btts():
+    try:
+        #data = request.get_json()
+        return jsonify(bttsOneHalf.generateFileForNextMatchesEbookStrategy())
     except Exception as e:
         return jsonify({'error': str(e)})
 
@@ -270,6 +279,12 @@ def get_lateGoals_ada():
     except Exception as e:
         return jsonify({'error': str(e)})
 
+@app.route('/transcript', methods=['GET'])
+def get_youtube_transcription():
+    try:
+        return test.transcript_youtube_video()
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 @app.route('/sample', methods=['POST'])
 def sample():

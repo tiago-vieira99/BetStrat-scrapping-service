@@ -333,12 +333,13 @@ def getTomorrowMatchesFromWF(season):
     # Format the date as 2024/oct/22/
     #formatted_tomorrow = tomorrow.strftime("%Y/%b/%d/").lower()
     
+    matches = []
     #code to get all matches for all months of a year
     for year in [season]:
         #for m in [ "jan", "feb", "mar", "apr", "may", "jun"]:
         #for m in [ "jul", "aug", "sep", "oct", "nov", "dec"]:
         #for m in ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" ]:
-        for m in ["nov","dec"]:
+        for m in ["jan"]:
             matches.append(m)
             for j in range(1, 32):
                 print(datetime.now())
