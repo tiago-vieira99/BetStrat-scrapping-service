@@ -47,7 +47,7 @@ def generateFileForNextMatchesEbookStrategy():
                         competition = r[3]
 
                     if (len(r) > 7) and any(item.lower().replace(' ', '') in competition.lower().replace(' ', '') for item in comps) and r[3] in teams and r[7] in teams:
-                        print(r[3] + " - " + r[7])
+                        print(competition + ": \t" + r[3] + " - " + r[7])
                         if len(row.find_all('a')) > 2:
                             response3 = requests.get("https://www.worldfootball.net/" + row.find_all('a')[2]['href'])
                             
