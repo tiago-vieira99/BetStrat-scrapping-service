@@ -21,7 +21,7 @@ def generateFileForNextMatchesEbookStrategy():
     matches.append("datetime ; competition ; match ; h2h matches ; h2h goals")
     for k in range(0, 4):
         current_date = today + timedelta(days=k)
-        print(current_date)
+        print("\n" + str(current_date) + "\n")
         month = current_date.strftime("%b").lower()
         day = current_date.day
         formatted_date = f"{current_date.year}/{month}/{day}/"
@@ -47,6 +47,7 @@ def generateFileForNextMatchesEbookStrategy():
                         competition = r[3]
 
                     if (len(r) > 7) and any(item.lower().replace(' ', '') in competition.lower().replace(' ', '') for item in comps) and r[3] in teams and r[7] in teams:
+                        print(r[3] + " - " + r[7])
                         if len(row.find_all('a')) > 2:
                             response3 = requests.get("https://www.worldfootball.net/" + row.find_all('a')[2]['href'])
                             
@@ -64,6 +65,7 @@ def generateFileForNextMatchesEbookStrategy():
                                     h2hgoals = int(table4.find_all('tr')[-1].find_all('td')[-3].text) + int(table4.find_all('tr')[-1].find_all('td')[-1].text)
                         
                         if (float(h2hgoals)/float(h2hmatches) >= 3.5):
+                            print("MATCH ADDED!\n")
                             matches.append(formatted_date + " " + r[1] + " ; " + competition + " ; " + r[3] + " - " + r[7] + " ; " + h2hmatches + " ; " + str(h2hgoals))       
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
