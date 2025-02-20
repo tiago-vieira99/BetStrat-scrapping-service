@@ -97,7 +97,7 @@ def transcript_youtube_video():
     # print(f"Transcription saved to {video_id}.txt")
 
     # for backward compatibility, you can still use `https://api.deepseek.com/v1` as `base_url`.
-    client = OpenAI(api_key="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")
+    #client = OpenAI(api_key="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")
     f = open(f"{video_id}.txt", "r")
 
     response = client.chat.completions.create(
