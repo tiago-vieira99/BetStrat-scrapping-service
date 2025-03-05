@@ -16,7 +16,7 @@ import subprocess
 import whisper
 from googleapiclient.discovery import build
 import dateutil.parser
-from openai import OpenAI
+#from openai import OpenAI
 
 def transcript_youtube_video():
     API_KEY = "AIzaSyCkHe6LF97P2JzqTUW_xoefiP306_J_9DA"
