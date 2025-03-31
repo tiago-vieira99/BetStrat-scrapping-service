@@ -4,6 +4,8 @@ import seleniumScrapping
 import experiments
 import goalsFest
 import bttsOneHalf
+import footystats
+import aDaScrappings
 import difflib
 import json
 import test
@@ -107,7 +109,7 @@ def get_live_matches():
 @app.route('/first-half-goal-candidates', methods=['GET'])
 def get_first_half_goal_candidates():
     try:
-        return jsonify(experiments.scrappAdAStatsBulk())
+        return jsonify(experiments.scrappAdAStatsBulk('1'))
     except Exception as e:
         return jsonify({'error': str(e)})
 
@@ -214,6 +216,98 @@ def gf_get_matches_between_teams():
         data = request.get_json()
         return goalsFest.getMatchesBetweenFilteredTeams(data['previousSeason'], data['season'])
     except Exception as e:
+        print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        return jsonify({'error': str(e)})
+
+@app.route('/btts-one-half/matches-between-teams', methods=['GET'])
+def btts_get_matches_between_teams():
+    try:
+        data = request.get_json()
+        return bttsOneHalf.getMatchesBetweenFilteredTeams(data['previousSeason'], data['season'])
+    except Exception as e:
+        print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        return jsonify({'error': str(e)})
+
+@app.route('/footy-stats/merge-csv', methods=['POST'])
+def merge_csv():
+    try:
+        #data = request.get_json()
+        return jsonify(footystats.merge_csv_files())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/footy-stats/add-new-columns', methods=['POST'])
+def add_new_columns():
+    try:
+        #data = request.get_json()
+        return jsonify(footystats.add_new_match_columns())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/footy-stats/test-strategy', methods=['POST'])
+def test_strategies():
+    try:
+        #data = request.get_json()
+        return jsonify(footystats.identify_teams_with_high_goal_percentage())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/footy-stats/leagues-stats-rates', methods=['GET'])
+def get_leagues_stats_rates():
+    try:
+        #data = request.get_json()
+        return jsonify(footystats.get_leagues_stats_rates())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/footy-stats/teams-stats-rates', methods=['POST'])
+def get_teams_draws_info():
+    try:
+        data = request.data
+        return jsonify(footystats.get_team_draw_stats_by_league(data))
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/footy-stats/team-neg-seq', methods=['POST'])
+def get_neg_seq():
+    try:
+        data = request.data
+        return jsonify(footystats.get_neg_sequence_by_team(data))
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/goals-fest/arrange-matches-by-season', methods=['POST'])
+def arrange_matches_by_season():
+    try:
+        return goalsFest.filter_matches_by_competition()
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/goals-fest/test', methods=['GET'])
+def test_o25_strategy():
+    try:
+        return goalsFest.test_strategy_with_last_3_matches()
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/ada/scrap-all-stats', methods=['POST'])
+def ada_scrap_all_stats():
+    try:
+        return aDaScrappings.scrappAdAStatsBulk('1')
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/ada/json-to-csv', methods=['POST'])
+def ada_json_to_csv():
+    try:
+        return aDaScrappings.json_to_csv("scrapper/newData/allMatchesByAda_2024.json", "scrapper/newData/allMatchesByAda_2024.csv")
+    except Exception as e:
         return jsonify({'error': str(e)})
 
 @app.route('/goals-fest/generate-csv', methods=['POST'])
@@ -283,6 +377,20 @@ def get_lateGoals_ada():
 def get_youtube_transcription():
     try:
         return test.transcript_youtube_video()
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/h2h-data', methods=['GET'])
+def get_distinct_competitions():
+    try:
+        return test.process_h2h_data()
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/fix-h2h-data', methods=['POST'])
+def update_with_real_h2h_data():
+    try:
+        return test.update_with_real_h2h_data()
     except Exception as e:
         return jsonify({'error': str(e)})
 

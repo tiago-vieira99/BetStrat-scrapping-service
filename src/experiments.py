@@ -19,7 +19,7 @@ def set_chrome_options() -> Options:
     Chrome options for headless browser is enabled.
     """
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    #chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
@@ -28,8 +28,11 @@ def set_chrome_options() -> Options:
     chrome_prefs["profile.default_content_settings"] = {"images": 2}
     return chrome_options
 
+# docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" --platform linux/x86_64 selenium/standalone-chrome:latest
 def scrappAdAStatsBulk(month):
-    driver = webdriver.Chrome(options=set_chrome_options())
+    #driver = webdriver.Chrome(options=set_chrome_options())
+    driver = webdriver.Remote("http://172.17.0.3:4444", options=webdriver.ChromeOptions())
+
     matches = []
     for i in range(1,3):
         print("########## step: " + str(i))
@@ -461,7 +464,7 @@ def getOver25GoalCandidatesFromAdA(url, driver):
         matchStats = getMatchStatsFromAdA(matchUrl)
         matchDict.update(matchStats)
         matchesToBet.append(matchDict)
-        #break
+        break
     # driver.close()
     return matchesToBet
 

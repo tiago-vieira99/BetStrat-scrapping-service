@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 #from googlesearch import search
 import re
 import time
-import os
+import os, sys
 import csv
 #import ScraperFC as sfc
 from collections import Counter
@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 import pytz
 import subprocess
 import whisper
-from googleapiclient.discovery import build
+#from googleapiclient.discovery import build
 import dateutil.parser
 #from openai import OpenAI
 
@@ -22,106 +22,106 @@ def transcript_youtube_video():
     API_KEY = "AIzaSyCkHe6LF97P2JzqTUW_xoefiP306_J_9DA"
     CHANNEL_ID = "UCk9fXOH4sM6C8dRpWztXKFQ"
 
-    # YouTube API setup
-    youtube = build('youtube', 'v3', developerKey=API_KEY)
+    # # YouTube API setup
+    # youtube = build('youtube', 'v3', developerKey=API_KEY)
     
-    # Get uploads playlist ID
-    channel_info = youtube.channels().list(
-        part='contentDetails',
-        id=CHANNEL_ID
-    ).execute()
-    uploads_playlist_id = channel_info['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+    # # Get uploads playlist ID
+    # channel_info = youtube.channels().list(
+    #     part='contentDetails',
+    #     id=CHANNEL_ID
+    # ).execute()
+    # uploads_playlist_id = channel_info['items'][0]['contentDetails']['relatedPlaylists']['uploads']
     
-    # Fetch videos from the uploads playlist
-    playlist_items = youtube.playlistItems().list(
-        part='snippet',
-        playlistId=uploads_playlist_id,
-        maxResults=5  # Check last 10 videos
-    ).execute()
+    # # Fetch videos from the uploads playlist
+    # playlist_items = youtube.playlistItems().list(
+    #     part='snippet',
+    #     playlistId=uploads_playlist_id,
+    #     maxResults=5  # Check last 10 videos
+    # ).execute()
     
-    # Find the latest video with "Vamos apostar" in the title from the last 24h
-    cutoff_time = datetime.now(pytz.utc) - timedelta(days=1)
-    cutoff_time = datetime.strptime(str(cutoff_time), '%Y-%m-%d %H:%M:%S.%f%z')
-    target_video = None
+    # # Find the latest video with "Vamos apostar" in the title from the last 24h
+    # cutoff_time = datetime.now(pytz.utc) - timedelta(days=1)
+    # cutoff_time = datetime.strptime(str(cutoff_time), '%Y-%m-%d %H:%M:%S.%f%z')
+    # target_video = None
 
-    print(cutoff_time)
+    # print(cutoff_time)
     
-    for item in playlist_items.get('items', []):
-        video_title = item['snippet']['title']
-        publish_time = dateutil.parser.parse(item['snippet']['publishedAt'])
+    # for item in playlist_items.get('items', []):
+    #     video_title = item['snippet']['title']
+    #     publish_time = dateutil.parser.parse(item['snippet']['publishedAt'])
         
-        print(publish_time)
-        if datetime.strptime(str(publish_time), '%Y-%m-%d %H:%M:%S%z') < cutoff_time:
-            continue  # Skip older videos
+    #     print(publish_time)
+    #     if datetime.strptime(str(publish_time), '%Y-%m-%d %H:%M:%S%z') < cutoff_time:
+    #         continue  # Skip older videos
         
-        if "Vamos Apostar" in video_title:
-            target_video = item
-            break
+    #     if "Vamos Apostar" in video_title:
+    #         target_video = item
+    #         break
     
-    if not target_video:
-        print("No recent video found with 'Vamos apostar' in the title.")
-        return
-    
-    # Extract video details
-    video_id = target_video['snippet']['resourceId']['videoId']
-    video_url = f"https://youtu.be/{video_id}"
-
-    print(video_url)
-
-    # Download audio using yt-dlp
-    audio_file = f"{video_id}.mp3"
-    # try:
-    #     subprocess.run([
-    #         'yt-dlp',
-    #         '-x', '--audio-format', 'mp3',
-    #         '-o', audio_file,
-    #         video_url
-    #     ], check=True, capture_output=True)
-    # except subprocess.CalledProcessError as e:
-    #     print(f"Failed to download audio: {e.stderr.decode()}")
+    # if not target_video:
+    #     print("No recent video found with 'Vamos apostar' in the title.")
     #     return
-
-    # Transcribe with Whisper
-    WHISPER_MODEL = "tiny"  # Choose from tiny, base, small, medium, large
-    # model = whisper.load_model(WHISPER_MODEL)
-    # result = model.transcribe(audio_file, language='pt')
-    # transcription = result['text']
     
-    # print('transcription done!')
-    # # Save transcription
-    # with open(f"{video_id}.txt", 'w', encoding='utf-8') as f:
-    #     f.write(transcription)
+    # # Extract video details
+    # video_id = target_video['snippet']['resourceId']['videoId']
+    # video_url = f"https://youtu.be/{video_id}"
+
+    # print(video_url)
+
+    # # Download audio using yt-dlp
+    # audio_file = f"{video_id}.mp3"
+    # # try:
+    # #     subprocess.run([
+    # #         'yt-dlp',
+    # #         '-x', '--audio-format', 'mp3',
+    # #         '-o', audio_file,
+    # #         video_url
+    # #     ], check=True, capture_output=True)
+    # # except subprocess.CalledProcessError as e:
+    # #     print(f"Failed to download audio: {e.stderr.decode()}")
+    # #     return
+
+    # # Transcribe with Whisper
+    # WHISPER_MODEL = "tiny"  # Choose from tiny, base, small, medium, large
+    # # model = whisper.load_model(WHISPER_MODEL)
+    # # result = model.transcribe(audio_file, language='pt')
+    # # transcription = result['text']
     
-    # # Cleanup audio file
-    # os.remove(audio_file)
-    # print(f"Transcription saved to {video_id}.txt")
+    # # print('transcription done!')
+    # # # Save transcription
+    # # with open(f"{video_id}.txt", 'w', encoding='utf-8') as f:
+    # #     f.write(transcription)
+    
+    # # # Cleanup audio file
+    # # os.remove(audio_file)
+    # # print(f"Transcription saved to {video_id}.txt")
 
-    # for backward compatibility, you can still use `https://api.deepseek.com/v1` as `base_url`.
-    #client = OpenAI(api_key="")
-    f = open(f"{video_id}.txt", "r")
+    # # for backward compatibility, you can still use `https://api.deepseek.com/v1` as `base_url`.
+    # #client = OpenAI(api_key="")
+    # f = open(f"{video_id}.txt", "r")
 
-    response = client.chat.completions.create(
-        model="text-moderation-latest",  # Use "gpt-3.5-turbo" for cheaper/faster
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "Você é um assistente que organiza tópicos detalhados de transcrições em português. "
-                    "LISTE TODOS OS TÓPICOS MENCIONADOS, SEM OMITIR DETALHES. "
-                    "Inclua até mesmo números, nomes específicos, e estratégias."
-                )
-            },
-            {
-                "role": "user",
-                "content": f"Organize em tópicos detalhados esta transcrição:\n\n{f.read()}"
-            }
-        ],
-        temperature=0.1  # Reduce creativity for factual accuracy
-    )
+    # response = client.chat.completions.create(
+    #     model="text-moderation-latest",  # Use "gpt-3.5-turbo" for cheaper/faster
+    #     messages=[
+    #         {
+    #             "role": "system",
+    #             "content": (
+    #                 "Você é um assistente que organiza tópicos detalhados de transcrições em português. "
+    #                 "LISTE TODOS OS TÓPICOS MENCIONADOS, SEM OMITIR DETALHES. "
+    #                 "Inclua até mesmo números, nomes específicos, e estratégias."
+    #             )
+    #         },
+    #         {
+    #             "role": "user",
+    #             "content": f"Organize em tópicos detalhados esta transcrição:\n\n{f.read()}"
+    #         }
+    #     ],
+    #     temperature=0.1  # Reduce creativity for factual accuracy
+    # )
 
-    print(response.choices[0].message.content)
+    # print(response.choices[0].message.content)
 
-    return video_url
+    return 'video_url'
 
 def replace_month_in_csv():
     # Mapping of month abbreviations to numbers
@@ -735,3 +735,246 @@ def extract_goal_times_from_url(url):
     except requests.RequestException as e:
         print(f"Could not retrieve data from {url}. Error: {e}")
         return goal_minutes
+
+
+def update_with_real_h2h_data():
+    json_file = "scrapper/newData/h2h_map.json"
+    csv_file = "scrapper/newData/with_real_h2h/data2013.csv"
+
+    # Load the h2h_map from the JSON file
+    with open(json_file, 'r', encoding='utf-8') as f:
+        h2h_map = json.load(f)
+
+    comps_list = [ "AFC > AFC Champions League", "Albania > Kategoria Superiore", "Algeria > Ligue 1", "Argentina > Primera División", "Armenia > Premier League", "Australia > A-League", "Austria > 2. Liga", "Austria > Bundesliga", "Azerbaijan > I Liqa", "Belarus > Cempionat", "Belgium > Challenger Pro League", "Belgium > Pro League", "Bolivia > Liga Profesional", "Brazil > Copa do Brasil", "Brazil > Série A", "Brazil > Série B", "Bulgaria > Parva Liga", "Canada > Premier League", "Chile > Copa Chile", "Chile > Primera B", "Chile > Primera División", "China > League One", "China > Super League", "Colombia > Copa Colombia", "Colombia > Primera A", "Colombia > Primera B", "Costa Rica > Primera División", "Croatia > 1. HNL", "Cyprus > First Division", "Czech Republic > 1. fotbalová liga", "Czech Republic > 2. fotbalová liga", "Denmark > 1. Division", "Denmark > Superliga", "Ecuador > Serie A", "England > Championship", "England > Premier League", "FIFA > Friendlies", "Finland > Veikkausliiga Championship", "France > Ligue 1", "France > Ligue 2", "Germany > 2. Bundesliga", "Germany > Bundesliga", "Greece > Super League", "Hungary > NB I", "Ireland > Premier Division", "Israel > Liga Leumit", "Israel > Ligat ha'Al", "Italy > Serie A", "Italy > Serie B", "Japan > J1 League", "Mexico > Primera División", "Netherlands > Eerste Divisie", "Netherlands > Eredivisie", "Norway > Eliteserien", "Paraguay > Primera División", "Peru > Primera División", "Poland > I Liga", "Portugal > Primeira Liga", "Portugal > Segunda Liga", "Portugal > Taça", "Portugal > U23 Liga Revelação", "Romania > Liga 1", "Russia > Premier Liga", "Saudi Arabia > Saudi Pro League", "Scotland > Premiership", "Serbia > Prva Liga", "Serbia > Super Liga", "Slovakia > Super Liga", "Slovenia > PrvaLiga", "South Korea > K League 1", "Spain > Copa del Rey", "Spain > Primera División", "Spain > Segunda División", "Sweden > Allsvenskan", "Switzerland > Super League", "Turkey > SüperLig", "UEFA > Champions League", "UEFA > Conference League", "UEFA > Europa League", "UEFA > Youth Youth League", "Ukraine > Premyer Liga", "Uruguay > Primera División", "USA > Major League Soccer" ];
+    teams_with_hyphens = [
+        "Botafogo - RJ", "Vasco da Gama - RJ",  
+        "Bahia - BA", "Vitória - BA", "Criciúma - SC", "Coritiba - PR", "Cuiabá - MT", 
+        "Fortaleza - CE", "Goiás - GO", "Grêmio Novorizontino - SP", 
+        "Mirassol - SP", "Operário Ferroviário - PR", "Água Santa - SP", "Sampaio Corrêa - MA", 
+        "Ypiranga - RS", "Juventude - RS", "Paysandu - PA", "Vila Nova - GO", "Guarani - SP", 
+        "Ceará - CE", "América - MG", "Brusque - SC", "Sport Recife - PE", "Ituano - SP", 
+        "Amazonas FC - AM", "Avaí - SC", "Botafogo - SP", "CR Brasil - AL", "Londrina - PR", 
+        "Anápolis FC - GO", "Maringá - PR", "São Luiz - RS", "São Bernardo FC - SP", 
+        "Águia de Marabá - PA", "Capital - TO", "ABC - RN", "Murici - AL", "Nova Iguaçu - RJ", 
+        "Athletic - MG", "Petrolina - PE", "Real Brasilia - DF", "Ji-Paraná - RO", 
+        "Trem - AP", "Olária - RJ", "Cascavel FC - PR", "Maranhão - MA", "Confiança - SE", 
+        "Itabuna - BA", "ASA - AL", "GA Sampaio - RR", "Aparecidense - GO", "Portuguesa Santista - SP", 
+        "Volta Redonda - RJ", "União Rondonópolis - MT", "Rio Branco - AC", "Cianorte - PR", 
+        "São Raimundo - RR", "Manauara - AM", "Retrô - PE", "Tombense - MG", "Audax - RJ", 
+        "Treze - PB", "Itabaiana - SE", "Independente - AP", "Costa Rica - MS", "Tocantinópolis - TO", 
+        "Remo - PA", "Nova Venécia - ES", "América - RN", "Sousa - PB"
+    ]
+
+    # Read the CSV file and update it
+    updated_rows = []
+    with open(csv_file, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f, delimiter=';')
+        for row in reader:
+            if len(row) >= 8:  # Ensure there are enough columns
+                match_date = row[0].strip().split()[0]
+                competition = row[1].strip()
+                teams = row[2].strip()
+
+                # Skip if competition is not in comps_list
+                if any(item.lower().replace(' ', '') in competition.lower().replace(' ', '') for item in comps_list):
+                    try:
+                        # Split teams into home and away
+                        home_team, away_team = split_teams(teams, teams_with_hyphens)
+                        if not home_team or not away_team:
+                            print("team not present in teams_with_hyphens array!   " + teams)
+                            continue  # Skip invalid entries
+                        if "UEFA >  Youth Youth League" in competition or "Portugal > U23 Liga Revelação" in competition:
+                            home_team = home_team + " Youth"
+                            away_team = away_team + " Youth"
+
+                        if f"{home_team} - {away_team}" in h2h_map:
+                            h2h_data = h2h_map[f"{home_team} - {away_team}"].get(match_date)
+                        elif f"{away_team} - {home_team}" in h2h_map:
+                            h2h_data = h2h_map[f"{away_team} - {home_team}"].get(match_date)
+                        else:
+                            continue
+
+                        if h2h_data:
+                            h2h_matches, h2h_goals = h2h_data.split(" ; ")
+                            #print(" MATCH UPDATED FROM " + row[6], row[7] + " TO " + h2h_matches, h2h_goals)
+                            row[6] = h2h_matches  # Update h2h matches
+                            row[7] = h2h_goals  # Update h2h goals
+
+                    except Exception as e:
+                        row[6] = "manual"
+                        print(row)
+                        print(e)
+                        exc_type, exc_obj, exc_tb = sys.exc_info()
+                        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                        print(exc_type, fname, exc_tb.tb_lineno)
+
+            updated_rows.append(row)
+
+    # Write the updated rows back to the CSV file
+    with open(csv_file, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.writer(f, delimiter=';')
+        writer.writerows(updated_rows)
+
+    return "ok"
+
+
+def process_h2h_data():
+    comps_list = [ "AFC > AFC Champions League", "Albania > Kategoria Superiore", "Algeria > Ligue 1", "Argentina > Primera División", "Armenia > Premier League", "Australia > A-League", "Austria > 2. Liga", "Austria > Bundesliga", "Azerbaijan > I Liqa", "Belarus > Cempionat", "Belgium > Challenger Pro League", "Belgium > Pro League", "Bolivia > Liga Profesional", "Brazil > Copa do Brasil", "Brazil > Série A", "Brazil > Série B", "Bulgaria > Parva Liga", "Canada > Premier League", "Chile > Copa Chile", "Chile > Primera B", "Chile > Primera División", "China > League One", "China > Super League", "Colombia > Copa Colombia", "Colombia > Primera A", "Colombia > Primera B", "Costa Rica > Primera División", "Croatia > 1. HNL", "Cyprus > First Division", "Czech Republic > 1. fotbalová liga", "Czech Republic > 2. fotbalová liga", "Denmark > 1. Division", "Denmark > Superliga", "Ecuador > Serie A", "England > Championship", "England > Premier League", "FIFA > Friendlies", "Finland > Veikkausliiga Championship", "France > Ligue 1", "France > Ligue 2", "Germany > 2. Bundesliga", "Germany > Bundesliga", "Greece > Super League", "Hungary > NB I", "Ireland > Premier Division", "Israel > Liga Leumit", "Israel > Ligat ha'Al", "Italy > Serie A", "Italy > Serie B", "Japan > J1 League", "Mexico > Primera División", "Netherlands > Eerste Divisie", "Netherlands > Eredivisie", "Norway > Eliteserien", "Paraguay > Primera División", "Peru > Primera División", "Poland > I Liga", "Portugal > Primeira Liga", "Portugal > Segunda Liga", "Portugal > Taça", "Portugal > U23 Liga Revelação", "Romania > Liga 1", "Russia > Premier Liga", "Saudi Arabia > Saudi Pro League", "Scotland > Premiership", "Serbia > Prva Liga", "Serbia > Super Liga", "Slovakia > Super Liga", "Slovenia > PrvaLiga", "South Korea > K League 1", "Spain > Copa del Rey", "Spain > Primera División", "Spain > Segunda División", "Sweden > Allsvenskan", "Switzerland > Super League", "Turkey > SüperLig", "UEFA > Champions League", "UEFA > Conference League", "UEFA > Europa League", "UEFA > Youth Youth League", "Ukraine > Premyer Liga", "Uruguay > Primera División", "USA > Major League Soccer" ];
+
+    # Step 1: Read data from the CSV file
+    with open("scrapper/newData/data2013.csv", mode='r', encoding='utf-8') as file:
+        matches = [row for row in csv.reader(file, delimiter=';')]
+
+    # Step 2: Initialize the result map
+    if os.path.exists("scrapper/src/h2h_map.json"):
+        with open("scrapper/src/h2h_map.json", mode='r', encoding='utf-8') as file:
+            result_map = json.load(file)
+    else:
+        result_map = {}
+    
+    # Step 3: Sort matches by date (most recent first)
+    matches.sort(key=lambda x: datetime.strptime(x[0].strip().split()[0], "%d-%m-%Y"), reverse=True)
+
+    teams_with_hyphens = [
+        "Botafogo - RJ", "Vasco da Gama - RJ",  
+        "Bahia - BA", "Vitória - BA", "Criciúma - SC", "Coritiba - PR", "Cuiabá - MT", 
+        "Fortaleza - CE", "Goiás - GO", "Grêmio Novorizontino - SP", 
+        "Mirassol - SP", "Operário Ferroviário - PR", "Água Santa - SP", "Sampaio Corrêa - MA", 
+        "Ypiranga - RS", "Juventude - RS", "Paysandu - PA", "Vila Nova - GO", "Guarani - SP", 
+        "Ceará - CE", "América - MG", "Brusque - SC", "Sport Recife - PE", "Ituano - SP", 
+        "Amazonas FC - AM", "Avaí - SC", "Botafogo - SP", "CR Brasil - AL", "Londrina - PR", 
+        "Anápolis FC - GO", "Maringá - PR", "São Luiz - RS", "São Bernardo FC - SP", 
+        "Águia de Marabá - PA", "Capital - TO", "ABC - RN", "Murici - AL", "Nova Iguaçu - RJ", 
+        "Athletic - MG", "Petrolina - PE", "Real Brasilia - DF", "Ji-Paraná - RO", 
+        "Trem - AP", "Olária - RJ", "Cascavel FC - PR", "Maranhão - MA", "Confiança - SE", 
+        "Itabuna - BA", "ASA - AL", "GA Sampaio - RR", "Aparecidense - GO", "Portuguesa Santista - SP", 
+        "Volta Redonda - RJ", "União Rondonópolis - MT", "Rio Branco - AC", "Cianorte - PR", 
+        "São Raimundo - RR", "Manauara - AM", "Retrô - PE", "Tombense - MG", "Audax - RJ", 
+        "Treze - PB", "Itabaiana - SE", "Independente - AP", "Costa Rica - MS", "Tocantinópolis - TO", 
+        "Remo - PA", "Nova Venécia - ES", "América - RN", "Sousa - PB"
+    ]
+
+    # Step 4: Process each match
+    for match in matches:
+        # Extract match details
+        match_date = match[0].strip().split()[0]
+        competition = match[1].strip()
+        teams = match[2].strip()
+        result = match[3].strip()
+        h2h_matches = match[6].strip() if match[6].strip() else "0"
+        h2h_goals = match[7].strip() if match[7].strip() else "0"
+
+        if "resch" in result or "annull" in result or "dnp" in result or "abor" in result:
+            continue
+
+        # Skip if competition is not in comps_list
+        if any(item.lower().replace(' ', '') in competition.lower().replace(' ', '') for item in comps_list):
+            try:
+                # Split teams into home and away
+                home_team, away_team = split_teams(teams, teams_with_hyphens)
+                if not home_team or not away_team:
+                    print("team not present in teams_with_hyphens array!   " + teams)
+                    continue  # Skip invalid entries
+                if "UEFA >  Youth Youth League" in competition or "Portugal > U23 Liga Revelação" in competition:
+                    home_team = home_team + " Youth"
+                    away_team = away_team + " Youth"
+
+                # Normalize the key (alphabetically sorted team names)
+                sorted_teams = sorted([home_team, away_team])
+                match_key = " - ".join(sorted_teams)
+
+                # Check if the match is already in the result map
+                if match_key not in result_map:
+                    # If h2h_matches or h2h_goals is empty, add the match with empty values
+                    if h2h_matches == "0" or h2h_goals == "0":
+                        result_map[match_key] = {match_date: ""}
+                    else:
+                        # Subtract 1 from h2h_matches and subtract total goals from h2h_goals
+                        new_h2h_matches = int(h2h_matches) - 1
+                        if "pso" in result:
+                            total_goals = sum(map(int, result.split('(')[1].split(',')[0].split(':')))
+                        elif new_h2h_matches == 0:
+                            total_goals = 0
+                        else:
+                            total_goals = sum(map(int, result.split()[0].split(':')))
+                        new_h2h_goals = int(h2h_goals) - total_goals
+                        result_map[match_key] = {match_date: f"{new_h2h_matches} ; {new_h2h_goals}"}
+                else:
+                    # Check if any existing match has an empty value
+                    for existing_date, existing_value in result_map[match_key].items():
+                        if existing_value == "":
+                            # Calculate H2H info for the existing match using the current match's data
+                            if h2h_matches != "0" and h2h_goals != "0":
+                                new_h2h_matches = int(h2h_matches) - 1
+                                if "pso" in result:
+                                    total_goals = sum(map(int, result.split('(')[1].split(',')[0].split(':')))
+                                elif new_h2h_matches == 0:
+                                    total_goals = 0
+                                else:
+                                    total_goals = sum(map(int, result.split()[0].split(':')))
+                                new_h2h_goals = int(h2h_goals) - total_goals
+                                result_map[match_key][existing_date] = f"{new_h2h_matches} ; {new_h2h_goals}"
+
+                    # Get the oldest value of h2h_matches and h2h_goals already in the map
+                    oldest_date = min(result_map[match_key].keys(), key=lambda x: datetime.strptime(x, "%d-%m-%Y"))
+                    oldest_entry = result_map[match_key][oldest_date]
+
+                    # Handle empty entries
+                    if oldest_entry == "":
+                        # If the oldest entry is empty, use default values (0, 0)
+                        #oldest_h2h_matches, oldest_h2h_goals = 0, 0
+                        result_map[match_key][match_date] = ""
+                        continue
+                    else:
+                        # Otherwise, split and convert to integers
+                        oldest_h2h_matches, oldest_h2h_goals = map(int, oldest_entry.split(" ; "))
+
+                    # Subtract 1 from h2h_matches and subtract total goals from h2h_goals
+                    new_h2h_matches = oldest_h2h_matches - 1
+                    if "pso" in result:
+                        total_goals = sum(map(int, result.split('(')[1].split(',')[0].split(':')))
+                    elif new_h2h_matches == 0:
+                        total_goals = 0
+                    else:
+                        total_goals = sum(map(int, result.split()[0].split(':')))
+                    new_h2h_goals = oldest_h2h_goals - total_goals
+
+                    # Add the new match date with calculated h2h_matches and h2h_goals
+                    result_map[match_key][match_date] = f"{new_h2h_matches} ; {new_h2h_goals}"
+            except Exception as e:
+                print(match)
+                print(e)
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+                if match_key not in result_map:
+                    result_map[match_key] = {match_date: "manual"}
+                else:
+                    result_map[match_key][match_date] = "manual"
+
+    # Step 5: Save the result map to a JSON file
+    with open("scrapper/src/h2h_map.json", mode='w', encoding='utf-8') as file:
+        json.dump(result_map, file, indent=4)
+
+    print(f"Result map saved.")
+    return "ok"
+
+def split_teams(teams_str, teams_with_hyphens):
+    """
+    Splits the teams string into home and away teams by checking for known hyphenated teams.
+    """
+    parts = teams_str.split(" - ")
+    # Check if the away team (suffix) is a known hyphenated team
+    for i in range(len(parts), 0, -1):
+        possible_away_team = " - ".join(parts[i-1:])  # Check suffixes
+        if possible_away_team in teams_with_hyphens:
+            home_team = " - ".join(parts[:i-1]) if i-1 > 0 else ""
+            return home_team.strip(), possible_away_team.strip()
+    # Fallback: Split at the last " - "
+    last_sep_index = teams_str.rfind(" - ")
+    if last_sep_index != -1:
+        return (
+            teams_str[:last_sep_index].strip(), 
+            teams_str[last_sep_index + 3:].strip()
+        )
+    return None, None

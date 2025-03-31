@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 import requests
 import sys, os
 from bs4 import BeautifulSoup
+from collections import defaultdict
+import json
+import re
 
 def generateFileForNextMatchesEbookStrategy():
     matches = []
@@ -136,7 +139,7 @@ def getAllMatchesByTeam(season, team):
 def getMatchesBetweenFilteredTeams(previousSeason, season):
     # Input array of matches
     # Load the CSV file
-    csv_file = "/scrapper/newData/matches" + season + ".csv"  # Replace with your actual file path
+    csv_file = "/scrapper/newData/with_real_h2h/matches" + season + ".csv"  # Replace with your actual file path
     
     comps = [ "AFC > AFC Champions League", "Albania > Kategoria Superiore", "Algeria > Ligue 1", "Argentina > Primera División", "Armenia > Premier League", "Australia > A-League", "Austria > 2. Liga", "Austria > Bundesliga", "Azerbaijan > I Liqa", "Belarus > Cempionat", "Belgium > Challenger Pro League", "Belgium > Pro League", "Bolivia > Liga Profesional", "Brazil > Copa do Brasil", "Brazil > Série A", "Brazil > Série B", "Bulgaria > Parva Liga", "Canada > Premier League", "Chile > Copa Chile", "Chile > Primera B", "Chile > Primera División", "China > League One", "China > Super League", "Colombia > Copa Colombia", "Colombia > Primera A", "Colombia > Primera B", "Costa Rica > Primera División", "Croatia > 1. HNL", "Cyprus > First Division", "Czech Republic > 1. fotbalová liga", "Czech Republic > 2. fotbalová liga", "Denmark > 1. Division", "Denmark > Superliga", "Ecuador > Serie A", "England > Championship", "England > Premier League", "FIFA > Friendlies", "Finland > Veikkausliiga Championship", "France > Ligue 1", "France > Ligue 2", "Germany > 2. Bundesliga", "Germany > Bundesliga", "Greece > Super League", "Hungary > NB I", "Ireland > Premier Division", "Israel > Liga Leumit", "Israel > Ligat ha'Al", "Italy > Serie A", "Italy > Serie B", "Japan > J1 League", "Mexico > Primera División", "Netherlands > Eerste Divisie", "Netherlands > Eredivisie", "Norway > Eliteserien", "Paraguay > Primera División", "Peru > Primera División", "Poland > I Liga", "Portugal > Primeira Liga", "Portugal > Segunda Liga", "Portugal > Taça", "Portugal > U23 Liga Revelação", "Romania > Liga 1", "Russia > Premier Liga", "Saudi Arabia > Saudi Pro League", "Scotland > Premiership", "Serbia > Prva Liga", "Serbia > Super Liga", "Slovakia > Super Liga", "Slovenia > PrvaLiga", "South Korea > K League 1", "Spain > Copa del Rey", "Spain > Primera División", "Spain > Segunda División", "Sweden > Allsvenskan", "Switzerland > Super League", "Turkey > SüperLig", "UEFA > Champions League", "UEFA > Conference League", "UEFA > Europa League", "UEFA > Youth Youth League", "Ukraine > Premyer Liga", "Uruguay > Primera División", "USA > Major League Soccer" ];
 
@@ -159,7 +162,7 @@ def getMatchesBetweenFilteredTeams(previousSeason, season):
 def filterTeamsBySeason(season):
     # Input array of matches
     # Load the CSV file
-    csv_file = "/scrapper/newData/matches" + season + ".csv"  # Replace with your actual file path
+    csv_file = "/scrapper/newData/with_real_h2h/matches" + season + ".csv"  # Replace with your actual file path
     
     comps = [ "AFC > AFC Champions League", "Albania > Kategoria Superiore", "Algeria > Ligue 1", "Argentina > Primera División", "Armenia > Premier League", "Australia > A-League", "Austria > 2. Liga", "Austria > Bundesliga", "Azerbaijan > I Liqa", "Belarus > Cempionat", "Belgium > Challenger Pro League", "Belgium > Pro League", "Bolivia > Liga Profesional", "Brazil > Copa do Brasil", "Brazil > Série A", "Brazil > Série B", "Bulgaria > Parva Liga", "Canada > Premier League", "Chile > Copa Chile", "Chile > Primera B", "Chile > Primera División", "China > League One", "China > Super League", "Colombia > Copa Colombia", "Colombia > Primera A", "Colombia > Primera B", "Costa Rica > Primera División", "Croatia > 1. HNL", "Cyprus > First Division", "Czech Republic > 1. fotbalová liga", "Czech Republic > 2. fotbalová liga", "Denmark > 1. Division", "Denmark > Superliga", "Ecuador > Serie A", "England > Championship", "England > Premier League", "FIFA > Friendlies", "Finland > Veikkausliiga Championship", "France > Ligue 1", "France > Ligue 2", "Germany > 2. Bundesliga", "Germany > Bundesliga", "Greece > Super League", "Hungary > NB I", "Ireland > Premier Division", "Israel > Liga Leumit", "Israel > Ligat ha'Al", "Italy > Serie A", "Italy > Serie B", "Japan > J1 League", "Mexico > Primera División", "Netherlands > Eerste Divisie", "Netherlands > Eredivisie", "Norway > Eliteserien", "Paraguay > Primera División", "Peru > Primera División", "Poland > I Liga", "Portugal > Primeira Liga", "Portugal > Segunda Liga", "Portugal > Taça", "Portugal > U23 Liga Revelação", "Romania > Liga 1", "Russia > Premier Liga", "Saudi Arabia > Saudi Pro League", "Scotland > Premiership", "Serbia > Prva Liga", "Serbia > Super Liga", "Slovakia > Super Liga", "Slovenia > PrvaLiga", "South Korea > K League 1", "Spain > Copa del Rey", "Spain > Primera División", "Spain > Segunda División", "Sweden > Allsvenskan", "Switzerland > Super League", "Turkey > SüperLig", "UEFA > Champions League", "UEFA > Conference League", "UEFA > Europa League", "UEFA > Youth Youth League", "Ukraine > Premyer Liga", "Uruguay > Primera División", "USA > Major League Soccer" ];
 
@@ -259,3 +262,198 @@ def team_in_match(match, team):
     except (ValueError, AttributeError):
         # If the match is not a valid string or can't be split into two parts, skip it
         return False
+
+# Function to build a csv file with all matches of competitions having ' 202x ' or '202x/'
+def filter_matches_by_competition():
+    input_filenames = ['/scrapper/newData/data2024.csv', '/scrapper/newData/data2023.csv']
+    output_filename = '/scrapper/newData/allMatches2023.csv'
+
+    # Define the filtering criterion
+    def is_competition(competition_name):
+        return ' 2023 ' in competition_name or '2023/' in competition_name
+
+    # Initialize an empty list to hold the filtered rows
+    filtered_matches = []
+
+    # Process each input file
+    for filename in input_filenames:
+        with open(filename, mode='r', newline='', encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=';')
+            # Skip the header if your CSV has one (You can uncomment the next line if needed)
+            # next(reader, None)
+
+            for row in reader:
+                if len(row) > 1 and is_competition(row[1]):
+                    filtered_matches.append(row)
+
+    # Write the filtered rows to the output CSV file
+    with open(output_filename, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file, delimiter=';')
+        for match in filtered_matches:
+            writer.writerow(match)
+
+# Function to test this strategy: https://www.betaminic.com/betting-strategies/betting-system-over-2-5-goals-bet-against-the-trend/
+def test_strategy_with_last_3_matches():
+    comps_list = [ "AFC > AFC Champions League", "Albania > Kategoria Superiore", "Algeria > Ligue 1", "Argentina > Primera División", "Armenia > Premier League", "Australia > A-League", "Austria > 2. Liga", "Austria > Bundesliga", "Azerbaijan > I Liqa", "Belarus > Cempionat", "Belgium > Challenger Pro League", "Belgium > Pro League", "Bolivia > Liga Profesional", "Brazil > Copa do Brasil", "Brazil > Série A", "Brazil > Série B", "Bulgaria > Parva Liga", "Canada > Premier League", "Chile > Copa Chile", "Chile > Primera B", "Chile > Primera División", "China > League One", "China > Super League", "Colombia > Copa Colombia", "Colombia > Primera A", "Colombia > Primera B", "Costa Rica > Primera División", "Croatia > 1. HNL", "Cyprus > First Division", "Czech Republic > 1. fotbalová liga", "Czech Republic > 2. fotbalová liga", "Denmark > 1. Division", "Denmark > Superliga", "Ecuador > Serie A", "England > Championship", "England > Premier League", "FIFA > Friendlies", "Finland > Veikkausliiga Championship", "France > Ligue 1", "France > Ligue 2", "Germany > 2. Bundesliga", "Germany > Bundesliga", "Greece > Super League", "Hungary > NB I", "Ireland > Premier Division", "Israel > Liga Leumit", "Israel > Ligat ha'Al", "Italy > Serie A", "Italy > Serie B", "Japan > J1 League", "Mexico > Primera División", "Netherlands > Eerste Divisie", "Netherlands > Eredivisie", "Norway > Eliteserien", "Paraguay > Primera División", "Peru > Primera División", "Poland > I Liga", "Portugal > Primeira Liga", "Portugal > Segunda Liga", "Portugal > Taça", "Portugal > U23 Liga Revelação", "Romania > Liga 1", "Russia > Premier Liga", "Saudi Arabia > Saudi Pro League", "Scotland > Premiership", "Serbia > Prva Liga", "Serbia > Super Liga", "Slovakia > Super Liga", "Slovenia > PrvaLiga", "South Korea > K League 1", "Spain > Copa del Rey", "Spain > Primera División", "Spain > Segunda División", "Sweden > Allsvenskan", "Switzerland > Super League", "Turkey > SüperLig", "UEFA > Champions League", "UEFA > Conference League", "UEFA > Europa League", "UEFA > Youth Youth League", "Ukraine > Premyer Liga", "Uruguay > Primera División", "USA > Major League Soccer" ];
+
+    # Step 1: Read data from the CSV file
+    with open("scrapper/newData/allMatches2023.csv", mode='r', encoding='utf-8') as file:
+        matches = [row for row in csv.reader(file, delimiter=';')]
+
+    
+    # Step 3: Sort matches by date (most recent first)
+    matches.sort(key=lambda x: datetime.strptime(x[0].strip().split()[0], "%d-%m-%Y"), reverse=True)
+
+    teams_with_hyphens = [
+        "Botafogo - RJ", "Vasco da Gama - RJ",  
+        "Bahia - BA", "Vitória - BA", "Criciúma - SC", "Coritiba - PR", "Cuiabá - MT", 
+        "Fortaleza - CE", "Goiás - GO", "Grêmio Novorizontino - SP", 
+        "Mirassol - SP", "Operário Ferroviário - PR", "Água Santa - SP", "Sampaio Corrêa - MA", 
+        "Ypiranga - RS", "Juventude - RS", "Paysandu - PA", "Vila Nova - GO", "Guarani - SP", 
+        "Ceará - CE", "América - MG", "Brusque - SC", "Sport Recife - PE", "Ituano - SP", 
+        "Amazonas FC - AM", "Avaí - SC", "Botafogo - SP", "CR Brasil - AL", "Londrina - PR", 
+        "Anápolis FC - GO", "Maringá - PR", "São Luiz - RS", "São Bernardo FC - SP", 
+        "Águia de Marabá - PA", "Capital - TO", "ABC - RN", "Murici - AL", "Nova Iguaçu - RJ", 
+        "Athletic - MG", "Petrolina - PE", "Real Brasilia - DF", "Ji-Paraná - RO", 
+        "Trem - AP", "Olária - RJ", "Cascavel FC - PR", "Maranhão - MA", "Confiança - SE", 
+        "Itabuna - BA", "ASA - AL", "GA Sampaio - RR", "Aparecidense - GO", "Portuguesa Santista - SP", 
+        "Volta Redonda - RJ", "União Rondonópolis - MT", "Rio Branco - AC", "Cianorte - PR", 
+        "São Raimundo - RR", "Manauara - AM", "Retrô - PE", "Tombense - MG", "Audax - RJ", 
+        "Treze - PB", "Itabaiana - SE", "Independente - AP", "Costa Rica - MS", "Tocantinópolis - TO", 
+        "Remo - PA", "Nova Venécia - ES", "América - RN", "Sousa - PB"
+    ]
+
+    matches_map = defaultdict(list)
+
+    for match in matches:
+        try:
+            competition = extract_season(match[1].strip())
+            teams = match[2].strip()
+            home_team, away_team = split_teams(teams, teams_with_hyphens)
+            key1 = f"{home_team} | {competition}"
+            key2 = f"{away_team} | {competition}"
+            matches_map[key1].append(match)
+            matches_map[key2].append(match)
+        except ValueError:
+            print(match)
+            print(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            continue
+
+
+    # Convert defaultdict to dict for JSON serialization
+    matches_map = {k: v for k, v in matches_map.items()}
+
+    # Save the map to a JSON file
+    with open("scrapper/newData/matchesByCompetition2023.json", 'w', encoding='utf-8') as file:
+        json.dump(matches_map, file, ensure_ascii=False, indent=4)
+
+    # Filter matches based on the criteria
+    filtered_matches = []
+    comps_list = ["Austria > Bundesliga", "Belgium > Pro League", "Brazil > Série A", "Brazil > Série B", "Ukraine > Premyer Liga", "Uruguay > Primera División", "USA > Major League Soccer" ];
+    for row in matches:
+        date_str, competition, match, score, *rest = row
+        competition = extract_season(row[1].strip())
+        teams = row[2].strip()
+        home_team, away_team = split_teams(teams, teams_with_hyphens)
+        #date = datetime.strptime(date_str.strip(), "%d-%m-%Y %H:%M")
+        date = row[0].strip().split(' ')[0]
+        result = row[3].strip()
+
+        if "resch" in result or "annull" in result or "dnp" in result or "abor" in result:
+            continue
+
+        try:
+            # Skip if competition is not in comps_list
+            #if any(item.lower().replace(' ', '') in competition.lower().replace(' ', '') for item in comps_list):
+                last_3_matches_home_team = find_past_matches(home_team, competition, date, matches_map)
+                last_3_matches_away_team = find_past_matches(away_team, competition, date, matches_map)
+
+                # Check last 3 matches of both teams for over 2.5 goals
+                if (all(not has_over_25_goals(lastNmatch[3].strip()) for lastNmatch in last_3_matches_home_team) and
+                    all(not has_over_25_goals(lastNmatch[3].strip()) for lastNmatch in last_3_matches_away_team)):
+                    filtered_matches.append(row)
+
+        except Exception as e:
+            print(row)
+            print(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            continue
+
+    return filtered_matches
+
+def extract_season(competition_name):
+    # Match the season formats "202X" or "202X/202Y"
+    match = re.search(r'\b\d{4}(?:/\d{4})?\b', competition_name)
+    if match:
+        # Find the index where the season string (year or year range) ends.
+        end_index = match.end()
+        # Return the substring of the competition up to the season part.
+        return competition_name[:end_index].strip()
+    else:
+        # If no season pattern is found, return the original string.
+        return competition_name
+
+# Helper function to check if there are more than 2.5 goals in the match
+def has_over_25_goals(score_string):
+    try:
+        #goals = sum(int(x) for x in score_string.replace('(', '').replace(')', '').split(':'))
+        if "pso" in score_string:
+            goals = sum(map(int, score_string.split('(')[1].split(',')[0].split(':')))
+        else:
+            goals = sum(map(int, score_string.split()[0].split(':')))
+        return goals > 2.5
+    except ValueError:
+        return False
+
+# Function to find the last 3 matches up to a certain date
+def find_past_matches(team, competition, date, matches_map):
+    team_key = f"{team} | {competition}"
+    past_matches = []
+
+    # Ensure the input date is a datetime object. If it's a string, convert it.
+    if isinstance(date, str):
+        date = datetime.strptime(date, "%d-%m-%Y")
+
+    # Extract all matches for the key
+    all_matches = matches_map.get(team_key, [])
+
+    # Filter matches that occurred before the specified 'date'
+    for match in all_matches:
+        match_date_str = match[0].strip().split(' ')[0]
+        match_date = datetime.strptime(match_date_str, "%d-%m-%Y")
+        if match_date < date:
+            past_matches.append((match_date, match))
+
+    # Sort the past matches by date (from oldest to most recent)
+    past_matches.sort(key=lambda x: x[0])
+
+    # Get the list of matches excluding the date
+    past_matches_list = [match for _, match in past_matches[-3:]]
+
+    return past_matches_list
+
+# auxiliar function
+def split_teams(teams_str, teams_with_hyphens):
+    """
+    Splits the teams string into home and away teams by checking for known hyphenated teams.
+    """
+    parts = teams_str.split(" - ")
+    # Check if the away team (suffix) is a known hyphenated team
+    for i in range(len(parts), 0, -1):
+        possible_away_team = " - ".join(parts[i-1:])  # Check suffixes
+        if possible_away_team in teams_with_hyphens:
+            home_team = " - ".join(parts[:i-1]) if i-1 > 0 else ""
+            return home_team.strip(), possible_away_team.strip()
+    # Fallback: Split at the last " - "
+    last_sep_index = teams_str.rfind(" - ")
+    if last_sep_index != -1:
+        return (
+            teams_str[:last_sep_index].strip(), 
+            teams_str[last_sep_index + 3:].strip()
+        )
+    return None, None
