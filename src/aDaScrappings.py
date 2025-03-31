@@ -78,17 +78,17 @@ def json_to_csv(json_file_path, csv_file_path):
             writer.writerow(row)
 
 # docker run -d -p 4444:4444 -p 7900:7900  --shm-size="2g" --platform linux/x86_64 -e SE_NODE_SESSION_TIMEOUT='20' selenium/standalone-chrome:latest
-def scrappAdAStatsBulk(month):
+def scrappAdAStatsBulk(month, day):
     #driver = webdriver.Chrome(options=set_chrome_options())
     driver = webdriver.Remote("http://172.17.0.2:4444", options=webdriver.ChromeOptions())
     driver.maximize_window()
 
     matches = []
-    for i in range(1,32):
+    for i in range(day,32):
         print("########## DATE: " + str(i) + '/' + month)
         try:
             matches += getOver25GoalCandidatesFromAdA("https://www.academiadasapostas.com/stats/livescores/2024/"+ month + "/" + str(i), driver)
-            with open("scrapper/newData/allMatchesByAda_2024_" + str(i) + ".json", 'a', encoding='utf-8') as file:
+            with open("scrapper/newData/allMatchesByAda_2024_" + month + ".json", 'a', encoding='utf-8') as file:
                 json.dump(matches, file, ensure_ascii=False, indent=4)
                 matches = []
             

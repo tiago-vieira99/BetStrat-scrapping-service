@@ -299,7 +299,8 @@ def test_o25_strategy():
 @app.route('/ada/scrap-all-stats', methods=['POST'])
 def ada_scrap_all_stats():
     try:
-        return aDaScrappings.scrappAdAStatsBulk('1')
+        data = request.get_json()
+        return aDaScrappings.scrappAdAStatsBulk(data['month'], data['day'])
     except Exception as e:
         return jsonify({'error': str(e)})
 
