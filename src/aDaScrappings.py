@@ -80,7 +80,7 @@ def json_to_csv(json_file_path, csv_file_path):
 # docker run -d -p 4444:4444 -p 7900:7900  --shm-size="2g" --platform linux/x86_64 -e SE_NODE_SESSION_TIMEOUT='20' selenium/standalone-chrome:latest
 def scrappAdAStatsBulk(month, day):
     #driver = webdriver.Chrome(options=set_chrome_options())
-    driver = webdriver.Remote("http://172.17.0.2:4444", options=webdriver.ChromeOptions())
+    driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions())
     driver.maximize_window()
 
     matches = []
