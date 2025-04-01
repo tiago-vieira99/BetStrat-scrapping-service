@@ -110,7 +110,8 @@ def scrappAdAStatsBulk(monthh, day):
     # return matches
 
     ## COLLECT MATCHES_STATS FROM MATCHES_LINKS FILES
-    folder_path = "scrapper/newData/aDa/matches_links/"
+    folder_path = "BetStrat-scrapping-service-master/newData/aDa/matches_links/"
+    errors = []
     for filename in os.listdir(folder_path):
         if filename.endswith(".json"):  # Check if it's a JSON file
             file_path = os.path.join(folder_path, filename)
@@ -134,6 +135,7 @@ def scrappAdAStatsBulk(monthh, day):
                                 #time.sleep(2)
                             except Exception as e:
                                 print(e)
+                                errors.append(e)
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
                                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                                 print(exc_type, fname, exc_tb.tb_lineno)
@@ -145,7 +147,8 @@ def scrappAdAStatsBulk(monthh, day):
                 print(e)
             #break
 
-    return matches
+    print(errors)
+    return errors
 
 def insertMatchInDB(match):
     ca_file = "ca.pem"
@@ -314,48 +317,48 @@ def getMatchStatsFromAdA(url):
                     awayGoalsRows.append([el.text.strip() for el in row.find_all('td')])
 
 
-            homeOverRateAtHome = 0 if homeGoalsRows[5][1][:-1] == '' else homeGoalsRows[5][1][:-1]
-            homeOverRateAtAway = 0 if homeGoalsRows[5][2][:-1] == '' else homeGoalsRows[5][2][:-1]
-            homeOverRateGlobal = 0 if homeGoalsRows[5][3][:-1] == '' else homeGoalsRows[5][3][:-1]
-            awayOverRateAtHome = 0 if awayGoalsRows[5][1][:-1] == '' else awayGoalsRows[5][1][:-1]
-            awayOverRateAtAway = 0 if awayGoalsRows[5][2][:-1] == '' else awayGoalsRows[5][2][:-1]
-            awayOverRateGlobal = 0 if awayGoalsRows[5][3][:-1] == '' else awayGoalsRows[5][3][:-1]
-            homeScoredGoalsAvgAtHome = 0 if homeGoalsRows[0][1] == '' else homeGoalsRows[0][1]
-            homeScoredGoalsAvgAtAway = 0 if homeGoalsRows[0][2] == '' else homeGoalsRows[0][2]
-            homeScoredGoalsAvgGlobal = 0 if homeGoalsRows[0][3] == '' else homeGoalsRows[0][3]
-            awayScoredGoalsAvgAtHome = 0 if awayGoalsRows[0][1] == '' else awayGoalsRows[0][1]
-            awayScoredGoalsAvgAtAway = 0 if awayGoalsRows[0][2] == '' else awayGoalsRows[0][2]
-            awayScoredGoalsAvgGlobal = 0 if awayGoalsRows[0][3] == '' else awayGoalsRows[0][3]
-            homeConcededGoalsAvgAtHome = 0 if homeGoalsRows[1][1] == '' else homeGoalsRows[1][1]
-            homeConcededGoalsAvgAtAway = 0 if homeGoalsRows[1][2] == '' else homeGoalsRows[1][2]
-            homeConcededGoalsAvgGlobal = 0 if homeGoalsRows[1][3] == '' else homeGoalsRows[1][3]
-            awayConcededGoalsAvgAtHome = 0 if awayGoalsRows[1][1] == '' else awayGoalsRows[1][1]
-            awayConcededGoalsAvgAtAway = 0 if awayGoalsRows[1][2] == '' else awayGoalsRows[1][2]
-            awayConcededGoalsAvgGlobal = 0 if awayGoalsRows[1][3] == '' else awayGoalsRows[1][3]
-            homeTotalGoalsAvgAtHome = 0 if homeGoalsRows[2][1] == '' else homeGoalsRows[2][1]
-            homeTotalGoalsAvgAtAway = 0 if homeGoalsRows[2][2] == '' else homeGoalsRows[2][2]
-            homeTotalGoalsAvgGlobal = 0 if homeGoalsRows[2][3] == '' else homeGoalsRows[2][3]
-            awayTotalGoalsAvgAtHome = 0 if awayGoalsRows[2][1] == '' else awayGoalsRows[2][1]
-            awayTotalGoalsAvgAtAway = 0 if awayGoalsRows[2][2] == '' else awayGoalsRows[2][2]
-            awayTotalGoalsAvgGlobal = 0 if awayGoalsRows[2][3] == '' else awayGoalsRows[2][3]
-            homeCleanSheetsRateAtHome = 0 if homeGoalsRows[3][1][:-1] == '' else homeGoalsRows[3][1][:-1]
-            homeCleanSheetsRateAtAway = 0 if homeGoalsRows[3][2][:-1] == '' else homeGoalsRows[3][2][:-1]
-            homeCleanSheetsRateGlobal = 0 if homeGoalsRows[3][3][:-1] == '' else homeGoalsRows[3][3][:-1]
-            awayCleanSheetsRateAtHome = 0 if awayGoalsRows[3][1][:-1] == '' else awayGoalsRows[3][1][:-1]
-            awayCleanSheetsRateAtAway = 0 if awayGoalsRows[3][2][:-1] == '' else awayGoalsRows[3][2][:-1]
-            awayCleanSheetsRateGlobal = 0 if awayGoalsRows[3][3][:-1] == '' else awayGoalsRows[3][3][:-1]
-            homeNoScoreRateAtHome = 0 if homeGoalsRows[4][1][:-1] == '' else homeGoalsRows[4][1][:-1]
-            homeNoScoreRateAtAway = 0 if homeGoalsRows[4][2][:-1] == '' else homeGoalsRows[4][2][:-1]
-            homeNoScoreRateGlobal = 0 if homeGoalsRows[4][3][:-1] == '' else homeGoalsRows[4][3][:-1]
-            awayNoScoreRateAtHome = 0 if awayGoalsRows[4][1][:-1] == '' else awayGoalsRows[4][1][:-1]
-            awayNoScoreRateAtAway = 0 if awayGoalsRows[4][2][:-1] == '' else awayGoalsRows[4][2][:-1]
-            awayNoScoreRateGlobal = 0 if awayGoalsRows[4][3][:-1] == '' else awayGoalsRows[4][3][:-1]
-            homeUnderRateAtHome = 0 if homeGoalsRows[6][1][:-1] == '' else homeGoalsRows[6][1][:-1]
-            homeUnderRateAtAway = 0 if homeGoalsRows[6][2][:-1] == '' else homeGoalsRows[6][2][:-1]
-            homeUnderRateGlobal = 0 if homeGoalsRows[6][3][:-1] == '' else homeGoalsRows[6][3][:-1]
-            awayUnderRateAtHome = 0 if awayGoalsRows[6][1][:-1] == '' else awayGoalsRows[6][1][:-1]
-            awayUnderRateAtAway = 0 if awayGoalsRows[6][2][:-1] == '' else awayGoalsRows[6][2][:-1]
-            awayUnderRateGlobal = 0 if awayGoalsRows[6][3][:-1] == '' else awayGoalsRows[6][3][:-1]
+            homeOverRateAtHome = 0 if homeGoalsRows[5][1][:-1] == '-' or homeGoalsRows[5][1][:-1] == '' else homeGoalsRows[5][1][:-1]
+            homeOverRateAtAway = 0 if homeGoalsRows[5][2][:-1] == '-' or homeGoalsRows[5][2][:-1] == '' else homeGoalsRows[5][2][:-1]
+            homeOverRateGlobal = 0 if homeGoalsRows[5][3][:-1] == '-' or homeGoalsRows[5][3][:-1] == '' else homeGoalsRows[5][3][:-1]
+            awayOverRateAtHome = 0 if awayGoalsRows[5][1][:-1] == '-' or awayGoalsRows[5][1][:-1] == '' else awayGoalsRows[5][1][:-1]
+            awayOverRateAtAway = 0 if awayGoalsRows[5][2][:-1] == '-' or awayGoalsRows[5][2][:-1] == '' else awayGoalsRows[5][2][:-1]
+            awayOverRateGlobal = 0 if awayGoalsRows[5][3][:-1] == '-' or awayGoalsRows[5][3][:-1] == '' else awayGoalsRows[5][3][:-1]
+            homeScoredGoalsAvgAtHome = 0 if homeGoalsRows[0][1] == '-' or homeGoalsRows[0][1] == '' else homeGoalsRows[0][1]
+            homeScoredGoalsAvgAtAway = 0 if homeGoalsRows[0][2] == '-' or homeGoalsRows[0][2] == '' else homeGoalsRows[0][2]
+            homeScoredGoalsAvgGlobal = 0 if homeGoalsRows[0][3] == '-' or homeGoalsRows[0][3] == '' else homeGoalsRows[0][3]
+            awayScoredGoalsAvgAtHome = 0 if awayGoalsRows[0][1] == '-' or awayGoalsRows[0][1] == '' else awayGoalsRows[0][1]
+            awayScoredGoalsAvgAtAway = 0 if awayGoalsRows[0][2] == '-' or awayGoalsRows[0][2] == '' else awayGoalsRows[0][2]
+            awayScoredGoalsAvgGlobal = 0 if awayGoalsRows[0][3] == '-' or awayGoalsRows[0][3] == '' else awayGoalsRows[0][3]
+            homeConcededGoalsAvgAtHome = 0 if homeGoalsRows[1][1] == '-' or homeGoalsRows[1][1] == '' else homeGoalsRows[1][1]
+            homeConcededGoalsAvgAtAway = 0 if homeGoalsRows[1][2] == '-' or homeGoalsRows[1][2] == '' else homeGoalsRows[1][2]
+            homeConcededGoalsAvgGlobal = 0 if homeGoalsRows[1][3] == '-' or homeGoalsRows[1][3] == '' else homeGoalsRows[1][3]
+            awayConcededGoalsAvgAtHome = 0 if awayGoalsRows[1][1] == '-' or awayGoalsRows[1][1] == '' else awayGoalsRows[1][1]
+            awayConcededGoalsAvgAtAway = 0 if awayGoalsRows[1][2] == '-' or awayGoalsRows[1][2] == '' else awayGoalsRows[1][2]
+            awayConcededGoalsAvgGlobal = 0 if awayGoalsRows[1][3] == '-' or awayGoalsRows[1][3] == '' else awayGoalsRows[1][3]
+            homeTotalGoalsAvgAtHome = 0 if homeGoalsRows[2][1] == '-' or homeGoalsRows[2][1] == '' else homeGoalsRows[2][1]
+            homeTotalGoalsAvgAtAway = 0 if homeGoalsRows[2][2] == '-' or homeGoalsRows[2][2] == '' else homeGoalsRows[2][2]
+            homeTotalGoalsAvgGlobal = 0 if homeGoalsRows[2][3] == '-' or homeGoalsRows[2][3] == '' else homeGoalsRows[2][3]
+            awayTotalGoalsAvgAtHome = 0 if awayGoalsRows[2][1] == '-' or awayGoalsRows[2][1] == '' else awayGoalsRows[2][1]
+            awayTotalGoalsAvgAtAway = 0 if awayGoalsRows[2][2] == '-' or awayGoalsRows[2][2] == '' else awayGoalsRows[2][2]
+            awayTotalGoalsAvgGlobal = 0 if awayGoalsRows[2][3] == '-' or awayGoalsRows[2][3] == '' else awayGoalsRows[2][3]
+            homeCleanSheetsRateAtHome = 0 if homeGoalsRows[3][1][:-1] == '-' or homeGoalsRows[3][1][:-1] == '' else homeGoalsRows[3][1][:-1]
+            homeCleanSheetsRateAtAway = 0 if homeGoalsRows[3][2][:-1] == '-' or homeGoalsRows[3][2][:-1] == '' else homeGoalsRows[3][2][:-1]
+            homeCleanSheetsRateGlobal = 0 if homeGoalsRows[3][3][:-1] == '-' or homeGoalsRows[3][3][:-1] == '' else homeGoalsRows[3][3][:-1]
+            awayCleanSheetsRateAtHome = 0 if awayGoalsRows[3][1][:-1] == '-' or awayGoalsRows[3][1][:-1] == '' else awayGoalsRows[3][1][:-1]
+            awayCleanSheetsRateAtAway = 0 if awayGoalsRows[3][2][:-1] == '-' or awayGoalsRows[3][2][:-1] == '' else awayGoalsRows[3][2][:-1]
+            awayCleanSheetsRateGlobal = 0 if awayGoalsRows[3][3][:-1] == '-' or awayGoalsRows[3][3][:-1] == '' else awayGoalsRows[3][3][:-1]
+            homeNoScoreRateAtHome = 0 if homeGoalsRows[4][1][:-1] == '-' or homeGoalsRows[4][1][:-1] == '' else homeGoalsRows[4][1][:-1]
+            homeNoScoreRateAtAway = 0 if homeGoalsRows[4][2][:-1] == '-' or homeGoalsRows[4][2][:-1] == '' else homeGoalsRows[4][2][:-1]
+            homeNoScoreRateGlobal = 0 if homeGoalsRows[4][3][:-1] == '-' or homeGoalsRows[4][3][:-1] == '' else homeGoalsRows[4][3][:-1]
+            awayNoScoreRateAtHome = 0 if awayGoalsRows[4][1][:-1] == '-' or awayGoalsRows[4][1][:-1] == '' else awayGoalsRows[4][1][:-1]
+            awayNoScoreRateAtAway = 0 if awayGoalsRows[4][2][:-1] == '-' or awayGoalsRows[4][2][:-1] == '' else awayGoalsRows[4][2][:-1]
+            awayNoScoreRateGlobal = 0 if awayGoalsRows[4][3][:-1] == '-' or awayGoalsRows[4][3][:-1] == '' else awayGoalsRows[4][3][:-1]
+            homeUnderRateAtHome = 0 if homeGoalsRows[6][1][:-1] == '-' or homeGoalsRows[6][1][:-1] == '' else homeGoalsRows[6][1][:-1]
+            homeUnderRateAtAway = 0 if homeGoalsRows[6][2][:-1] == '-' or homeGoalsRows[6][2][:-1] == '' else homeGoalsRows[6][2][:-1]
+            homeUnderRateGlobal = 0 if homeGoalsRows[6][3][:-1] == '-' or homeGoalsRows[6][3][:-1] == '' else homeGoalsRows[6][3][:-1]
+            awayUnderRateAtHome = 0 if awayGoalsRows[6][1][:-1] == '-' or awayGoalsRows[6][1][:-1] == '' else awayGoalsRows[6][1][:-1]
+            awayUnderRateAtAway = 0 if awayGoalsRows[6][2][:-1] == '-' or awayGoalsRows[6][2][:-1] == '' else awayGoalsRows[6][2][:-1]
+            awayUnderRateGlobal = 0 if awayGoalsRows[6][3][:-1] == '-' or awayGoalsRows[6][3][:-1] == '' else awayGoalsRows[6][3][:-1]
 
 
             ############## LAST MATCHES
