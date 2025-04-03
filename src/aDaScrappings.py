@@ -110,7 +110,7 @@ def scrappAdAStatsBulk(monthh, day):
     # return matches
 
     ## COLLECT MATCHES_STATS FROM MATCHES_LINKS FILES
-    folder_path = "BetStrat-scrapping-service-master/newData/aDa/matches_links/"
+    folder_path = "scrapper/newData/aDa/matches_links/"
     errors = []
     for filename in os.listdir(folder_path):
         if filename.endswith(".json"):  # Check if it's a JSON file

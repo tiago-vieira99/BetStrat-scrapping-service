@@ -6,6 +6,7 @@ import goalsFest
 import bttsOneHalf
 import footystats
 import aDaScrappings
+import nbaBacktests
 import difflib
 import json
 import test
@@ -316,6 +317,14 @@ def generate_csv():
     try:
         #data = request.get_json()
         return jsonify(goalsFest.generateFileForNextMatchesEbookStrategy())
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/nba/scrap-data', methods=['POST'])
+def nba_scrap_data():
+    try:
+        data = request.data
+        return jsonify(nbaBacktests.scrappNBAStatsBulk(data))
     except Exception as e:
         return jsonify({'error': str(e)})
 
