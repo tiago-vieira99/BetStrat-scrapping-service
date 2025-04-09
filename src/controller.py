@@ -7,6 +7,7 @@ import bttsOneHalf
 import footystats
 import aDaScrappings
 import nbaBacktests
+import telegramScraps
 import difflib
 import json
 import test
@@ -323,8 +324,15 @@ def generate_csv():
 @app.route('/nba/scrap-data', methods=['POST'])
 def nba_scrap_data():
     try:
-        data = request.data
-        return jsonify(nbaBacktests.scrappNBAStatsBulk(data))
+        data = request.get_json()
+        return jsonify(nbaBacktests.scrappNBAStatsBulk(data['url'], data['season']))
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/telegram', methods=['POST'])
+def telegram_scrap_data():
+    try:
+        return telegramScraps.fetch()
     except Exception as e:
         return jsonify({'error': str(e)})
 
