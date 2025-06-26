@@ -8,11 +8,14 @@ import footystats
 import aDaScrappings
 import nbaBacktests
 import telegramScraps
+import sofascore as ss
 import difflib
 import json
 import test
 import time
 from collections import OrderedDict
+import sys, os
+import datetime
 
 app = Flask(__name__)
 
@@ -236,6 +239,253 @@ def btts_get_matches_between_teams():
         print(exc_type, fname, exc_tb.tb_lineno)
         return jsonify({'error': str(e)})
 
+@app.route('/kelly-strats/next-matches', methods=['GET'])
+def over25_get_next_matches():
+
+    today = datetime.date.today()
+
+    # Calculate tomorrow and the day after tomorrow
+    tomorrow = today + datetime.timedelta(days=1)
+    day_after_tomorrow = today + datetime.timedelta(days=2)
+
+    # Format the dates as mm/dd
+    tomorrow_formatted = tomorrow.strftime("%d")
+    day_after_tomorrow_formatted = day_after_tomorrow.strftime("%d")
+    tomorrow_month = tomorrow.strftime("%m")
+    after_tomorrow_month = day_after_tomorrow.strftime("%m")
+
+    tomorrow_link = "https://www.academiadasapostas.com/stats/livescores/2025/" + tomorrow_month + "/" + tomorrow_formatted
+    after_tomorrow_link = "https://www.academiadasapostas.com/stats/livescores/2025/" + after_tomorrow_month + "/" + day_after_tomorrow_formatted
+    adaLinks = []
+    adaLinks.append(tomorrow_link)
+    adaLinks.append(after_tomorrow_link)
+
+    try:
+        matchesToBet = {}
+        over25Matches = []
+        bttsOneHalfMatches = []
+        for link in adaLinks:
+        #or d in range(27,32):
+            matchesLinks = aDaScrappings.getAdaMatchesLinks(link)#"https://www.academiadasapostas.com/stats/livescores/2025/05/" + str("%02d" % d))
+            for element in matchesLinks:
+                try:
+                    match = aDaScrappings.getAdaMatchesStats(element)
+                    # if len(match) > 0:
+                    #     aDaScrappings.insertMatchInDB(match[0])
+                    if filter_criteria_over25_match(match[0]):
+                        print(match[0])
+                        over25Matches.append(match[0])
+                    if filter_criteria_btts_match(match[0]):
+                        print(match[0])
+                        bttsOneHalfMatches.append(match[0])
+                except Exception as e:
+                    print(e)
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+                    continue
+        matchesToBet['over25'] = over25Matches
+        matchesToBet['bttsOneHalf'] = bttsOneHalfMatches
+        return matchesToBet
+    except Exception as e:
+        print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        return jsonify({'error': str(e)})
+
+def filter_criteria_over25_match(match):
+    last_home_team_matches = match['last_home_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
+    last_away_team_matches = match['last_away_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
+    home_total_goals_avg_at_home_pre = float(match['home_total_goals_avg_at_home_pre'])
+    away_total_goals_avg_at_away_pre = float(match['away_total_goals_avg_at_away_pre'])
+    
+    last_home_data = json.loads(last_home_team_matches)  # Parse the JSON string
+    last_away_data = json.loads(last_away_team_matches)  # Parse the JSON string
+
+    filtered_comps = ["República da Irlanda - FAI Cup", "Catar - Play-offs 1/2", "Canadá - Canadian Championship", "Croácia - Cup", "África do Sul - Cup", "Ucrânia - Persha Liga", "Estónia - Super Cup", "Albânia - Cup", "Arménia - Cup", "Emirados Árabes Unidos - League Cup", "Catar - QSL Cup", "Estados Unidos da América - US Open Cup", "África - CAF Champions League", "Portugal - Taça da Liga", "Turquia - Cup", "Bielorrússia - Cup", "Japão - Emperor Cup", "Malta - FA Trophy", "Itália - Coppa Italia", "Índia - I-League", "Rússia - Cup", "Islândia - 1. Deild", "Suíça - Schweizer Pokal", "Israel - State Cup", "Escócia - FA Cup", "Argentina - Primera División", "Portugal - Taça de Portugal", "Hungria - Magyar Kupa", "Rússia - FNL", "Singapura - Premier League", "França - Coupe de France", "Israel - Toto Cup Ligat Al", "Islândia - Cup", "Bósnia-Herzegovina - Cup", "Irlanda do Norte - Taça da Liga", "República da Coreia - FA Cup", "Suíça - Challenge League", "Europa - UEFA Champions League", "Eslováquia - 2. liga", "Países Baixos - KNVB Beker", "Perú - Segunda División", "Austrália - A-League", "Eslováquia - Cup", "Áustria - Cup", "Cazaquistão - Premier League", "Bélgica - First Division B", "Ásia - AFC Champions League", "Polónia - Cup", "Noruega - NM Cupen", "Países Baixos - Eerste Divisie", "Bélgica - Cup", "Malásia - Super League", "Arménia - Premier League", "Chile - Copa Chile", "Inglaterra - FA Cup", "Espanha - Copa del Rey", "Estónia - Cup", "Eslovénia - Cup", "Albânia - Superliga", "Finlândia - Ykkönen", "Islândia - Úrvalsdeild", "Inglaterra - Premier League", "Europa - UEFA Europa League", "Áustria - 1. Liga", "Itália - Serie A", "República Checa - Czech Liga", "RP China - CSL", "Gales - Premier League", "Portugal - Liga Portugal Betclic", "Suécia - Svenska Cupen", "Alemanha - Bundesliga", "América do Sul - CONMEBOL Libertadores", "Polónia - I Liga", "Escócia - Taça da Liga", "Brasil - Serie A", "Alemanha - Regionalliga", "Bélgica - Pro League", "Luxemburgo - National Division", "Finlândia - Veikkausliiga", "Lituânia - A Lyga", "Irlanda do Norte - Premiership", "Croácia - 1. HNL", "Noruega - 1. Division", "Catar - Stars League", "Alemanha - DFB Pokal", "Roménia - Cupa României", "Noruega - Eliteserien", "Japão - J1 League", "Chile - Primera División", "Alemanha - 2. Bundesliga", "Inglaterra - League Two", "Estados Unidos da América - MLS", "México - Liga MX", "Inglaterra - League One"]
+
+    ### HOME conditions
+    total_goals_last_home_team_matches = 0
+    last_home_team_matches_iterated = 0
+    last_home_team_matches_overs = 0
+    for i in range(0, len(last_home_data)):
+        match_result = ''
+        
+        if str(last_home_data[i].split('|')[2].strip()) == str(match['home_team']) and last_home_team_matches_iterated < 3:
+            last_home_team_matches_iterated += 1
+            if 'ET' in last_home_data[i].split('|')[3].strip():
+                match_result = last_home_data[i].split('|')[3].split('ET')[0].strip()
+            elif 'PG' in last_home_data[i].split('|')[3].strip():
+                match_result = last_home_data[i].split('|')[3].split('PG')[0].strip()
+            elif last_home_data[i].split('|')[3].strip() == '-':
+                continue
+            else:
+                match_result = last_home_data[i].split('|')[3].strip()
+            if len(match_result) > 1:
+                total_goals_last_home_team_matches = total_goals_last_home_team_matches + int(match_result.split('-')[0]) + int(match_result.split('-')[1])
+                if (int(match_result.split('-')[0]) + int(match_result.split('-')[1])) > 2:
+                    last_home_team_matches_overs += 1
+
+
+    ## HOME Team eligibility evaluation
+    home_team_eligle = False
+    if total_goals_last_home_team_matches >= 7 and last_home_team_matches_overs >= 2:
+        home_team_eligle = True
+
+    ### AWAY conditions
+    total_goals_last_away_team_matches = 0
+    total_goals_previous_away_team_match = 0
+    last_away_team_matches_iterated = 0
+    last_away_team_matches_overs = 0
+    last_away_team_matches_scored = 0
+    for i in range(0, len(last_away_data)):
+        match_result = ''
+        
+        if str(last_away_data[i].split('|')[4].strip()) == str(match['away_team']) and last_away_team_matches_iterated < 3:
+            last_away_team_matches_iterated += 1
+            if 'ET' in last_away_data[i].split('|')[3].strip():
+                match_result = last_away_data[i].split('|')[3].split('ET')[0].strip()
+            elif 'PG' in last_away_data[i].split('|')[3].strip():
+                match_result = last_away_data[i].split('|')[3].split('PG')[0].strip()
+            elif last_away_data[i].split('|')[3].strip() == '-':
+                continue
+            else:
+                match_result = last_away_data[i].split('|')[3].strip()
+            if len(match_result) > 1:
+                total_goals_last_away_team_matches = total_goals_last_away_team_matches + int(match_result.split('-')[0]) + int(match_result.split('-')[1])
+                if (int(match_result.split('-')[0]) + int(match_result.split('-')[1])) > 2:
+                    last_away_team_matches_overs += 1
+                if int(match_result.split('-')[1]) > 0:
+                    last_away_team_matches_scored += 1
+                if last_away_team_matches_iterated == 1:
+                    total_goals_previous_away_team_match = int(match_result.split('-')[0]) + int(match_result.split('-')[1])
+
+    ## AWAY Team eligibility evaluation
+    away_team_eligle = False
+    if total_goals_last_away_team_matches >= 7 and last_away_team_matches_overs >= 2 and total_goals_previous_away_team_match >= 2 and last_away_team_matches_scored >= 2:
+        away_team_eligle = True
+
+
+    if home_team_eligle and away_team_eligle and str(match['competition']) in filtered_comps:
+        print(str(match['home_team']) + ' - '  + str(match['away_team']))
+        # print('total_goals_last_home_team_matches' + str(total_goals_last_home_team_matches))
+        # print('last_home_team_matches_overs' + str(last_home_team_matches_overs))
+        # print('total_goals_last_away_team_matches' + str(total_goals_last_away_team_matches))
+        # print('last_away_team_matches_overs' + str(last_away_team_matches_overs))
+        # print('total_goals_previous_away_team_match' + str(total_goals_previous_away_team_match))
+        # print('last_away_team_matches_scored' + str(last_away_team_matches_scored))
+        return True
+    return False
+
+@app.route('/btts-one-half/next-matches', methods=['GET'])
+def btts_get_next_matches():
+    try:
+        matchesToBet = []
+        for d in range(15,21):
+            matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/06/" + str("%02d" % d))
+            for element in matchesLinks:
+                try:
+                    match = aDaScrappings.getAdaMatchesStats(element)
+                    if len(match) > 0:
+                        aDaScrappings.insertMatchInDB(match[0])
+                    # if filter_criteria_btts_match(match[0]):
+                    #     print(match[0])
+                    #     matchesToBet.append(match[0])
+                except Exception as e:
+                    print(e)
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print(exc_type, fname, exc_tb.tb_lineno)
+                    continue
+        return matchesToBet
+    except Exception as e:
+        print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        return jsonify({'error': str(e)})
+
+def filter_criteria_btts_match(match):
+    h2h_matches_json = match['h2h_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
+    last_home_team_matches = match['last_home_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
+    last_away_team_matches = match['last_away_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
+    home_total_goals_avg_at_home_pre = float(match['home_total_goals_avg_at_home_pre'])
+    away_total_goals_avg_at_away_pre = float(match['away_total_goals_avg_at_away_pre'])
+    if h2h_matches_json:  # Check if the JSON string is not empty/None
+        h2h_data = json.loads(h2h_matches_json)  # Parse the JSON string
+        last_home_data = json.loads(last_home_team_matches)  # Parse the JSON string
+        last_away_data = json.loads(last_away_team_matches)  # Parse the JSON string
+
+        bttsLastStreak = bttsOneHalf.filterMatchesByBttsCondition(h2h_data)
+        btts_streak_length = int(bttsLastStreak.split('/')[1])
+        btts_streak_value = int(bttsLastStreak.split('/')[0])
+
+        overLastStreak = bttsOneHalf.filterMatchesByOverCondition(h2h_data)
+        over_streak_length = int(overLastStreak.split('/')[1])
+        over_streak_value = int(overLastStreak.split('/')[0])
+
+        home_bttsLastStreak = bttsOneHalf.filterMatchesByBttsCondition(last_home_data)
+        home_btts_streak_length = int(home_bttsLastStreak.split('/')[1])
+        home_btts_streak_value = int(home_bttsLastStreak.split('/')[0])
+
+        home_overLastStreak = bttsOneHalf.filterMatchesByOverCondition(last_home_data)
+        home_over_streak_length = int(home_overLastStreak.split('/')[1])
+        home_over_streak_value = int(home_overLastStreak.split('/')[0])
+
+        away_bttsLastStreak = bttsOneHalf.filterMatchesByBttsCondition(last_away_data)
+        away_btts_streak_length = int(away_bttsLastStreak.split('/')[1])
+        away_btts_streak_value = int(away_bttsLastStreak.split('/')[0])
+
+        away_overLastStreak = bttsOneHalf.filterMatchesByOverCondition(last_away_data)
+        away_over_streak_length = int(away_overLastStreak.split('/')[1])
+        away_over_streak_value = int(away_overLastStreak.split('/')[0])
+
+
+        #if (btts_streak_length >= 6 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 6 and float(over_streak_value/over_streak_length) >= 0.75) and home_total_goals_avg_at_home_pre >= 2 and away_total_goals_avg_at_away_pre >= 2:
+        if home_total_goals_avg_at_home_pre >= 3 and away_total_goals_avg_at_away_pre >= 3 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
+            return True
+    return False
+            
+
+@app.route('/btts-one-half/matches-from-database', methods=['GET'])
+def btts_get_matches_from_database():
+    return_list = []
+    results = []
+    for j in range(5,6):
+        try:
+            for i in range(1, 32):
+                date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
+                results += (bttsOneHalf.getMatchesByDateFromDB2(date))
+
+            # num_greens_over25 = 0
+            # num_greens_btts1h = 0
+            # for m in results:
+            #     if ((int(m['05. ft_result'].split('-')[0]) + int(m['05. ft_result'].split('-')[1])) > 2):
+            #         num_greens_over25 += 1
+            #     if len(m['06. ht_result']) > 0 and bttsOneHalf.evalute_btts_one_half_result(m):
+            #         num_greens_btts1h += 1
+
+            # simulation = {}
+            # #simulation['matches'] = results
+            # simulation['month'] = j
+            # simulation['num_greens_over25'] = num_greens_over25
+            # simulation['num_greens_btts1h'] = num_greens_btts1h
+            # simulation['num_bets'] = len(results)
+            # if len(results) > 0:
+            #     simulation['success_o25'] = float(num_greens_over25/len(results))
+            #     simulation['success_btts1h'] = float(num_greens_btts1h/len(results))
+            # return_list.append(simulation)
+
+        except Exception as e:
+            print(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            continue
+
+    return results
+
 @app.route('/footy-stats/merge-csv', methods=['POST'])
 def merge_csv():
     try:
@@ -409,6 +659,13 @@ def get_distinct_competitions():
 def update_with_real_h2h_data():
     try:
         return test.update_with_real_h2h_data()
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/sofascore', methods=['POST'])
+def test_sofa_score():
+    try:
+        return ss.testSofaScore()
     except Exception as e:
         return jsonify({'error': str(e)})
 

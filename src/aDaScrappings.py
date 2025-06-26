@@ -80,34 +80,56 @@ def json_to_csv(json_file_path, csv_file_path):
             }
             writer.writerow(row)
 
+def getAdaMatchesLinks(url):
+    matches = []
+    ## COLLECT MATCHES_LINKS FOR EACH DAY
+    driver = webdriver.Remote("http://172.17.0.2:4444", options=webdriver.ChromeOptions())
+    driver.maximize_window()
+
+    try:
+        driver.get(url)
+        #delete the cookies  
+        driver.delete_all_cookies()  
+
+        table = driver.find_element(By.ID, "fh_main_tab")
+        moreButton = table.find_elements(By.CLASS_NAME, "footer")
+
+        i = 0 #prevent infinte loops!!
+        while len(moreButton) > 0:
+            i += 1
+            if i >= 10:
+                break
+            actions = ActionChains(driver)
+            #driver.execute_script(f"window.scrollTo(0, {moreButton[0].location['y']});")
+            moreButton[0].click()
+            actions.move_to_element(moreButton[0])
+            # actions.click(moreButton[0])
+            # actions.perform()
+            time.sleep(3)  
+            table = driver.find_element(By.ID, "fh_main_tab")
+            moreButton = table.find_elements(By.CLASS_NAME, "footer")
+
+        todayMatches = driver.find_elements(By.CLASS_NAME, "live-subscription")
+        gc.collect()
+        print(len(todayMatches))
+        for match in todayMatches:
+            html = match.get_attribute('outerHTML')
+            matches.append(html)
+            soup = BeautifulSoup(html, 'html.parser')
+
+    except Exception as e:
+        print(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
+        
+    driver.close()
+    return matches
+
 # docker run -d -p 4444:4444 -p 7900:7900  --shm-size="2g" --platform linux/x86_64 -e SE_NODE_SESSION_TIMEOUT='20' selenium/standalone-chrome:latest
 def scrappAdAStatsBulk(monthh, day):
 
     matches = []
-    ## COLLECT MATCHES_LINKS FOR EACH DAY
-    # driver = webdriver.Remote("http://172.17.0.2:4444", options=webdriver.ChromeOptions())
-    # driver.maximize_window()
-
-    # for month in range(9,13):
-    #     for i in range(1,32):
-    #         print("########## DATE: " + str(i) + '/' + str(month))
-    #         try:
-    #             matches += getAdaMatchesByDay("https://www.academiadasapostas.com/stats/livescores/2021/"+ str(month) + "/" + str(i), driver)
-    #             with open("scrapper/newData/matchesLinksByAda_2021_" + str(month) + ".json", 'a', encoding='utf-8') as file:
-    #                 json.dump(matches, file, ensure_ascii=False, indent=4)
-    #                 matches = []
-                
-    #             #time.sleep(2)
-    #         except Exception as e:
-    #             print("WILL SKIP THE DAY: " + + str(i) + '/' + str(month))
-    #             print(e)
-    #             exc_type, exc_obj, exc_tb = sys.exc_info()
-    #             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    #             print(exc_type, fname, exc_tb.tb_lineno)
-    #             matches = []
-    #             continue
-    # driver.close()
-    # return matches
 
     ## COLLECT MATCHES_STATS FROM MATCHES_LINKS FILES
     folder_path = "scrapper/newData/aDa/matches_links/"
@@ -193,52 +215,14 @@ def insertMatchInDB(match):
             cursor.close()
             conn.close()
 
-def getAdaMatchesByDay(url, driver):
-    matchesToBet = []
-    try:
-        driver.get(url)
-        #delete the cookies  
-        driver.delete_all_cookies()  
-
-        table = driver.find_element(By.ID, "fh_main_tab")
-        moreButton = table.find_elements(By.CLASS_NAME, "footer")
-
-        i = 0 #prevengt infinte loops!!
-        while len(moreButton) > 0:
-            i += 1
-            if i >= 5:
-                break
-            actions = ActionChains(driver)
-            actions.move_to_element(moreButton[0])
-            actions.click(moreButton[0])
-            actions.perform()
-            time.sleep(3)  
-            table = driver.find_element(By.ID, "fh_main_tab")
-            moreButton = table.find_elements(By.CLASS_NAME, "footer")
-
-        todayMatches = driver.find_elements(By.CLASS_NAME, "live-subscription")
-        gc.collect()
-        print(len(todayMatches))
-        for match in todayMatches:
-            html = match.get_attribute('outerHTML')
-            matchesToBet.append(html)
-            soup = BeautifulSoup(html, 'html.parser')
-
-    except Exception as e:
-                print("WILL SKIP THE DAY: " + + str(i) + '/' + str(month))
-                print(e)
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
-
-    return matchesToBet
 
 def getAdaMatchesStats(element):
     matchesToBet = []
     soup = BeautifulSoup(element, 'html.parser')
 
-    filtered_competitions = ["Albânia - 1st Division", "Albânia - Cup", "Albânia - Super Cup", "Albânia - Superliga", "Alemanha - 2. Bundesliga", "Alemanha - 3. Liga", "Alemanha - Bundesliga", "Alemanha - DFB Pokal", "Alemanha - DFB Pokal Women", "Alemanha - Oberliga", "Alemanha - Regionalliga", "Alemanha - Super Cup", "Algéria - Coupe Nationale", "Algéria - Ligue 1", "América do Sul - CONMEBOL Libertadores", "América do Sul - CONMEBOL Recopa", "América do Sul - CONMEBOL Sudamericana", "Angola - Girabola", "Argentina - Copa Argentina", "Argentina - Copa de la Superliga", "Argentina - Primera División", "Argentina - Primera Nacional", "Arménia - Cup", "Arménia - Premier League", "Arábia Saudita - King's Cup", "Arábia Saudita - Pro League", "Austrália - A-League", "Austrália - FFA Cup", "Azerbaijão - Cup", "Azerbaijão - Premyer Liqa", "Bielorrússia - 1. Division", "Bielorrússia - Cup", "Bielorrússia - Premier League", "Bielorrússia - Super Cup", "Bolívia - Primera División", "Brasil - Serie A", "Brasil - Serie B", "Brasil - Serie C", "Brasil - Copa do Brasil", "Bulgária - A PFG", "Bulgária - B PFG", "Bulgária - Cup", "Bulgária - Super Cup", "Bélgica - Cup", "Bélgica - Super Cup", "Bélgica - First Division B", "Bélgica - Pro League", "Bósnia-Herzegovina - Cup", "Bósnia-Herzegovina - Premier Liga", "Canadá - Canadian Championship", "Catar - Play-offs 1/2", "Catar - QSL Cup", "Catar - Stars League", "Cazaquistão - Cup", "Cazaquistão - Premier League", "Chile - Copa Chile", "Chile - Primera B", "Chile - Primera División", "Chipre - 1. Division", "Chipre - Cup", "Colômbia - Copa Colombia", "Colômbia - Primera A", "Colômbia - Primera B", "Costa Rica - Primera División", "Croácia - 1. HNL", "Croácia - 2. HNL", "Croácia - Cup", "Dinamarca - 1st Division", "Dinamarca - DBU Pokalen", "Dinamarca - Superliga", "Egipto - Premier League", "Egipto - Super Cup", "El Salvador - Primera Division", "Emirados Árabes Unidos - Arabian Gulf League", "Emirados Árabes Unidos - League Cup", "Emirados Árabes Unidos - Super Cup", "Equador - Liga Pro", "Equador - Primera B", "Escócia - Championship", "Escócia - FA Cup", "Escócia - Premiership", "Escócia - Taça da Liga", "Eslováquia - 2. liga", "Eslováquia - Cup", "Eslováquia - Super Liga", "Eslovénia - 1. SNL", "Eslovénia - 2. SNL", "Eslovénia - Cup", "Eslovénia - Play-offs 1/2", "Espanha - Copa del Rey", "Espanha - Super Cup", "Espanha - Primera División", "Espanha - Segunda División", "Estados Unidos da América - MLS", "Estados Unidos da América - US Open Cup", "Estados Unidos da América - USL Championship", "Estónia - Cup", "Estónia - Esiliiga A", "Estónia - Meistriliiga", "Estónia - Super Cup", "Europa - Europa Conference League", "Europa - UEFA Champions League", "Europa - UEFA Europa League", "Europa - UEFA Youth League", "Finlândia - Suomen Cup", "Finlândia - Veikkausliiga", "Finlândia - Ykkönen", "França - Coupe de France", "França - Ligue 1", "França - Ligue 2", "França - National", "Gales - Premier League", "Gales - Welsh Cup", "Gana - Premier League", "Grécia - Cup", "Grécia - Super League", "Guatemála - Liga Nacional", "Honduras - Liga Nacional", "Hong Kong - FA Cup", "Hong Kong - HKFA 1st Division", "Hong Kong - Premier League", "Húngria - Magyar Kupa", "Húngria - NB I", "Húngria - NB II", "Indonésia - Liga 1", "Inglaterra - Championship", "Inglaterra - Taça da Liga", "Inglaterra - FA Cup", "Inglaterra - League One", "Inglaterra - League Two", "Inglaterra - Premier League", "Iraque - Iraqi League", "Irlanda do Norte - Premiership", "Irlanda do Norte - Taça da Liga", "Irão - Azadegan League", "Irão - Persian Gulf Pro League", "Islândia - 1. Deild", "Islândia - Cup", "Islândia - Úrvalsdeild", "Israel - Liga Leumit", "Israel - Ligat ha'Al", "Israel - State Cup", "Israel - Toto Cup Ligat Al", "Itália - Coppa Italia", "Itália - Lega Pro", "Itália - Serie A", "Itália - Serie B", "Jamaica - Premier League", "Japão - Emperor Cup", "Japão - J1 League", "Japão - J2 League", "Japão - Super Cup", "Japão - Taça da J-Liga", "Letónia - Cup", "Letónia - Virsliga", "Lituânia - A Lyga", "Lituânia - Cup", "Luxemburgo - National Division", "Luxemburgo - Play-offs 1/2", "Malta - FA Trophy", "Malta - Premier League", "Malta - Super Cup", "Malásia - Super League", "Moldávia - Cupa", "Moldávia - Divizia Națională", "Moçambique - Moçambola", "Mundo - Amigáveis", "Mundo - Amigáveis de clubes", "Mundo - Concacaf Champions League", "México - Liga de Expansión MX", "México - Liga MX", "México - Copa MX", "Nigéria - NPFL", "Noruega - 1. Division", "Noruega - Eliteserien", "Noruega - NM Cupen", "Nova Zelândia - National League", "Panamá - LPF", "Paraguai - Division Profesional", "Países Baixos - Eerste Divisie", "Países Baixos - Eredivisie", "Países Baixos - KNVB Beker", "Países Baixos - Super Cup", "Perú - Primera División", "Perú - Segunda División", "Polónia - Cup", "Polónia - Ekstraklasa", "Polónia - I Liga", "Portugal - Liga Portugal Betclic", "Portugal - Segunda Liga", "Portugal - Supertaça", "Portugal - Taça da Liga", "Portugal - Taça de Portugal", "República Checa - Cup", "República Checa - Czech Liga", "República Checa - FNL", "República da Coreia - FA Cup", "República da Coreia - K League 1", "República da Coreia - K League 2", "República da Irlanda - FAI Cup", "República da Irlanda - First Division", "República da Irlanda - Premier Division", "Roménia - Cupa României", "Roménia - Liga I", "Roménia - Liga II", "RP China - CSL", "Rússia - FNL", "Rússia - Cup", "Rússia - Premier League", "Singapura - Cup", "Singapura - Premier League", "Suécia - Allsvenskan", "Suécia - Superettan", "Suécia - Svenska Cupen", "Suíça - Challenge League", "Suíça - Super League", "Suíça - Schweizer Pokal", "Sérvia - Cup", "Sérvia - Prva Liga", "Sérvia - Super Liga", "Tailândia - Thai League 1", "Tunísia - Ligue 1", "Turquia - 1. Lig", "Turquia - Cup", "Turquia - Super Liga", "Ucrânia - Cup", "Ucrânia - Persha Liga", "Ucrânia - Premier League", "Uruguai - Primera División", "Uruguai - Segunda División", "Venezuela - Primera División", "Vietname - V.League 1", "África - CAF Champions League", "Índia - I-League", "Ásia - AFC Champions League", "Áustria - 1. Liga", "Áustria - Bundesliga", "Áustria - Cup", "África do Sul - 1st Division", "África do Sul - Cup", "África do Sul - PSL", "África do Sul - Taça da Liga"]
+    #filtered_competitions = ["Mundo - FIFA Club World Cup", "Albânia - 1st Division", "Albânia - Cup", "Albânia - Super Cup", "Albânia - Superliga", "Alemanha - 2. Bundesliga", "Alemanha - 3. Liga", "Alemanha - Bundesliga", "Alemanha - DFB Pokal", "Alemanha - DFB Pokal Women", "Alemanha - Oberliga", "Alemanha - Regionalliga", "Alemanha - Super Cup", "Algéria - Coupe Nationale", "Algéria - Ligue 1", "América do Sul - CONMEBOL Libertadores", "América do Sul - CONMEBOL Recopa", "América do Sul - CONMEBOL Sudamericana", "Angola - Girabola", "Argentina - Copa Argentina", "Argentina - Copa de la Superliga", "Argentina - Primera División", "Argentina - Primera Nacional", "Arménia - Cup", "Arménia - Premier League", "Arábia Saudita - King's Cup", "Arábia Saudita - Pro League", "Austrália - A-League", "Austrália - FFA Cup", "Azerbaijão - Cup", "Azerbaijão - Premyer Liqa", "Bielorrússia - 1. Division", "Bielorrússia - Cup", "Bielorrússia - Premier League", "Bielorrússia - Super Cup", "Bolívia - Primera División", "Brasil - Serie A", "Brasil - Serie B", "Brasil - Serie C", "Brasil - Copa do Brasil", "Bulgária - A PFG", "Bulgária - B PFG", "Bulgária - Cup", "Bulgária - Super Cup", "Bélgica - Cup", "Bélgica - Super Cup", "Bélgica - First Division B", "Bélgica - Pro League", "Bósnia-Herzegovina - Cup", "Bósnia-Herzegovina - Premier Liga", "Canadá - Canadian Championship", "Catar - Play-offs 1/2", "Catar - QSL Cup", "Catar - Stars League", "Cazaquistão - Cup", "Cazaquistão - Premier League", "Chile - Copa Chile", "Chile - Primera B", "Chile - Primera División", "Chipre - 1. Division", "Chipre - Cup", "Colômbia - Copa Colombia", "Colômbia - Primera A", "Colômbia - Primera B", "Costa Rica - Primera División", "Croácia - 1. HNL", "Croácia - 2. HNL", "Croácia - Cup", "Dinamarca - 1st Division", "Dinamarca - DBU Pokalen", "Dinamarca - Superliga", "Egipto - Premier League", "Egipto - Super Cup", "El Salvador - Primera Division", "Emirados Árabes Unidos - Arabian Gulf League", "Emirados Árabes Unidos - League Cup", "Emirados Árabes Unidos - Super Cup", "Equador - Liga Pro", "Equador - Primera B", "Escócia - Championship", "Escócia - FA Cup", "Escócia - Premiership", "Escócia - Taça da Liga", "Eslováquia - 2. liga", "Eslováquia - Cup", "Eslováquia - Super Liga", "Eslovénia - 1. SNL", "Eslovénia - 2. SNL", "Eslovénia - Cup", "Eslovénia - Play-offs 1/2", "Espanha - Copa del Rey", "Espanha - Super Cup", "Espanha - Primera División", "Espanha - Segunda División", "Estados Unidos da América - MLS", "Estados Unidos da América - US Open Cup", "Estados Unidos da América - USL Championship", "Estónia - Cup", "Estónia - Esiliiga A", "Estónia - Meistriliiga", "Estónia - Super Cup", "Europa - Europa Conference League", "Europa - UEFA Champions League", "Europa - UEFA Europa League", "Europa - UEFA Youth League", "Finlândia - Suomen Cup", "Finlândia - Veikkausliiga", "Finlândia - Ykkönen", "França - Coupe de France", "França - Ligue 1", "França - Ligue 2", "França - National", "Gales - Premier League", "Gales - Welsh Cup", "Gana - Premier League", "Grécia - Cup", "Grécia - Super League", "Guatemála - Liga Nacional", "Honduras - Liga Nacional", "Hong Kong - FA Cup", "Hong Kong - HKFA 1st Division", "Hong Kong - Premier League", "Húngria - Magyar Kupa", "Húngria - NB I", "Húngria - NB II", "Indonésia - Liga 1", "Inglaterra - Championship", "Inglaterra - Taça da Liga", "Inglaterra - FA Cup", "Inglaterra - League One", "Inglaterra - League Two", "Inglaterra - Premier League", "Iraque - Iraqi League", "Irlanda do Norte - Premiership", "Irlanda do Norte - Taça da Liga", "Irão - Azadegan League", "Irão - Persian Gulf Pro League", "Islândia - 1. Deild", "Islândia - Cup", "Islândia - Úrvalsdeild", "Israel - Liga Leumit", "Israel - Ligat ha'Al", "Israel - State Cup", "Israel - Toto Cup Ligat Al", "Itália - Coppa Italia", "Itália - Lega Pro", "Itália - Serie A", "Itália - Serie B", "Jamaica - Premier League", "Japão - Emperor Cup", "Japão - J1 League", "Japão - J2 League", "Japão - Super Cup", "Japão - Taça da J-Liga", "Letónia - Cup", "Letónia - Virsliga", "Lituânia - A Lyga", "Lituânia - Cup", "Luxemburgo - National Division", "Luxemburgo - Play-offs 1/2", "Malta - FA Trophy", "Malta - Premier League", "Malta - Super Cup", "Malásia - Super League", "Moldávia - Cupa", "Moldávia - Divizia Națională", "Moçambique - Moçambola", "Mundo - Amigáveis", "Mundo - Amigáveis de clubes", "Mundo - Concacaf Champions League", "México - Liga de Expansión MX", "México - Liga MX", "México - Copa MX", "Nigéria - NPFL", "Noruega - 1. Division", "Noruega - Eliteserien", "Noruega - NM Cupen", "Nova Zelândia - National League", "Panamá - LPF", "Paraguai - Division Profesional", "Países Baixos - Eerste Divisie", "Países Baixos - Eredivisie", "Países Baixos - KNVB Beker", "Países Baixos - Super Cup", "Perú - Primera División", "Perú - Segunda División", "Polónia - Cup", "Polónia - Ekstraklasa", "Polónia - I Liga", "Portugal - Liga Portugal Betclic", "Portugal - Segunda Liga", "Portugal - Supertaça", "Portugal - Taça da Liga", "Portugal - Taça de Portugal", "República Checa - Cup", "República Checa - Czech Liga", "República Checa - FNL", "República da Coreia - FA Cup", "República da Coreia - K League 1", "República da Coreia - K League 2", "República da Irlanda - FAI Cup", "República da Irlanda - First Division", "República da Irlanda - Premier Division", "Roménia - Cupa României", "Roménia - Liga I", "Roménia - Liga II", "RP China - CSL", "Rússia - FNL", "Rússia - Cup", "Rússia - Premier League", "Singapura - Cup", "Singapura - Premier League", "Suécia - Allsvenskan", "Suécia - Superettan", "Suécia - Svenska Cupen", "Suíça - Challenge League", "Suíça - Super League", "Suíça - Schweizer Pokal", "Sérvia - Cup", "Sérvia - Prva Liga", "Sérvia - Super Liga", "Tailândia - Thai League 1", "Tunísia - Ligue 1", "Turquia - 1. Lig", "Turquia - Cup", "Turquia - Super Liga", "Ucrânia - Cup", "Ucrânia - Persha Liga", "Ucrânia - Premier League", "Uruguai - Primera División", "Uruguai - Segunda División", "Venezuela - Primera División", "Vietname - V.League 1", "África - CAF Champions League", "Índia - I-League", "Ásia - AFC Champions League", "Áustria - 1. Liga", "Áustria - Bundesliga", "Áustria - Cup", "África do Sul - 1st Division", "África do Sul - Cup", "África do Sul - PSL", "África do Sul - Taça da Liga"]
 
+    filtered_competitions = ["Mundo - FIFA Club World Cup"]
     try:
         if 'Cancelado' in soup.find('td', class_='status').text:
             return matchesToBet
@@ -250,15 +234,15 @@ def getAdaMatchesStats(element):
         awayTeam = soup.find('td', class_='team-b').text.strip()
         matchScore = soup.find('td', class_='score').text
         matchScore = re.sub(r'\s+', ' ', matchScore).strip().replace(' ', '')
-        competition = soup.find('td', class_='flag')["original-title"]
+        competition = soup.find('td', class_='flag').find('a')["title"]
 
         if competition not in filtered_competitions:
             return matchesToBet
 
         if len(matchScore) < 3:
-            homeScore = null
-            awayScore = null
-            totalGoals = null
+            homeScore = None
+            awayScore = None
+            totalGoals = None
         else:
             homeScore = matchScore[0:6].split('-')[0].strip()
             awayScore = matchScore[0:6].split('-')[1].strip()
@@ -554,16 +538,21 @@ def extractOddsValues(url):
             finalResultMarket = ''
             bttsMarket = ''
             over25Market = ''
+            finalResultOdds = []
+            bttsOdds = []
+            over25Odds = []
 
             for li in oddsDiv.find_all('li'):
                 if '1x2' in li.text:
                     finalResultMarket = li['market']
+                    finalResultOdds = oddsDiv.find('div', class_=finalResultMarket).find('table').find_all('tr', class_='strong_text')
                 if 'Ambas' in li.text:
                     bttsMarket = li['market']
+                    bttsOdds = oddsDiv.find('div', class_=bttsMarket).find('table').find_all('tr', class_='strong_text')
                 if '2.5' in li.text:
                     over25Market = li['market']
+                    over25Odds = oddsDiv.find('div', class_=over25Market).find('table').find_all('tr', class_='strong_text')
 
-            finalResultOdds = oddsDiv.find('div', class_=finalResultMarket).find('table').find_all('tr', class_='strong_text')
             if (len(finalResultOdds) > 0):
                 finalResultOdds = finalResultOdds[0].find_all('td', class_='align_odds')
                 v1Odd = finalResultOdds[0].text.strip()
@@ -575,7 +564,6 @@ def extractOddsValues(url):
                 xOdd = finalResultOdds[1].text.strip()
                 v2Odd = finalResultOdds[2].text.strip()
 
-            bttsOdds = oddsDiv.find('div', class_=bttsMarket).find('table').find_all('tr', class_='strong_text')
             if (len(bttsOdds) > 0):
                 bttsOdds = bttsOdds[0].find_all('td', class_='align_odds')
                 bttsYesOdd = bttsOdds[0].text.strip()
@@ -585,7 +573,6 @@ def extractOddsValues(url):
                 bttsYesOdd = bttsOdds[0].text.strip()
                 bttsNoOdd = bttsOdds[1].text.strip()
 
-            over25Odds = oddsDiv.find('div', class_=over25Market).find('table').find_all('tr', class_='strong_text')
             if (len(over25Odds) > 0):
                 over25Odds = over25Odds[0].find_all('td', class_='align_odds')
                 over25 = over25Odds[1].text.strip()

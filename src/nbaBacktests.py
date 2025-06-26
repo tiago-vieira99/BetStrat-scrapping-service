@@ -45,7 +45,7 @@ def scrappNBAStatsBulk(url, season):
 
     hasNextDay = True
     #url = "https://www.covers.com/sports/nba/matchups?selectedDate=2024-06-17"
-    driver = webdriver.Remote("http://172.17.0.2:4444", options=webdriver.ChromeOptions())
+    driver = webdriver.Remote("http://172.17.0.3:4444", options=webdriver.ChromeOptions())
 
     while(hasNextDay):
         print(url)

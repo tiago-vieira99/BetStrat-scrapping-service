@@ -1,0 +1,2548 @@
+[
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "6/7"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "9/9"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "6/7"
+            }
+        ],
+        "away_team": "Arouca",
+        "competition": "PortugalLiga Portugal Betclic, Round 31",
+        "ft_result": "2-0",
+        "home_team": "Santa Clara",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "Farense",
+        "competition": "PortugalLiga Portugal Betclic, Round 31",
+        "ft_result": "1-0",
+        "home_team": "Gil Vicente",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Porto",
+        "competition": "PortugalLiga Portugal Betclic, Round 31",
+        "ft_result": "2-0",
+        "home_team": "Estrela Amadora",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Everton",
+        "competition": "EnglandPremier League, Round 34",
+        "ft_result": "1-0",
+        "home_team": "Chelsea",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "West Ham",
+        "competition": "EnglandPremier League, Round 34",
+        "ft_result": "3-2",
+        "home_team": "Brighton",
+        "ht_result": "1-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 2 goals",
+                "streak_value": "6/6"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "10/10"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "15"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "6/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "7/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 10 corners",
+                "streak_value": "4/5"
+            }
+        ],
+        "away_team": "Ipswich",
+        "competition": "EnglandPremier League, Round 34",
+        "ft_result": "3-0",
+        "home_team": "Newcastle",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Fulham",
+        "competition": "EnglandPremier League, Round 34",
+        "ft_result": "1-2",
+        "home_team": "Southampton",
+        "ht_result": "1-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 2,
+                "streak_description": "Over 2 goals",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "6/8"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "11"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "29"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "9/9"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "8/10"
+            }
+        ],
+        "away_team": "Leicester",
+        "competition": "EnglandPremier League, Round 34",
+        "ft_result": "3-0",
+        "home_team": "Wolves",
+        "ht_result": "1-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/7"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "4/5"
+            }
+        ],
+        "away_team": "Augsburg",
+        "competition": "GermanyBundesliga, Round 31",
+        "ft_result": "2-0",
+        "home_team": "Leverkusen",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "Mainz 05",
+        "competition": "GermanyBundesliga, Round 31",
+        "ft_result": "3-0",
+        "home_team": "Bayern",
+        "ht_result": "2-0"
+    },
+    {
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "6/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "7/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "8/10"
+            }
+        ],
+        "away_team": "M'gladbach",
+        "competition": "GermanyBundesliga, Round 31",
+        "ft_result": "4-3",
+        "home_team": "Kiel",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "Dortmund",
+        "competition": "GermanyBundesliga, Round 31",
+        "ft_result": "2-3",
+        "home_team": "Hoffenheim",
+        "ht_result": "0-1"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "More than 4 cards",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "4/5"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "6/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "6/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "9/9"
+            }
+        ],
+        "away_team": "Freiburg",
+        "competition": "GermanyBundesliga, Round 31",
+        "ft_result": "0-1",
+        "home_team": "Wolfsburg",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Leipzig",
+        "competition": "GermanyBundesliga, Round 31",
+        "ft_result": "4-0",
+        "home_team": "Frankfurt",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Saint-Étienne",
+        "competition": "FranceLigue 1, Round 31",
+        "ft_result": "3-1",
+        "home_team": "Strasbourg",
+        "ht_result": "1-1"
+    },
+    {
+        "away_team": "AS Monaco",
+        "competition": "FranceLigue 1, Round 31",
+        "ft_result": "1-1",
+        "home_team": "Le Havre",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Rennes",
+        "competition": "FranceLigue 1, Round 31",
+        "ft_result": "4-1",
+        "home_team": "Lyon",
+        "ht_result": "3-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 2 goals",
+                "streak_value": "9/9"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "5/7"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "8/9"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "6/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 10 corners",
+                "streak_value": "8/10"
+            }
+        ],
+        "away_team": "Real Madrid",
+        "competition": "SpainCopa del Rey, Final",
+        "ft_result": "3-2",
+        "home_team": "Barcelona",
+        "ht_result": "1-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Both teams to score",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "6/8"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "8/8"
+            }
+        ],
+        "away_team": "Juventude",
+        "competition": "BrazilBrasileirão Betano, Round 6",
+        "ft_result": "3-1",
+        "home_team": "Internacional",
+        "ht_result": "2-1"
+    },
+    {
+        "away_team": "São Paulo",
+        "competition": "BrazilBrasileirão Betano, Round 6",
+        "ft_result": "1-1",
+        "home_team": "Ceará",
+        "ht_result": "1-1"
+    },
+    {
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "12"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "6/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "4/5"
+            }
+        ],
+        "away_team": "Atlético-MG",
+        "competition": "BrazilBrasileirão Betano, Round 6",
+        "ft_result": "2-2",
+        "home_team": "Mirassol",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Fortaleza",
+        "competition": "BrazilBrasileirão Betano, Round 6",
+        "ft_result": "0-0",
+        "home_team": "Sport",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Antalyaspor",
+        "competition": "TürkiyeTrendyol Süper Lig, Round 33",
+        "ft_result": "2-0",
+        "home_team": "Sivasspor",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Samsunspor",
+        "competition": "TürkiyeTrendyol Süper Lig, Round 33",
+        "ft_result": "1-2",
+        "home_team": "Bodrum",
+        "ht_result": "1-2"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "12"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 2 goals",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Both teams to score",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "7/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First half winner",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "More than 4 cards",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 10 corners",
+                "streak_value": "5/6"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "8/9"
+            }
+        ],
+        "away_team": "Fenerbahçe",
+        "competition": "TürkiyeTrendyol Süper Lig, Round 33",
+        "ft_result": "1-3",
+        "home_team": "Gaziantep",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Standard Liège",
+        "competition": "BelgiumPro League, Conference League Playoffs, Round 6",
+        "ft_result": "1-1",
+        "home_team": "OH Leuven",
+        "ht_result": "1-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Both teams to score",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 10 corners",
+                "streak_value": "5/5"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "7/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 10 corners",
+                "streak_value": "4/5"
+            }
+        ],
+        "away_team": "Mechelen",
+        "competition": "BelgiumPro League, Conference League Playoffs, Round 6",
+        "ft_result": "2-2",
+        "home_team": "Westerlo",
+        "ht_result": "0-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "First half winner",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "6/7"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "9/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "8/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "7/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "8/10"
+            }
+        ],
+        "away_team": "Dender",
+        "competition": "BelgiumPro League, Conference League Playoffs, Round 6",
+        "ft_result": "4-1",
+        "home_team": "Charleroi",
+        "ht_result": "1-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Both teams to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "7/9"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "6/7"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "6/7"
+            }
+        ],
+        "away_team": "St. Truidense",
+        "competition": "BelgiumPro League, Relegation Round, Round 4",
+        "ft_result": "3-1",
+        "home_team": "Cercle Brugge",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "Celtic",
+        "competition": "ScotlandScottish Premiership, Championship Round, Round 34",
+        "ft_result": "0-5",
+        "home_team": "Dundee Utd",
+        "ht_result": "0-3"
+    },
+    {
+        "away_team": "Hibernian",
+        "competition": "ScotlandScottish Premiership, Championship Round, Round 34",
+        "ft_result": "1-0",
+        "home_team": "Aberdeen",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Rangers",
+        "competition": "ScotlandScottish Premiership, Championship Round, Round 34",
+        "ft_result": "2-2",
+        "home_team": "St Mirren",
+        "ht_result": "1-1"
+    },
+    {
+        "away_team": "Dundee",
+        "competition": "ScotlandScottish Premiership, Relegation Round, Round 34",
+        "ft_result": "0-1",
+        "home_team": "Hearts",
+        "ht_result": "0-1"
+    },
+    {
+        "away_team": "Ross County",
+        "competition": "ScotlandScottish Premiership, Relegation Round, Round 34",
+        "ft_result": "2-0",
+        "home_team": "Kilmarnock",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "St. Johnstone",
+        "competition": "ScotlandScottish Premiership, Relegation Round, Round 34",
+        "ft_result": "3-2",
+        "home_team": "Motherwell",
+        "ht_result": "2-1"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Both teams to score",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/6"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "10/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "9/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "6/6"
+            }
+        ],
+        "away_team": "Aston Villa",
+        "competition": "EnglandFA Cup, Semifinal",
+        "ft_result": "3-0",
+        "home_team": "Crystal Palace",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Buriram",
+        "competition": "AsiaAFC Champions League Elite, Quarterfinal",
+        "ft_result": "3-0",
+        "home_team": "Al-Ahli",
+        "ht_result": "3-0"
+    },
+    {
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "7/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "7/8"
+            }
+        ],
+        "away_team": "Al-Nassr",
+        "competition": "AsiaAFC Champions League Elite, Quarterfinal",
+        "ft_result": "1-4",
+        "home_team": "Yokohama FM",
+        "ht_result": "0-3"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Under 2 goals",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 10 corners",
+                "streak_value": "7/9"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "10/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "8/10"
+            }
+        ],
+        "away_team": "Lokomotiva",
+        "competition": "CroatiaHNL, Round 32",
+        "ft_result": "2-1",
+        "home_team": "Varaždin",
+        "ht_result": "0-1"
+    },
+    {
+        "away_team": "Tekstilac",
+        "competition": "SerbiaMozzart Bet Superliga, Relegation Round, Round 3",
+        "ft_result": "3-1",
+        "home_team": "IMT",
+        "ht_result": "3-0"
+    },
+    {
+        "away_team": "Kansas City",
+        "competition": "USAMLS",
+        "ft_result": "2-1",
+        "home_team": "Cincinnati",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "NY City",
+        "competition": "USAMLS",
+        "ft_result": "0-1",
+        "home_team": "Toronto",
+        "ht_result": "0-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "8/9"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "9/9"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "5/6"
+            }
+        ],
+        "away_team": "Montréal",
+        "competition": "USAMLS",
+        "ft_result": "1-0",
+        "home_team": "NY Red Bulls",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "DC United",
+        "competition": "USAMLS",
+        "ft_result": "3-0",
+        "home_team": "Philadelphia",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Atlanta",
+        "competition": "USAMLS",
+        "ft_result": "3-0",
+        "home_team": "Orlando",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "New England",
+        "competition": "USAMLS",
+        "ft_result": "0-1",
+        "home_team": "Charlotte",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "San Jose",
+        "competition": "USAMLS",
+        "ft_result": "2-1",
+        "home_team": "Columbus",
+        "ht_result": "1-1"
+    },
+    {
+        "away_team": "Salt Lake",
+        "competition": "USAMLS",
+        "ft_result": "1-3",
+        "home_team": "San Diego FC",
+        "ht_result": "1-1"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Both teams to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "7/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First half winner",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "4/5"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "7/9"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "6/7"
+            }
+        ],
+        "away_team": "Coventry",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "1-0",
+        "home_team": "Luton",
+        "ht_result": "0-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "8/8"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 10 corners",
+                "streak_value": "5/7"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "7/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "8/9"
+            }
+        ],
+        "away_team": "Burnley",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "0-5",
+        "home_team": "QPR",
+        "ht_result": "0-3"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 2,
+                "streak_description": "Under 2 goals",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "More than 4 cards",
+                "streak_value": "4/5"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 10 corners",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "5/5"
+            }
+        ],
+        "away_team": "Watford",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "2-1",
+        "home_team": "Blackburn",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "West Brom",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "0-0",
+        "home_team": "Cardiff",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Derby",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "0-1",
+        "home_team": "Hull",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Norwich",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "0-0",
+        "home_team": "Middlesbrough",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Swansea",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "1-0",
+        "home_team": "Millwall",
+        "ht_result": "1-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "10"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Under 2 goals",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "4/5"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "7/9"
+            }
+        ],
+        "away_team": "Sunderland",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "2-0",
+        "home_team": "Oxford Utd",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Plymouth",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "1-2",
+        "home_team": "Preston",
+        "ht_result": "0-1"
+    },
+    {
+        "away_team": "Portsmouth",
+        "competition": "EnglandChampionship, Round 45",
+        "ft_result": "1-1",
+        "home_team": "Sheffield Wed",
+        "ht_result": "1-1"
+    },
+    {
+        "away_team": "Cartagena",
+        "competition": "SpainLaLiga 2, Round 37",
+        "ft_result": "3-1",
+        "home_team": "Albacete",
+        "ht_result": "1-1"
+    },
+    {
+        "away_team": "Córdoba",
+        "competition": "SpainLaLiga 2, Round 37",
+        "ft_result": "1-1",
+        "home_team": "Eldense",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Levante",
+        "competition": "SpainLaLiga 2, Round 37",
+        "ft_result": "1-0",
+        "home_team": "Real Oviedo",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Elche",
+        "competition": "SpainLaLiga 2, Round 37",
+        "ft_result": "1-1",
+        "home_team": "Granada",
+        "ht_result": "1-1"
+    },
+    {
+        "away_team": "Burgos",
+        "competition": "SpainLaLiga 2, Round 37",
+        "ft_result": "2-1",
+        "home_team": "Mirandés",
+        "ht_result": "0-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No goals conceded",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "6/8"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Both teams to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "6/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First half loser",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "8/10"
+            }
+        ],
+        "away_team": "Darmstadt",
+        "competition": "Germany2. Bundesliga, Round 31",
+        "ft_result": "1-1",
+        "home_team": "Münster",
+        "ht_result": "0-1"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 2,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "5/6"
+            }
+        ],
+        "away_team": "Elversberg",
+        "competition": "Germany2. Bundesliga, Round 31",
+        "ft_result": "1-1",
+        "home_team": "Paderborn",
+        "ht_result": "0-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 10 corners",
+                "streak_value": "5/5"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "7/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "5/5"
+            }
+        ],
+        "away_team": "Braunschweig",
+        "competition": "Germany2. Bundesliga, Round 31",
+        "ft_result": "1-1",
+        "home_team": "Regensburg",
+        "ht_result": "1-1"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Over 10 corners",
+                "streak_value": "8/10"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to score",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "8/8"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "6/8"
+            }
+        ],
+        "away_team": "Nürnberg",
+        "competition": "Germany2. Bundesliga, Round 31",
+        "ft_result": "3-3",
+        "home_team": "Fortuna",
+        "ht_result": "0-2"
+    },
+    {
+        "away_team": "Chapecoense",
+        "competition": "BrazilBrasileirão Série B, Round 5",
+        "ft_result": "1-0",
+        "home_team": "Vila Nova",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Operário-PR",
+        "competition": "BrazilBrasileirão Série B, Round 5",
+        "ft_result": "2-0",
+        "home_team": "Coritiba",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "América-MG",
+        "competition": "BrazilBrasileirão Série B, Round 5",
+        "ft_result": "3-0",
+        "home_team": "Avaí",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Paris",
+        "competition": "FranceLigue 2, Round 32",
+        "ft_result": "1-1",
+        "home_team": "Rodez",
+        "ht_result": "0-1"
+    },
+    {
+        "away_team": "Caen",
+        "competition": "FranceLigue 2, Round 32",
+        "ft_result": "4-0",
+        "home_team": "Lorient",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "Metz",
+        "competition": "FranceLigue 2, Round 32",
+        "ft_result": "2-1",
+        "home_team": "Pau",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Wellington",
+        "competition": "AustraliaA-League Men, Round 28",
+        "ft_result": "1-0",
+        "home_team": "Brisbane Roar",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Western Sydney",
+        "competition": "AustraliaA-League Men, Round 28",
+        "ft_result": "0-1",
+        "home_team": "Newcastle Jets",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Adelaide United",
+        "competition": "AustraliaA-League Men, Round 28",
+        "ft_result": "0-0",
+        "home_team": "Melbourne City",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "A. Klagenfurt",
+        "competition": "AustriaAustrian Bundesliga, Relegation Round, Round 28",
+        "ft_result": "6-0",
+        "home_team": "LASK",
+        "ht_result": "2-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Under 2 goals",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "8/8"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "9"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "4/5"
+            }
+        ],
+        "away_team": "Tirol",
+        "competition": "AustriaAustrian Bundesliga, Relegation Round, Round 28",
+        "ft_result": "3-0",
+        "home_team": "SCR Altach",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "Chengdu",
+        "competition": "ChinaChinese Super League, Round 9",
+        "ft_result": "1-2",
+        "home_team": "Changchun",
+        "ht_result": "0-1"
+    },
+    {
+        "away_team": "Dalian Yingbo",
+        "competition": "ChinaChinese Super League, Round 9",
+        "ft_result": "1-1",
+        "home_team": "Shenzhen",
+        "ht_result": "0-1"
+    },
+    {
+        "away_team": "Shenhua",
+        "competition": "ChinaChinese Super League, Round 9",
+        "ft_result": "0-1",
+        "home_team": "Shandong",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Everton",
+        "competition": "ChileLiga de Primera, Round 9",
+        "ft_result": "6-0",
+        "home_team": "Universidad Católica",
+        "ht_result": "3-0"
+    },
+    {
+        "away_team": "Deportes Limache",
+        "competition": "ChileLiga de Primera, Round 9",
+        "ft_result": "3-1",
+        "home_team": "Cobresal",
+        "ht_result": "2-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/7"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No goals scored",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "6/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "9/9"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "4/5"
+            }
+        ],
+        "away_team": "Coquimbo Unido",
+        "competition": "ChileLiga de Primera, Round 9",
+        "ft_result": "2-0",
+        "home_team": "Colo Colo",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "Unión Magdalena",
+        "competition": "ColombiaPrimera A, Apertura, Round 16",
+        "ft_result": "2-1",
+        "home_team": "Envigado",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Águilas Doradas",
+        "competition": "ColombiaPrimera A, Apertura, Round 16",
+        "ft_result": "0-0",
+        "home_team": "Alianza Valledupar",
+        "ht_result": "0-0"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Wins",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/7"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Both teams to score",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "More than 4 cards",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 10 corners",
+                "streak_value": "5/6"
+            }
+        ],
+        "away_team": "La Equidad",
+        "competition": "ColombiaPrimera A, Apertura, Round 16",
+        "ft_result": "2-1",
+        "home_team": "Tolima",
+        "ht_result": "2-1"
+    },
+    {
+        "away_team": "Slavia Praha",
+        "competition": "CzechiaChance Liga, Championship, Round 1",
+        "ft_result": "0-5",
+        "home_team": "Sigma Olomouc",
+        "ht_result": "0-1"
+    },
+    {
+        "away_team": "Mladá Boleslav",
+        "competition": "CzechiaChance Liga, Relegation, Round 1",
+        "ft_result": "1-2",
+        "home_team": "Dynamo Č.B.",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Pardubice",
+        "competition": "CzechiaChance Liga, Relegation, Round 1",
+        "ft_result": "1-0",
+        "home_team": "Slovácko",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Piast",
+        "competition": "PolandEkstraklasa, Round 30",
+        "ft_result": "3-1",
+        "home_team": "Lechia",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "Cracovia",
+        "competition": "PolandEkstraklasa, Round 30",
+        "ft_result": "0-1",
+        "home_team": "Motor",
+        "ht_result": "0-0"
+    },
+    {
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 2 goals",
+                "streak_value": "5/6"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/5"
+            }
+        ],
+        "away_team": "Legia",
+        "competition": "PolandEkstraklasa, Round 30",
+        "ft_result": "1-3",
+        "home_team": "GKS Katowice",
+        "ht_result": "0-2"
+    },
+    {
+        "away_team": "Reading",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "0-2",
+        "home_team": "Bristol Rovers",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Wycombe",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "1-0",
+        "home_team": "Leyton Orient",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Shrewsbury",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "1-2",
+        "home_team": "Barnsley",
+        "ht_result": "0-1"
+    },
+    {
+        "away_team": "Cambridge",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "2-1",
+        "home_team": "Burton",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Northampton",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "3-0",
+        "home_team": "Crawley",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Huddersfield",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "3-1",
+        "home_team": "Exeter",
+        "ht_result": "1-1"
+    },
+    {
+        "away_team": "Bolton",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "1-1",
+        "home_team": "Peterborough Utd",
+        "ht_result": "1-1"
+    },
+    {
+        "away_team": "Lincoln",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "3-2",
+        "home_team": "Stockport",
+        "ht_result": "0-2"
+    },
+    {
+        "away_team": "Blackpool",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "1-1",
+        "home_team": "Wigan",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Charlton",
+        "competition": "EnglandLeague One, Round 45",
+        "ft_result": "3-0",
+        "home_team": "Wrexham",
+        "ht_result": "2-0"
+    },
+    {
+        "away_team": "Port Vale",
+        "competition": "EnglandLeague Two, Round 45",
+        "ft_result": "0-2",
+        "home_team": "Wimbledon",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Bradford",
+        "competition": "EnglandLeague Two, Round 45",
+        "ft_result": "2-1",
+        "home_team": "Doncaster",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Notts County",
+        "competition": "EnglandLeague Two, Round 45",
+        "ft_result": "1-3",
+        "home_team": "Harrogate",
+        "ht_result": "1-1"
+    },
+    {
+        "away_team": "Bromley",
+        "competition": "EnglandLeague Two, Round 45",
+        "ft_result": "3-3",
+        "home_team": "Barrow",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Carlisle",
+        "competition": "EnglandLeague Two, Round 45",
+        "ft_result": "3-2",
+        "home_team": "Cheltenham",
+        "ht_result": "2-1"
+    },
+    {
+        "Head-to-head streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "3"
+            },
+            {
+                "num_teams": 2,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "9/10"
+            }
+        ],
+        "Team streaks": [
+            {
+                "num_teams": 1,
+                "streak_description": "Losses",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No losses",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "No clean sheet",
+                "streak_value": "4"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Under 2 goals",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "First to concede",
+                "streak_value": "4/5"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "8/10"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Less than 4 cards",
+                "streak_value": "5/7"
+            },
+            {
+                "num_teams": 1,
+                "streak_description": "Over 10 corners",
+                "streak_value": "5/5"
+            }
+        ],
+        "away_team": "Morecambe",
+        "competition": "EnglandLeague Two, Round 45",
+        "ft_result": "4-1",
+        "home_team": "Chesterfield",
+        "ht_result": "1-0"
+    },
+    {
+        "away_team": "Newport",
+        "competition": "EnglandLeague Two, Round 45",
+        "ft_result": "2-0",
+        "home_team": "Fleetwood",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Swindon",
+        "competition": "EnglandLeague Two, Round 45",
+        "ft_result": "1-1",
+        "home_team": "Gillingham",
+        "ht_result": "0-0"
+    },
+    {
+        "away_team": "Grimsby",
+        "competition": "EnglandLeague Two, Round 45",
+        "ft_result": "0-0",
+        "home_team": "MK Dons",
+        "ht_result": "0-0"
+    }
+]
