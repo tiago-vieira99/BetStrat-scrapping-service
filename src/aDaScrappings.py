@@ -83,7 +83,7 @@ def json_to_csv(json_file_path, csv_file_path):
 def getAdaMatchesLinks(url):
     matches = []
     ## COLLECT MATCHES_LINKS FOR EACH DAY
-    driver = webdriver.Remote("http://172.17.0.2:4444", options=webdriver.ChromeOptions())
+    driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions())
     driver.maximize_window()
 
     try:
