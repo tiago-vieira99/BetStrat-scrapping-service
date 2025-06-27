@@ -277,6 +277,8 @@ def getAdaMatchesStats(element):
 def getMatchStatsFromAdA(url):
     response = requests.get(url)
     matchStats = OrderedDict()
+    print('url: ' + url)
+    print('status: ' + str(response.status_code))
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         print("\ngetting match stats: " + str(url))
