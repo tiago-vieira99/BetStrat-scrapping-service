@@ -366,7 +366,7 @@ def getMatchesByDateFromDB2(date_str):
                 if total_goals_last_away_team_matches >= 7 and last_away_team_matches_overs >= 2 and total_goals_previous_away_team_match >= 2 and last_away_team_matches_scored >= 2:
                     away_team_eligle = True
 
-                if home_team_eligle and away_team_eligle and float(match['over25_odd'] >= 1.6) and float(match['over25_odd'] <= 2.2):
+                if home_team_eligle and away_team_eligle:# and float(match['over25_odd'] >= 1.6) and float(match['over25_odd'] <= 2.2):
                     home__ft_score, away__ft_score = map(int, match['ft_result'].split('-'))
                     home__ht_score, away__ht_score = map(int, match['ht_result'].split('-'))
                     home_2ht_score = home__ft_score - home__ht_score

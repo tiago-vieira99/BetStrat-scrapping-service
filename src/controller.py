@@ -239,9 +239,8 @@ def btts_get_matches_between_teams():
         print(exc_type, fname, exc_tb.tb_lineno)
         return jsonify({'error': str(e)})
 
-@app.route('/kelly-strats/next-matches', methods=['GET'])
-def over25_get_next_matches():
-
+@app.route('/kelly-strats/next-matches-links', methods=['GET'])
+def over25_get_next_matches_links():
     today = datetime.date.today()
 
     # Calculate tomorrow and the day after tomorrow
@@ -259,31 +258,40 @@ def over25_get_next_matches():
     adaLinks = []
     adaLinks.append(tomorrow_link)
     adaLinks.append(after_tomorrow_link)
+    matchesLinks = []
 
+    for link in adaLinks:
+        print("getting matches links for: " + link)
+        matchesLinks += aDaScrappings.getAdaMatchesLinks(link);#aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/06/" + str("%02d" % d))#
+            
+    return matchesLinks
+
+
+@app.route('/kelly-strats/next-matches', methods=['POST'])
+def over25_get_next_matches():
+    data = request.get_json()
     try:
         matchesToBet = {}
         over25Matches = []
         bttsOneHalfMatches = []
-        for link in adaLinks:
-        #or d in range(27,32):
-            matchesLinks = aDaScrappings.getAdaMatchesLinks(link)#"https://www.academiadasapostas.com/stats/livescores/2025/05/" + str("%02d" % d))
-            for element in matchesLinks:
-                try:
-                    match = aDaScrappings.getAdaMatchesStats(element)
-                    # if len(match) > 0:
-                    #     aDaScrappings.insertMatchInDB(match[0])
-                    if filter_criteria_over25_match(match[0]):
-                        print(match[0])
-                        over25Matches.append(match[0])
-                    if filter_criteria_btts_match(match[0]):
-                        print(match[0])
-                        bttsOneHalfMatches.append(match[0])
-                except Exception as e:
-                    print(e)
-                    exc_type, exc_obj, exc_tb = sys.exc_info()
-                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(exc_type, fname, exc_tb.tb_lineno)
-                    continue
+        for element in data:
+            try:
+                match = aDaScrappings.getAdaMatchesStats(element)
+                # if len(match) > 0:
+                #     aDaScrappings.insertMatchInDB(match[0])
+                if filter_criteria_over25_match(match[0]):
+                    print(match[0])
+                    over25Matches.append(match[0])
+                if filter_criteria_btts_match(match[0]):
+                    print(match[0])
+                    bttsOneHalfMatches.append(match[0])
+                time.sleep(2)
+            except Exception as e:
+                print(e)
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
+                continue
         matchesToBet['over25'] = over25Matches
         matchesToBet['bttsOneHalf'] = bttsOneHalfMatches
         return matchesToBet
@@ -378,11 +386,11 @@ def filter_criteria_over25_match(match):
         return True
     return False
 
-@app.route('/btts-one-half/next-matches', methods=['GET'])
+@app.route('/database/insert-new-matches', methods=['GET'])
 def btts_get_next_matches():
     try:
         matchesToBet = []
-        for d in range(15,21):
+        for d in range(21,31):
             matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/06/" + str("%02d" % d))
             for element in matchesLinks:
                 try:
@@ -441,9 +449,9 @@ def filter_criteria_btts_match(match):
         away_over_streak_length = int(away_overLastStreak.split('/')[1])
         away_over_streak_value = int(away_overLastStreak.split('/')[0])
 
+        teams_goals_avg = float((home_total_goals_avg_at_home_pre + away_total_goals_avg_at_away_pre) / 2)
 
-        #if (btts_streak_length >= 6 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 6 and float(over_streak_value/over_streak_length) >= 0.75) and home_total_goals_avg_at_home_pre >= 2 and away_total_goals_avg_at_away_pre >= 2:
-        if home_total_goals_avg_at_home_pre >= 3 and away_total_goals_avg_at_away_pre >= 3 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
+        if teams_goals_avg >= 3.5 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
             return True
     return False
             
@@ -452,11 +460,11 @@ def filter_criteria_btts_match(match):
 def btts_get_matches_from_database():
     return_list = []
     results = []
-    for j in range(5,6):
+    for j in range(2,3):
         try:
-            for i in range(1, 32):
+            for i in range(1, 2):
                 date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
-                results += (bttsOneHalf.getMatchesByDateFromDB2(date))
+                results += (bttsOneHalf.getMatchesByDateFromDB(date))
 
             # num_greens_over25 = 0
             # num_greens_btts1h = 0
