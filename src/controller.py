@@ -16,43 +16,86 @@ import time
 from collections import OrderedDict
 import sys, os
 import datetime
+from selenium.webdriver.chrome.options import Options
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver import ActionChains
+import time
+import logging
+
+def set_chrome_options() -> Options:
+    """Sets chrome options for Selenium.
+    Chrome options for headless browser is enabled.
+    """
+    chrome_options = Options()
+    #chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--start-maximized") 
+    chrome_options.add_argument("--disable-extensions") 
+    chrome_options.add_argument("--disable-infobars") 
+    chrome_options.add_argument("--disable-notifications") 
+
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    return chrome_options
 
 app = Flask(__name__)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 @app.route('/last-matches/<int:n>', methods=['POST'])
 def get_last_n_matches(n):
-    try:
-        allLeagues = False
-        if request.args.get("allleagues") == 'true':
-            allLeagues = True
+    allLeagues = True #used only for historic-data, so always true
+    lastMatchesList = {}
+    data = request.get_json()
 
-        if "worldfootball" in request.data.decode("utf-8"):
-            return jsonify(scrapping.getLastNMatchesFromWF(request.data, n, request.args.get("team"), allLeagues, request.args.get("season")))
-        elif "zerozero" in request.data.decode("utf-8"):
-            return jsonify(scrapping.getLastNMatchesFromZZ(request.data, n, request.args.get("team")))
-        else:
-            return jsonify(scrapping.getLastNMatchesFromAdA(request.data, n))
-    except Exception as e:
-        return jsonify({'error': str(e)})
+    driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+    driver.maximize_window()
 
+    logging.info(data)
 
-@app.route('/next-match', methods=['POST'])
+    for key, value in data.items():
+        source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
+        try:
+            lastMatches = scrapping.getLastNMatchesFromWF(value['url'], n, key, allLeagues, value['season'], source_code)
+            lastMatchesList[key] = {}
+            lastMatchesList[key]['lastMatches'] = lastMatches
+        except Exception as e:
+            logging.error("ERROR getting last matches for " + key)
+            continue
+
+    driver.quit() #very important
+    return jsonify(lastMatchesList)
+
+@app.route('/next-matches', methods=['POST'])
 def get_next_match():
-    try:
-        allLeagues = False
-        if request.args.get("allleagues") == 'true':
-            allLeagues = True
+    allLeagues = False
+    if request.args.get("allleagues") == 'true':
+        allLeagues = True
 
-        if "worldfootball" in request.data.decode("utf-8"):
-            return jsonify(scrapping.getNextMatchFromWF(request.data, request.args.get("team"), request.args.get("season"), allLeagues))
-        elif "zerozero" in request.data.decode("utf-8"):
-            return jsonify(scrapping.getNextMatchFromZZ(request.data, request.args.get("team")))
-        else:
-            return jsonify(scrapping.getNextMatchFromAdA(request.data))
-    except Exception as e:
-        return jsonify({'error': str(e)})
+    nextMatchesList = {}
+    data = request.get_json()
 
+    driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+    driver.maximize_window()
+
+    for key, value in data.items():
+        source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
+        try:
+            nextMatches = scrapping.getNextMatchFromWF(value['url'], key, value['season'], allLeagues, source_code)
+            nextMatchesList[key] = {}
+            nextMatchesList[key]['nextMatches'] = nextMatches
+        except Exception as e:
+            logging.error("ERROR getting next match for " + key)
+            continue
+
+    driver.quit() #very important
+    return jsonify(nextMatchesList)
 
 @app.route('/next-league-match', methods=['POST'])
 def get_next_league_match():
@@ -86,13 +129,17 @@ def get_all_season_matches():
 @app.route('/league-teams', methods=['POST'])
 def get_all_league_teams():
     try:
-
+        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+        driver.maximize_window()
+        
         if "worldfootball" in request.data.decode("utf-8"):
-            return jsonify(scrapping.getLeagueTeamsFromWF(request.data))
+            return jsonify(scrapping.getLeagueTeamsFromWF(request.data, driver))
         else:
             return 'url not supported'
     except Exception as e:
         return jsonify({'error': str(e)})
+    finally:
+        driver.quit() #very important
 
 
 @app.route('/lmp-prognosticos', methods=['GET'])
@@ -136,11 +183,11 @@ def friendly_matches():
     try:
         data = request.get_json()
         for element in data:
-            #print(element['3. match'])
+            #logging.info(element['3. match'])
             element['4. ft_result'] = test.get_goals_mins(element)
             #break
             # time.sleep(2)
-            # #print(str(len(mins))+ " !! " + str(int(element['total goals'][0])))
+            # #logging.info(str(len(mins))+ " !! " + str(int(element['total goals'][0])))
             # #if len(mins) == int(element['total goals'][0]):
             # element['4. goals_mins'] = ''.join(mins)
             # if len(mins) > 1 and int(mins[1].replace("'","").strip()) <= 60:
@@ -221,10 +268,10 @@ def gf_get_matches_between_teams():
         data = request.get_json()
         return goalsFest.getMatchesBetweenFilteredTeams(data['previousSeason'], data['season'])
     except Exception as e:
-        print(e)
+        logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
         return jsonify({'error': str(e)})
 
 @app.route('/btts-one-half/matches-between-teams', methods=['GET'])
@@ -233,10 +280,10 @@ def btts_get_matches_between_teams():
         data = request.get_json()
         return bttsOneHalf.getMatchesBetweenFilteredTeams(data['previousSeason'], data['season'])
     except Exception as e:
-        print(e)
+        logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
         return jsonify({'error': str(e)})
 
 @app.route('/kelly-strats/next-matches-links', methods=['GET'])
@@ -261,7 +308,7 @@ def over25_get_next_matches_links():
     matchesLinks = []
 
     for link in adaLinks:
-        print("getting matches links for: " + link)
+        logging.info("getting matches links for: " + link)
         matchesLinks += aDaScrappings.getAdaMatchesLinks(link);#aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/06/" + str("%02d" % d))#
             
     return matchesLinks
@@ -280,26 +327,26 @@ def over25_get_next_matches():
                 # if len(match) > 0:
                 #     aDaScrappings.insertMatchInDB(match[0])
                 if filter_criteria_over25_match(match[0]):
-                    print(match[0])
+                    logging.info(match[0])
                     over25Matches.append(match[0])
                 if filter_criteria_btts_match(match[0]):
-                    print(match[0])
+                    logging.info(match[0])
                     bttsOneHalfMatches.append(match[0])
                 time.sleep(2)
             except Exception as e:
-                print(e)
+                logging.info(e)
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
+                logging.info(exc_type, fname, exc_tb.tb_lineno)
                 continue
         matchesToBet['over25'] = over25Matches
         matchesToBet['bttsOneHalf'] = bttsOneHalfMatches
         return matchesToBet
     except Exception as e:
-        print(e)
+        logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
         return jsonify({'error': str(e)})
 
 def filter_criteria_over25_match(match):
@@ -376,13 +423,13 @@ def filter_criteria_over25_match(match):
 
 
     if home_team_eligle and away_team_eligle and str(match['competition']) in filtered_comps:
-        print(str(match['home_team']) + ' - '  + str(match['away_team']))
-        # print('total_goals_last_home_team_matches' + str(total_goals_last_home_team_matches))
-        # print('last_home_team_matches_overs' + str(last_home_team_matches_overs))
-        # print('total_goals_last_away_team_matches' + str(total_goals_last_away_team_matches))
-        # print('last_away_team_matches_overs' + str(last_away_team_matches_overs))
-        # print('total_goals_previous_away_team_match' + str(total_goals_previous_away_team_match))
-        # print('last_away_team_matches_scored' + str(last_away_team_matches_scored))
+        logging.info(str(match['home_team']) + ' - '  + str(match['away_team']))
+        # logging.info('total_goals_last_home_team_matches' + str(total_goals_last_home_team_matches))
+        # logging.info('last_home_team_matches_overs' + str(last_home_team_matches_overs))
+        # logging.info('total_goals_last_away_team_matches' + str(total_goals_last_away_team_matches))
+        # logging.info('last_away_team_matches_overs' + str(last_away_team_matches_overs))
+        # logging.info('total_goals_previous_away_team_match' + str(total_goals_previous_away_team_match))
+        # logging.info('last_away_team_matches_scored' + str(last_away_team_matches_scored))
         return True
     return False
 
@@ -398,20 +445,20 @@ def btts_get_next_matches():
                     if len(match) > 0:
                         aDaScrappings.insertMatchInDB(match[0])
                     # if filter_criteria_btts_match(match[0]):
-                    #     print(match[0])
+                    #     logging.info(match[0])
                     #     matchesToBet.append(match[0])
                 except Exception as e:
-                    print(e)
+                    logging.info(e)
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(exc_type, fname, exc_tb.tb_lineno)
+                    logging.info(exc_type, fname, exc_tb.tb_lineno)
                     continue
         return matchesToBet
     except Exception as e:
-        print(e)
+        logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
         return jsonify({'error': str(e)})
 
 def filter_criteria_btts_match(match):
@@ -460,11 +507,11 @@ def filter_criteria_btts_match(match):
 def btts_get_matches_from_database():
     return_list = []
     results = []
-    for j in range(2,3):
+    for j in range(6,7):
         try:
-            for i in range(1, 2):
+            for i in range(1, 31):
                 date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
-                results += (bttsOneHalf.getMatchesByDateFromDB(date))
+                results += (bttsOneHalf.getMatchesByDateFromDB2(date))
 
             # num_greens_over25 = 0
             # num_greens_btts1h = 0
@@ -486,10 +533,10 @@ def btts_get_matches_from_database():
             # return_list.append(simulation)
 
         except Exception as e:
-            print(e)
+            logging.info(e)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
+            logging.info(exc_type, fname, exc_tb.tb_lineno)
             continue
 
     return results
@@ -586,6 +633,106 @@ def nba_scrap_data():
         return jsonify(nbaBacktests.scrappNBAStatsBulk(data['url'], data['season']))
     except Exception as e:
         return jsonify({'error': str(e)})
+
+@app.route('/nba/spread-backtest', methods=['GET'])
+def nba_spread_backtest():
+    try:
+        #data = request.get_json()
+        teams = ["DEN", "HOU", "CHI", "IND", "BOS", "LAC", "POR", "CLE", "ATL", "DAL", "NY", "SAC", "MIL", "WAS", "LAL", "TOR", "OKC", "PHO", "NO", "CHA", "MIN", "BK", "MEM", "GS", "PHI", "ORL", "SA", "MIA", "UTA", "DET"]
+        #teams = ["DET"]
+        season = '2022-23'
+        all_teams_results = []
+        
+        for team in teams:
+            results = {}
+            results['team'] = team
+            #results['original'] = nbaBacktests.spreadLongRedRunBacktest(team, season)
+            sequence = progressive_betting(nbaBacktests.spreadLongRedRunBacktest(team, season))
+            results['profit'] = sum(1 for char in sequence if char['outcome'] == 'green')
+            results['sequence'] = str([item["outcome"][0] for item in sequence])
+            all_teams_results.append(results)
+
+        return all_teams_results
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+def progressive_betting(sequence):
+    """
+    Implements a progressive betting strategy on a sequence of boolean results (True/False).
+
+    Args:
+        sequence: A list of booleans representing whether a team beat the spread (True) or not (False).
+
+    Returns:
+        A list of dictionaries, where each dictionary represents a betting action
+        and its outcome (green/red).
+    """
+
+    results = []
+    current_streak = 0
+    current_streak_value = sequence[0]['beatspread']
+    in_sequence = False
+    sequence_type = None
+    losses_in_sequence = 0
+    level = 0
+    looking_for_opposite = False
+
+    for match in sequence:
+        result = match['beatspread']
+        if not in_sequence:  # Not currently in a betting sequence
+            # Check for a streak of 5
+            if result == current_streak_value:
+                current_streak += 1
+            else:
+                current_streak = 1
+                current_streak_value = result
+
+            if current_streak >= 8:
+                logging.info(match['date'])
+                in_sequence = True
+                sequence_type = not result  # Bet on the opposite of the streak
+                logging.info(f"Starting progressive sequence, looking for {sequence_type}")
+                losses_in_sequence = 0
+                level = 1
+                looking_for_opposite = False  # Reset at sequence start
+                current_streak = 0
+                continue
+
+        if in_sequence:  # Currently in a betting sequence
+            bet_type = sequence_type  # Store the bet type
+            outcome = "green" if result == sequence_type else "red"
+            results.append({"bet_type": bet_type, "outcome": outcome})
+            logging.info(match['date'])
+            logging.info(f"Betting on {bet_type}, Outcome: {outcome}")
+
+            if result == sequence_type:  # Win!
+                logging.info("Won!")
+                in_sequence = False  # End the sequence
+                losses_in_sequence = 0
+                level = 0
+                looking_for_opposite = False  # Reset at sequence end
+            else:  # Loss
+                logging.info("Lost!")
+                losses_in_sequence += 1
+                level += 1
+
+                # if losses_in_sequence >= 3 and level >= 4 and not looking_for_opposite:
+                #   looking_for_opposite = True
+                #   sequence_type = not sequence_type
+                #   logging.info(f"Changing target to {sequence_type} after 3 losses in a row")
+                #   bet_type = sequence_type
+                #   outcome = "green" if result == sequence_type else "red"
+                #   #results[-1] = {"bet_type": bet_type, "outcome": outcome}
+                #   #logging.info(f"Betting on {bet_type}, Outcome: {outcome}")
+
+                # elif looking_for_opposite:
+                #   bet_type = sequence_type
+                #   outcome = "green" if result == sequence_type else "red"
+                #   results[-1] = {"bet_type": bet_type, "outcome": outcome}
+                #   logging.info(f"Betting on {bet_type}, Outcome: {outcome}")
+
+    return results
+
 
 @app.route('/telegram', methods=['POST'])
 def telegram_scrap_data():
@@ -726,14 +873,14 @@ def sample():
 
     similarties = []
     for s in list_to_search:
-        print(s)
-        print(difflib.get_close_matches(s.split(' ')[0].upper(), conmsList, 1, cutoff=.6))
-        print('\n')
+        logging.info(s)
+        logging.info(difflib.get_close_matches(s.split(' ')[0].upper(), conmsList, 1, cutoff=.6))
+        logging.info('\n')
 
     return similarties
 
 
 if __name__ == '__main__':
-    print("scrapper service is running...")
+    logging.info("scrapper service is running...")
     #test.replace_month_in_csv()
     app.run(host="0.0.0.0", port=8000, debug=True)

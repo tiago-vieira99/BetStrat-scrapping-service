@@ -8,7 +8,34 @@ from datetime import datetime, timedelta
 import sys, os
 import csv
 from collections import OrderedDict
+from selenium.webdriver.chrome.options import Options
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver import ActionChains
+import time
+import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def set_chrome_options() -> Options:
+    """Sets chrome options for Selenium.
+    Chrome options for headless browser is enabled.
+    """
+    chrome_options = Options()
+    #chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--start-maximized") 
+    chrome_options.add_argument("--disable-extensions") 
+    chrome_options.add_argument("--disable-infobars") 
+    chrome_options.add_argument("--disable-notifications") 
+
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    return chrome_options
 
 def generateFileForNextMatchesEbookStrategy():
     matches = []
@@ -23,7 +50,7 @@ def generateFileForNextMatchesEbookStrategy():
     #csv file header
     matches.append("datetime ; competition ; match ; h2h matches ; h2h goals")
     for k in range(0, 15):
-        print(datetime.now())
+        logging.info(datetime.now())
         current_date = today + timedelta(days=k)
         month = current_date.strftime("%b").lower()
         day = current_date.day
@@ -71,7 +98,7 @@ def generateFileForNextMatchesEbookStrategy():
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(exc_type, fname, exc_tb.tb_lineno)                        
+                    logging.info(exc_type, fname, exc_tb.tb_lineno)                        
         else:
             raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
     # Open file in write mode
@@ -85,7 +112,7 @@ def generateFileForNextMatchesEbookStrategy():
 
 def getLastNMatchesFromAdA(url, n):
     response = requests.get(url)
-    print("\ngetting last " + str(n) + " match stats: " + str(url))
+    logging.info("\ngetting last " + str(n) + " match stats: " + str(url))
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         # Perform scraping operations using BeautifulSoup here
@@ -117,7 +144,7 @@ def getLastNMatchesFromAdA(url, n):
 
 
 def getNextMatchFromAdA(url):
-    print("\ngetting next match: " + str(url))
+    logging.info("\ngetting next match: " + str(url))
     response = requests.get(url)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -209,7 +236,7 @@ def getFTFromO25Tips(statsUrl, date1, date2):
 
 
 def getSeasonMatchesFromFBRef(url, team, allLeagues):
-    print("\ngetting all season matches: " + str(url))
+    logging.info("\ngetting all season matches: " + str(url))
     response = requests.get(url)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')   
@@ -232,7 +259,7 @@ def getSeasonMatchesFromFBRef(url, team, allLeagues):
         matches = []
 
         for r in rows:
-            print(r)
+            logging.info(r)
             if r[0] == '':
                 continue
             if r[header.index("Venue")] == 'Home':
@@ -240,14 +267,14 @@ def getSeasonMatchesFromFBRef(url, team, allLeagues):
             else:
                 matches.append(Match(r[0], r[header.index("Opponent")], team, r[header.index("GA")].split(' ')[0]+':'+r[header.index("GF")].split(' ')[0], '', '', competition).to_dict())
 
-        print(str(len(matches)) + " matches scrapped for " + team)
+        logging.info(str(len(matches)) + " matches scrapped for " + team)
         return matches
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
     
 
 def getSeasonMatchesFromZZ(url, team, allLeagues):
-    print("\ngetting all season matches: " + str(url))
+    logging.info("\ngetting all season matches: " + str(url))
     matches = []
     
     response = requests.get(url)
@@ -305,7 +332,7 @@ def getSeasonMatchesFromZZ(url, team, allLeagues):
                 matches.append(Match(r[1], r[4], team, result, '', r[6]).to_dict())
 
         matches.reverse()
-        print(str(len(matches)) + " matches scrapped for " + team)
+        logging.info(str(len(matches)) + " matches scrapped for " + team)
         return matches
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
@@ -342,8 +369,8 @@ def getTomorrowMatchesFromWF(season):
         for m in ["jan"]:
             matches.append(m)
             for j in range(1, 32):
-                print(datetime.now())
-                print(year + "-" + m + "-" + str(j))
+                logging.info(datetime.now())
+                logging.info(year + "-" + m + "-" + str(j))
                 response = requests.get("https://www.worldfootball.net/matches_today/" + year + "/" + m + "/" + str(j))
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.content, 'html.parser')
@@ -410,7 +437,7 @@ def getTomorrowMatchesFromWF(season):
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
                             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                            print(exc_type, fname, exc_tb.tb_lineno)                        
+                            logging.info(exc_type, fname, exc_tb.tb_lineno)                        
                 else:
                     raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
                 # Open file in write mode
@@ -425,12 +452,13 @@ def getTomorrowMatchesFromWF(season):
 
 
 def getSeasonMatchesFromWF(url, team, season, allLeagues):
-    print("\ngetting all season matches: " + str(url, 'utf-8'))
+    logging.info("\ngetting all season matches: " + str(url, 'utf-8'))
     matches = []
     
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
+    source_code = getWFSourceHtmlCode(url)
+    
+    if source_code is not None:
+        soup = BeautifulSoup(source_code, 'html.parser')
         # Perform scraping operations using BeautifulSoup here
         table = soup.find('table', class_="standard_tabelle")
     
@@ -459,7 +487,7 @@ def getSeasonMatchesFromWF(url, team, season, allLeagues):
                 else:
                     ftResult = r[13].split(' ')[0]
                     htResult = r[13].split(' ')[1].replace('(','').replace(')','')
-                    print(htResult)
+                    logging.info(htResult)
                 if ':' in ftResult:
                     if r[7] == 'H':
                         matches.append(Match(r[3], team, r[11], ftResult, htResult, competition).to_dict())
@@ -468,14 +496,14 @@ def getSeasonMatchesFromWF(url, team, season, allLeagues):
                         htResult = htResult.split(':')[1] + ':' + htResult.split(':')[0]
                         matches.append(Match(r[3], r[11], team, ftResult, htResult, competition).to_dict())            
 
-        print(str(len(matches)) + " matches scrapped for " + team)
+        logging.info(str(len(matches)) + " matches scrapped for " + team)
         matches.sort(key=lambda match: datetime.strptime(match["date"], "%d/%m/%Y"))
         return matches
     else:
-        raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
+        raise Exception(f'Failed to scrape data from {url}.')
 
 def getNextMatchFromZZ(url, team):
-    print("\ngetting next match for " + team + ": " + str(url, 'utf-8'))
+    logging.info("\ngetting next match for " + team + ": " + str(url, 'utf-8'))
     matches = []
     
     response = requests.get(url)
@@ -527,13 +555,13 @@ def getNextMatchFromZZ(url, team):
                     matches.append(Match(r[1], r[4], team, result, '', r[6]).to_dict())
 
         matches.reverse()
-        print(str(len(matches)) + " matches scrapped for " + team)
+        logging.info(str(len(matches)) + " matches scrapped for " + team)
         return matches[0]
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
 
 def getLastNMatchesFromZZ(url, n, team):
-    print("\ngetting last " + str(n) + " match stats: " + str(url))
+    logging.info("\ngetting last " + str(n) + " match stats: " + str(url))
     matches = []
     
     response = requests.get(url)
@@ -577,7 +605,7 @@ def getLastNMatchesFromZZ(url, n, team):
         
         for r in rows:
             result = ""
-            print(r)
+            logging.info(r)
 
             if r[5] != '-' and '-' in r[5]:
                 result = r[5].split('-')[0] + ":" + r[5].split('-')[1][0]
@@ -587,7 +615,7 @@ def getLastNMatchesFromZZ(url, n, team):
                     matches.append(Match(r[1], r[4], team, result, '', r[6]).to_dict())
 
         # matches.reverse()
-        print(str(len(matches)) + " matches scrapped for " + team)
+        logging.info(str(len(matches)) + " matches scrapped for " + team)
         count = 0
         lastMatches = []
         for r in matches:
@@ -599,13 +627,12 @@ def getLastNMatchesFromZZ(url, n, team):
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
 
-def getNextMatchFromWF(url, team, season, allLeagues):
-    print("\ngetting next match for " + team + ": " + str(url, 'utf-8'))
+def getNextMatchFromWF(url, team, season, allLeagues, source_code):
+    logging.info("getting next match for " + team + ": " + str(url))
     matches = []
     
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
+    if source_code is not None:
+        soup = BeautifulSoup(source_code, 'html.parser')
         # Perform scraping operations using BeautifulSoup here
         table = soup.find('table', class_="standard_tabelle")
     
@@ -634,19 +661,44 @@ def getNextMatchFromWF(url, team, season, allLeagues):
                     else:
                         matches.append(Match(date.strftime('%Y-%m-%d'), r[11], team, '', '', competition).to_dict())            
 
-        print(str(len(matches)) + " matches scrapped for " + team)
+        logging.info(str(len(matches)) + " matches scrapped for " + team)
         matches.sort(key=lambda match: datetime.strptime(match["date"], "%Y-%m-%d"))
         return matches[0]
     else:
-        raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
+        raise Exception(f'Failed to scrape data from {url}. ')
 
-def getLastNMatchesFromWF(url, n, team, allLeagues, season):
-    print("\ngetting last " + str(n) + " match stats: " + str(url))
+
+def getWFSourceHtmlCode(url, driver):
+    try:
+        driver.set_page_load_timeout(30)  # Increased timeout
+        driver.delete_all_cookies()
+        driver.get(url)
+        logging.info(f"Navigated to {url}")
+
+        # try:
+        #     button = WebDriverWait(driver, 10).until(
+        #         EC.element_to_be_clickable((By.ID, "cmpwelcomebtnyes"))
+        #     )
+        #     button.click()
+        #     logging.info("Clicked the 'cmpwelcomebtnyes' button.")
+        # except Exception as e:
+        #     logging.info("No 'cmpwelcomebtnyes' button found or failed to click.")
+
+        source_code = driver.page_source
+        logging.info("Successfully retrieved page source.")
+        return source_code
+
+    except Exception as e:
+        logging.error(f"Error getting source code for {url}: {e}", exc_info=True) # Log with traceback
+        return None
+
+
+def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
+    logging.info("getting last " + str(n) + " match stats: " + str(url))
     matches = []
     
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
+    if source_code is not None:
+        soup = BeautifulSoup(source_code, 'html.parser')
         # Perform scraping operations using BeautifulSoup here
         table = soup.find('table', class_="standard_tabelle")
     
@@ -659,7 +711,7 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
         flag = False
         competition = ''
         for r in rows:
-            print(r)
+            #logging.info(r)
             if len(r) < 10:
                 if ('Friendlies' in r[1]) or (season not in r[1]):
                     flag = False
@@ -681,7 +733,7 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
                     ftResult = r[13].split(' ')[0]
                     if (len(r[13].split(' ')) > 1):
                         htResult = r[13].split(' ')[1].replace('(','').replace(')','').replace(',','')
-                print(ftResult)
+
                 if ':' in ftResult:
                     if r[7] == 'H':
                         matches.append(Match(r[3], team, r[11], ftResult, htResult, competition).to_dict())
@@ -691,9 +743,9 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
                             htResult = htResult.split(':')[1] + ':' + htResult.split(':')[0]
                         matches.append(Match(r[3], r[11], team, ftResult, htResult, competition).to_dict())    
                 else:
-                    print(r)            
+                    logging.info(r)            
 
-        print(str(len(matches)) + " matches scrapped for " + team)
+        logging.info(str(len(matches)) + " matches scrapped for " + team)
         matches.sort(key=lambda match: datetime.strptime(match["date"], "%d/%m/%Y"))
         matches.reverse()
         count = 0
@@ -705,39 +757,56 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season):
             count = count + 1
         return lastMatches
     else:
-        raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
+        raise Exception(f'Failed to scrape data from {url}.')
 
-def getLeagueTeamsFromWF(url):
-    print("\ngetting league teams: " + str(url))
+def getLeagueTeamsFromWF(urlLeaguesList, driver):
     teams = {}
-    
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
-        # Perform scraping operations using BeautifulSoup here
-        tables = soup.find_all('table', class_="standard_tabelle")
-    
-        # then we can iterate through each row and extract either header or row values:
-        header = []
-        rows = []
-        for j in range(1, len(tables)-1):
-            table = tables[j]
-            for i, row in enumerate(table.find_all('tr')):
-                if i != 0:
-                    rows.append([el.text.strip() for el in row])
 
-        for i, r in enumerate(rows):
-            teams[r[5].split('\n')[0]] = i+1;
-            # break
-        return teams
-    else:
-        raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
+    for url in str(urlLeaguesList, 'utf-8').split('\n'):
+        time.sleep(1)
+        logging.info("getting league teams: " + str(url))
+        source_code = getWFSourceHtmlCode(url, driver)
+
+        try:
+            if source_code is not None:
+                soup = BeautifulSoup(source_code, 'html.parser')
+                # Perform scraping operations using BeautifulSoup here
+                tables = soup.find_all('table', class_="standard_tabelle")
+            
+                # then we can iterate through each row and extract either header or row values:
+                header = []
+                rows = []
+                if len(tables) > 2:
+                    totalNumTables = len(tables)-1
+                else:
+                    totalNumTables = len(tables)
+                for j in range(1, totalNumTables):
+                    table = tables[j]
+                    for i, row in enumerate(table.find_all('tr')):
+                        if i != 0:
+                            rows.append([el.text.strip() for el in row])
+
+                logging.info("Number of teams collected: " + str(len(rows)))
+                for i, r in enumerate(rows):
+                    teams[r[5].split('\n')[0]] = i+1;
+                    # break
+            else:
+                logging.info(f'Failed to scrape data from {url}.')
+        except Exception as e:
+            logging.info(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logging.info(exc_type, fname, exc_tb.tb_lineno)
+            continue
+
+    driver.close()
+    return teams
 
 def getLiveMatchStatsFromAdA(url):
     response = requests.get(url)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-        print("\ngetting live match stats: " + str(url))
+        logging.info("\ngetting live match stats: " + str(url))
         
         tables = soup.find_all('table', 'stat-seqs stat-half-padding')
         homeGoalsTable = tables[2]
@@ -778,16 +847,16 @@ def getLiveMatchStatsFromAdA(url):
                         numOversh2h += 1
                 i+=1
 
-            print('Scrapped stats: homeOverRate: '+ homeOverRate + '; awayOverRate: ' + awayOverRate + '; homeGoalsAvg: ' + homeGoalsAvg + '; awayGoalsAvg: ' + awayGoalsAvg + '; numOverh2h: ' + str(numOversh2h))
+            logging.info('Scrapped stats: homeOverRate: '+ homeOverRate + '; awayOverRate: ' + awayOverRate + '; homeGoalsAvg: ' + homeGoalsAvg + '; awayGoalsAvg: ' + awayGoalsAvg + '; numOverh2h: ' + str(numOversh2h))
 
             h2hOverRate = 100*numOversh2h/len(h2hMatches)
-            print(h2hOverRate)
+            logging.info(h2hOverRate)
             if (int(homeOverRate) >= 70 or int(awayOverRate) >= 70) and ((int(homeGoalsAvg)+int(awayGoalsAvg))/2 >= 3) and float(h2hOverRate) >= 65:
                 return True
             else:
                 return False
         except:
-            print("An exception has occurred!\n")
+            logging.info("An exception has occurred!\n")
 
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
@@ -821,7 +890,7 @@ def getLMPprgnosticos():
         raise Exception(f'Failed to scrape data from LMP Apostas. Error: {response.status_code}')
     
 def getNBASeasonMatchesFromESPN(url, team):
-    print("\ngetting all season matches: " + str(url, 'utf-8'))
+    logging.info("\ngetting all season matches: " + str(url, 'utf-8'))
     matches = []
 
     HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
@@ -872,7 +941,7 @@ def getNBASeasonMatchesFromESPN(url, team):
 
                 matches.append(Match(match.find_all('td')[0].text, homeTeam.strip(), awayTeam.strip(), htResult + ';' + ftScore, '', 'NBA').to_dict())    
             except Exception as e:
-                print(str(e))
+                logging.info(str(e))
         return matches
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')

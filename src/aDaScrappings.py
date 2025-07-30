@@ -18,6 +18,10 @@ import json, csv
 import gc
 import psycopg2
 import urllib.parse
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def set_chrome_options() -> Options:
     """Sets chrome options for Selenium.
@@ -61,7 +65,7 @@ def json_to_csv(json_file_path, csv_file_path):
     if not all(isinstance(item, dict) for item in data):
         raise ValueError("All JSON entries must be dictionaries")
     if not data:
-        print("No data found in JSON file")
+        logging.info("No data found in JSON file")
         return
 
     # Collect all unique field names alphabetically sorted
@@ -111,17 +115,17 @@ def getAdaMatchesLinks(url):
 
         todayMatches = driver.find_elements(By.CLASS_NAME, "live-subscription")
         gc.collect()
-        print(len(todayMatches))
+        logging.info(len(todayMatches))
         for match in todayMatches:
             html = match.get_attribute('outerHTML')
             matches.append(html)
             soup = BeautifulSoup(html, 'html.parser')
 
     except Exception as e:
-        print(e)
+        logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
         
     driver.close()
     return matches
@@ -142,7 +146,7 @@ def scrappAdAStatsBulk(monthh, day):
                 with open(file_path, 'r') as f:
                     data = json.load(f)  # Load the JSON data
 
-                    print("########## FILE: " + filename)
+                    logging.info("########## FILE: " + filename)
                     if isinstance(data, list): # Check if the loaded data is a list (array)
                         for element in data:
                             try:
@@ -157,20 +161,20 @@ def scrappAdAStatsBulk(monthh, day):
                                 
                                 #time.sleep(2)
                             except Exception as e:
-                                print(e)
+                                logging.info(e)
                                 errors.append(e)
                                 exc_type, exc_obj, exc_tb = sys.exc_info()
                                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                                print(exc_type, fname, exc_tb.tb_lineno)
+                                logging.info(exc_type, fname, exc_tb.tb_lineno)
                                 matches = []
                                 continue
                     else:
-                        print(f"Warning: File '{filename}' does not contain a JSON array. Skipping.")
+                        logging.info(f"Warning: File '{filename}' does not contain a JSON array. Skipping.")
             except Exception as e:
-                print(e)
+                logging.info(e)
             #break
 
-    print(errors)
+    logging.info(errors)
     return errors
 
 def insertMatchInDB(match):
@@ -189,7 +193,7 @@ def insertMatchInDB(match):
     try:
          # Connect to the database
         conn = psycopg2.connect(**db_params)
-        print(f"Connected to database !")
+        logging.info(f"Connected to database !")
 
         cursor = conn.cursor()
 
@@ -200,11 +204,11 @@ def insertMatchInDB(match):
 
         cursor.execute(query, tuple(match.values()))
         conn.commit()
-        print("Data inserted successfully!")
+        logging.info("Data inserted successfully!")
         return True
 
     except psycopg2.Error as e:
-        print(f"PostgreSQL error: {e}")
+        logging.info(f"PostgreSQL error: {e}")
         if conn:
             conn.rollback()
         return False
@@ -267,21 +271,21 @@ def getAdaMatchesStats(element):
         matchDict.update(matchStats)
         matchesToBet.append(matchDict)
     except Exception as e:
-        print(e)
+        logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
 
     return matchesToBet
 
 def getMatchStatsFromAdA(url):
     response = requests.get(url)
     matchStats = OrderedDict()
-    print('url: ' + url)
-    print('status: ' + str(response.status_code))
+    logging.info('url: ' + url)
+    logging.info('status: ' + str(response.status_code))
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-        print("\ngetting match stats: " + str(url))
+        logging.info("\ngetting match stats: " + str(url))
 
         try:
 
@@ -518,10 +522,10 @@ def getMatchStatsFromAdA(url):
             
             
         except Exception as e:
-            print(e)
+            logging.info(e)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
+            logging.info(exc_type, fname, exc_tb.tb_lineno)
 
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
@@ -593,10 +597,10 @@ def extractOddsValues(url):
             
             return odds        
     except Exception as e:
-        print(e)
+        logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(exc_type, fname, exc_tb.tb_lineno)
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
         odds = {'v1Odd': 0,
                     'xOdd': 0,
                     'v2Odd': 0,
@@ -610,7 +614,7 @@ def getFinishedMatchFirstHalfGoalsFromAdA(url):
     response = requests.get(url)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-        # print(url)
+        # logging.info(url)
 
         table = soup.find(id='first-half-summary')
         

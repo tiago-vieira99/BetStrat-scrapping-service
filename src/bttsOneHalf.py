@@ -8,6 +8,10 @@ from bs4 import BeautifulSoup
 import psycopg2
 import psycopg2.extras
 import json
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def generateFileForNextMatchesEbookStrategy():
     matches = []
@@ -24,7 +28,7 @@ def generateFileForNextMatchesEbookStrategy():
     matches.append("datetime ; competition ; match ; h2h matches ; h2h goals")
     for k in range(0, 4):
         current_date = today + timedelta(days=k)
-        print("\n" + str(current_date) + "\n")
+        logging.info("\n" + str(current_date) + "\n")
         month = current_date.strftime("%b").lower()
         day = current_date.day
         formatted_date = f"{current_date.year}/{month}/{day}/"
@@ -50,7 +54,7 @@ def generateFileForNextMatchesEbookStrategy():
                         competition = r[3]
 
                     if (len(r) > 7) and any(item.lower().replace(' ', '') in competition.lower().replace(' ', '') for item in comps) and r[3] in teams and r[7] in teams:
-                        print(competition + ": \t" + r[3] + " - " + r[7])
+                        logging.info(competition + ": \t" + r[3] + " - " + r[7])
                         if len(row.find_all('a')) > 2:
                             response3 = requests.get("https://www.worldfootball.net/" + row.find_all('a')[2]['href'])
                             
@@ -68,12 +72,12 @@ def generateFileForNextMatchesEbookStrategy():
                                     h2hgoals = int(table4.find_all('tr')[-1].find_all('td')[-3].text) + int(table4.find_all('tr')[-1].find_all('td')[-1].text)
                         
                         if (float(h2hgoals)/float(h2hmatches) >= 3.5):
-                            print("MATCH ADDED!\n")
+                            logging.info("MATCH ADDED!\n")
                             matches.append(formatted_date + " " + r[1] + " ; " + competition + " ; " + r[3] + " - " + r[7] + " ; " + h2hmatches + " ; " + str(h2hgoals))       
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                    print(exc_type, fname, exc_tb.tb_lineno)                        
+                    logging.info(exc_type, fname, exc_tb.tb_lineno)                        
         else:
             raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
     # Open file in write mode
@@ -216,7 +220,7 @@ def filterTeamsBySeason(season):
             ratio = str(x / y).replace(".", ",")
             #f_teams.append(f"{team} ; {x} ; {y} ; {ratio}")
             f_teams.append(f"{team}")
-            #print(f"{team} ; {x} ; {y} ; {x/y}")
+            #logging.info(f"{team} ; {x} ; {y} ; {x/y}")
 
     return f_teams
 
@@ -282,8 +286,8 @@ def getMatchesByDateFromDB2(date_str):
     try:
          # Connect to the database
         conn = psycopg2.connect(**db_params)
-        print(f"Connected to database !")
-        print("Getting data for " + date_str)
+        logging.info(f"Connected to database !")
+        logging.info("Getting data for " + date_str)
 
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -366,7 +370,7 @@ def getMatchesByDateFromDB2(date_str):
                 if total_goals_last_away_team_matches >= 7 and last_away_team_matches_overs >= 2 and total_goals_previous_away_team_match >= 2 and last_away_team_matches_scored >= 2:
                     away_team_eligle = True
 
-                if home_team_eligle and away_team_eligle:# and float(match['over25_odd'] >= 1.6) and float(match['over25_odd'] <= 2.2):
+                if home_team_eligle and away_team_eligle and float(match['over25_odd'] >= 1.6) and float(match['over25_odd'] <= 2.2):
                     home__ft_score, away__ft_score = map(int, match['ft_result'].split('-'))
                     home__ht_score, away__ht_score = map(int, match['ht_result'].split('-'))
                     home_2ht_score = home__ft_score - home__ht_score
@@ -386,19 +390,19 @@ def getMatchesByDateFromDB2(date_str):
                     backtestingMatch['11. away_total_goals_avg_at_away_pre'] = away_total_goals_avg_at_away_pre
                     matches_to_bet.append(backtestingMatch)
             except Exception as e:
-                print(f"Error decoding JSON for match ID {match.get('id', 'Unknown')}: {e}")
-                print(match['competition'] + " ## " + match['home_team'] + " - " + match['away_team'] +  " ## " + match['ft_result'])
+                logging.info(f"Error decoding JSON for match ID {match.get('id', 'Unknown')}: {e}")
+                logging.info(match['competition'] + " ## " + match['home_team'] + " - " + match['away_team'] +  " ## " + match['ft_result'])
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
+                logging.info(exc_type, fname, exc_tb.tb_lineno)
                 continue
             #break
 
-        #print(len(matches_to_bet))
+        #logging.info(len(matches_to_bet))
         return matches_to_bet
 
     except psycopg2.Error as e:
-        print(f"PostgreSQL error: {e}")
+        logging.info(f"PostgreSQL error: {e}")
         if conn:
             conn.rollback()
         return False
@@ -425,8 +429,8 @@ def getMatchesByDateFromDB(date_str):
     try:
          # Connect to the database
         conn = psycopg2.connect(**db_params)
-        print(f"Connected to database !")
-        print("Getting data for " + date_str)
+        logging.info(f"Connected to database !")
+        logging.info("Getting data for " + date_str)
 
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -478,9 +482,9 @@ def getMatchesByDateFromDB(date_str):
                     #if (btts_streak_length >= 6 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 6 and float(over_streak_value/over_streak_length) >= 0.75) and home_total_goals_avg_at_home_pre >= 2 and away_total_goals_avg_at_away_pre >= 2:
                     ##working: if home_total_goals_avg_at_home_pre >= 3 and away_total_goals_avg_at_away_pre >= 3 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
                     if (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
-                        # print("BTTS streak: " + bttsLastStreak)
-                        # print("OVER streak: " + overLastStreak)
-                        # print("\n\n")
+                        # logging.info("BTTS streak: " + bttsLastStreak)
+                        # logging.info("OVER streak: " + overLastStreak)
+                        # logging.info("\n\n")
                         home__ft_score, away__ft_score = map(int, match['ft_result'].split('-'))
                         home__ht_score, away__ht_score = map(int, match['ht_result'].split('-'))
                         home_2ht_score = home__ft_score - home__ht_score
@@ -498,19 +502,19 @@ def getMatchesByDateFromDB(date_str):
                         backtestingMatch['09. away_total_goals_avg_at_away_pre'] = away_total_goals_avg_at_away_pre
                         matches_to_bet.append(backtestingMatch)
             except Exception as e:
-                print(f"Error decoding JSON for match ID {match.get('id', 'Unknown')}: {e}")
-                print(match['competition'] + " ## " + match['home_team'] + " - " + match['away_team'] +  " ## " + match['ft_result'])
+                logging.info(f"Error decoding JSON for match ID {match.get('id', 'Unknown')}: {e}")
+                logging.info(match['competition'] + " ## " + match['home_team'] + " - " + match['away_team'] +  " ## " + match['ft_result'])
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(exc_type, fname, exc_tb.tb_lineno)
+                logging.info(exc_type, fname, exc_tb.tb_lineno)
                 continue
             #break
 
-        print(len(matches_to_bet))
+        logging.info(len(matches_to_bet))
         return matches_to_bet
 
     except psycopg2.Error as e:
-        print(f"PostgreSQL error: {e}")
+        logging.info(f"PostgreSQL error: {e}")
         if conn:
             conn.rollback()
         return False
@@ -528,7 +532,7 @@ def evalute_btts_one_half_result(match):
 
 def filterMatchesByBttsCondition(h2h_matches):
     results = []
-    #print("\n".join(h2h_matches))
+    #logging.info("\n".join(h2h_matches))
     for match in h2h_matches:
         match_result = ''
         
@@ -571,7 +575,7 @@ def filterMatchesByBttsCondition(h2h_matches):
 
 def filterMatchesByOverCondition(h2h_matches):
     results = []
-    #print(h2h_matches)
+    #logging.info(h2h_matches)
     for match in h2h_matches:
         match_result = ''
         

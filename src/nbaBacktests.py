@@ -298,3 +298,86 @@ def insertMatchInDB(match):
             cursor.close()
             conn.close()
 
+
+def spreadLongRedRunBacktest(team, season):
+    ca_file = "ca.pem"
+    db_params = {
+        'dbname': 'defaultdb',
+        'user': 'avnadmin',
+        'password': 'AVNS_xilofcVMIxDNHVjsmDg',
+        'host': 'pg-186b9d39-betstrat-ea12.h.aivencloud.com',
+        'port': '23138',
+        'sslmode': 'require',
+        'sslrootcert': ca_file
+    }
+    
+    conn = None  # Initialize conn to None
+    try:
+         # Connect to the database
+        conn = psycopg2.connect(**db_params)
+        print(f"Connected to database !")
+
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        #team = 'BOS'
+
+        query = "SELECT * FROM backtesting.nba WHERE season = '" + season + "' and (away_team_short = '" + team + "' or home_team_short = '" + team + "') order by date"
+        cursor.execute(query)
+
+        matches = cursor.fetchall()  # Fetch all results
+
+        matchesToBet = []
+        seqActive = False
+        maxRedRun = 5
+        currredRun = 0
+        currSeqLevel = 0
+
+        for match in matches:
+            away_spread = float(match['away_spread'])
+            away_spread_odd = float(match['away_spread_odd'])
+            home_spread = float(match['home_spread'])
+            home_spread_odd = float(match['home_spread_odd'])
+            date = str(match['date'])
+            ft_result = str(match['ft_result'])
+            home_team = str(match['home_team'])
+            away_team = str(match['away_team'])
+            home_team_short = str(match['home_team_short'])
+            away_team_short = str(match['away_team_short'])
+
+            beatSpread = False
+
+            result_after_spread = ''
+            if team == home_team_short:
+                result_after_spread = str(str(float(ft_result.split('-')[0]) + home_spread) + '-' + ft_result.split('-')[1])
+                if float(result_after_spread.split('-')[0]) > float(result_after_spread.split('-')[1]):
+                    beatSpread = True
+            elif team == away_team_short:
+                result_after_spread = str(ft_result.split('-')[0] + '-' + str(float(ft_result.split('-')[1]) + away_spread))
+                if float(result_after_spread.split('-')[1]) > float(result_after_spread.split('-')[0]):
+                    beatSpread = True
+
+            match['beatspread'] = beatSpread
+            matchesToBet.append(match)
+            continue
+            if seqActive:
+                matchesToBet.append(int(beatSpread))
+                currSeqLevel += 1
+                if beatSpread:
+                    seqActive = False
+                    currredRun = 0
+                    currSeqLevel = 0
+            else:
+                if beatSpread:
+                    currredRun = 0
+                else:
+                    currredRun += 1
+
+            if currredRun >= maxRedRun:
+                seqActive = True
+
+        return matchesToBet
+
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(exc_type, fname, exc_tb.tb_lineno)
