@@ -675,14 +675,14 @@ def getWFSourceHtmlCode(url, driver):
         driver.get(url)
         logging.info(f"Navigated to {url}")
 
-        # try:
-        #     button = WebDriverWait(driver, 10).until(
-        #         EC.element_to_be_clickable((By.ID, "cmpwelcomebtnyes"))
-        #     )
-        #     button.click()
-        #     logging.info("Clicked the 'cmpwelcomebtnyes' button.")
-        # except Exception as e:
-        #     logging.info("No 'cmpwelcomebtnyes' button found or failed to click.")
+        try:
+            button = WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.ID, "cmpwelcomebtnyes"))
+            )
+            button.click()
+            logging.info("Clicked the 'cmpwelcomebtnyes' button.")
+        except Exception as e:
+            logging.info("No 'cmpwelcomebtnyes' button found or failed to click.")
 
         source_code = driver.page_source
         logging.info("Successfully retrieved page source.")

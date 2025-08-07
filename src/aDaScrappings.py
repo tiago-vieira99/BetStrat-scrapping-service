@@ -87,7 +87,7 @@ def json_to_csv(json_file_path, csv_file_path):
 def getAdaMatchesLinks(url):
     matches = []
     ## COLLECT MATCHES_LINKS FOR EACH DAY
-    driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions())
+    driver = webdriver.Remote("http://172.17.0.3:4444", options=webdriver.ChromeOptions())
     driver.maximize_window()
 
     try:
@@ -130,7 +130,7 @@ def getAdaMatchesLinks(url):
     driver.close()
     return matches
 
-# docker run -d -p 4444:4444 -p 7900:7900  --shm-size="2g" --platform linux/x86_64 -e SE_NODE_SESSION_TIMEOUT='20' selenium/standalone-chrome:latest
+# docker run -d -p 4444:4444 -p 7900:7900  --shm-size="2g" --platform linux/x86_64 -e SE_NODE_SESSION_TIMEOUT='20' 172.17.0.2/standalone-chrome:latest
 def scrappAdAStatsBulk(monthh, day):
 
     matches = []
@@ -248,7 +248,7 @@ def getAdaMatchesStats(element):
             totalGoals = None
         else:
             homeScore = matchScore[0:6].split('-')[0].strip()
-            awayScore = matchScore[0:6].split('-')[1].strip()
+            awayScore = matchScore[0:6].split('-')[1].strip().split('(')[0].strip()
             totalGoals = int(homeScore) + int(awayScore)
 
         date = soup.find('td', class_='hour')["timestamp"]
@@ -271,7 +271,6 @@ def getAdaMatchesStats(element):
         matchDict.update(matchStats)
         matchesToBet.append(matchDict)
     except Exception as e:
-        logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         logging.info(exc_type, fname, exc_tb.tb_lineno)
@@ -285,7 +284,7 @@ def getMatchStatsFromAdA(url):
     logging.info('status: ' + str(response.status_code))
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-        logging.info("\ngetting match stats: " + str(url))
+        logging.info("getting match stats: " + str(url))
 
         try:
 
@@ -597,10 +596,10 @@ def extractOddsValues(url):
             
             return odds        
     except Exception as e:
-        logging.info(e)
+        #logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        logging.info(exc_type, fname, exc_tb.tb_lineno)
+        #logging.info(exc_type, fname, exc_tb.tb_lineno)
         odds = {'v1Odd': 0,
                     'xOdd': 0,
                     'v2Odd': 0,

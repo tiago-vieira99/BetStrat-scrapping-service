@@ -54,22 +54,23 @@ def get_last_n_matches(n):
     lastMatchesList = {}
     data = request.get_json()
 
-    driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
-    driver.maximize_window()
-
-    logging.info(data)
-
     for key, value in data.items():
+        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+        driver.maximize_window()
+        #time.sleep(1)
         source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
+        driver.quit() #very important
         try:
             lastMatches = scrapping.getLastNMatchesFromWF(value['url'], n, key, allLeagues, value['season'], source_code)
             lastMatchesList[key] = {}
             lastMatchesList[key]['lastMatches'] = lastMatches
         except Exception as e:
             logging.error("ERROR getting last matches for " + key)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logging.info(exc_type, fname, exc_tb.tb_lineno)
             continue
 
-    driver.quit() #very important
     return jsonify(lastMatchesList)
 
 @app.route('/next-matches', methods=['POST'])
@@ -81,11 +82,11 @@ def get_next_match():
     nextMatchesList = {}
     data = request.get_json()
 
-    driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
-    driver.maximize_window()
-
     for key, value in data.items():
+        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+        driver.maximize_window()
         source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
+        driver.quit() #very important
         try:
             nextMatches = scrapping.getNextMatchFromWF(value['url'], key, value['season'], allLeagues, source_code)
             nextMatchesList[key] = {}
@@ -94,7 +95,7 @@ def get_next_match():
             logging.error("ERROR getting next match for " + key)
             continue
 
-    driver.quit() #very important
+    
     return jsonify(nextMatchesList)
 
 @app.route('/next-league-match', methods=['POST'])
@@ -437,8 +438,8 @@ def filter_criteria_over25_match(match):
 def btts_get_next_matches():
     try:
         matchesToBet = []
-        for d in range(21,31):
-            matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/06/" + str("%02d" % d))
+        for d in range(21,32):
+            matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/07/" + str("%02d" % d))
             for element in matchesLinks:
                 try:
                     match = aDaScrappings.getAdaMatchesStats(element)
@@ -507,11 +508,11 @@ def filter_criteria_btts_match(match):
 def btts_get_matches_from_database():
     return_list = []
     results = []
-    for j in range(6,7):
+    for j in range(7, 8):
         try:
-            for i in range(1, 31):
+            for i in range(1, 32):
                 date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
-                results += (bttsOneHalf.getMatchesByDateFromDB2(date))
+                results += (bttsOneHalf.getMatchesByDateFromDB(date))
 
             # num_greens_over25 = 0
             # num_greens_btts1h = 0
