@@ -3,7 +3,6 @@ from flask import jsonify
 from bs4 import BeautifulSoup
 from obj.match import Match
 import re
-import Levenshtein
 from datetime import datetime
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver

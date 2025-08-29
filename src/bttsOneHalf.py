@@ -1,6 +1,5 @@
 import csv
 from collections import Counter
-import pandas as pd
 from datetime import datetime, timedelta
 import requests
 import sys, os
