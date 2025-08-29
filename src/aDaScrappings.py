@@ -42,52 +42,11 @@ def set_chrome_options() -> Options:
     chrome_prefs["profile.default_content_settings"] = {"images": 2}
     return chrome_options
 
-def json_to_csv(json_file_path, csv_file_path):
-    """
-    Converts a JSON file containing an array of objects to a CSV file.
-    
-    Args:
-        json_file_path (str): Path to the input JSON file.
-        csv_file_path (str): Path to save the output CSV file.
-        
-    Limitations:
-        - Handles only flat structures (nested JSON objects/arrays will be converted to strings)
-        - All JSON entries must be dictionaries
-        - CSV columns will be sorted alphabetically
-    """
-    # Load JSON data
-    with open(json_file_path, 'r') as json_file:
-        data = json.load(json_file)
-    
-    # Validate data format
-    if not isinstance(data, list):
-        raise ValueError("JSON root should be an array of objects")
-    if not all(isinstance(item, dict) for item in data):
-        raise ValueError("All JSON entries must be dictionaries")
-    if not data:
-        logging.info("No data found in JSON file")
-        return
-
-    # Collect all unique field names alphabetically sorted
-    fieldnames = sorted({key for item in data for key in item.keys()})
-
-    # Write CSV file
-    with open(csv_file_path, 'w', newline='') as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames, delimiter=';')
-        writer.writeheader()
-        
-        for item in data:
-            # Convert nested structures to strings
-            row = {
-                key: str(value) if isinstance(value, (list, dict)) else value
-                for key, value in item.items()
-            }
-            writer.writerow(row)
 
 def getAdaMatchesLinks(url):
     matches = []
     ## COLLECT MATCHES_LINKS FOR EACH DAY
-    driver = webdriver.Remote("http://172.17.0.3:4444", options=webdriver.ChromeOptions())
+    driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions())
     driver.maximize_window()
 
     try:
@@ -130,52 +89,6 @@ def getAdaMatchesLinks(url):
     driver.close()
     return matches
 
-# docker run -d -p 4444:4444 -p 7900:7900  --shm-size="2g" --platform linux/x86_64 -e SE_NODE_SESSION_TIMEOUT='20' 172.17.0.2/standalone-chrome:latest
-def scrappAdAStatsBulk(monthh, day):
-
-    matches = []
-
-    ## COLLECT MATCHES_STATS FROM MATCHES_LINKS FILES
-    folder_path = "scrapper/newData/aDa/matches_links/"
-    errors = []
-    for filename in os.listdir(folder_path):
-        if filename.endswith(".json"):  # Check if it's a JSON file
-            file_path = os.path.join(folder_path, filename)
-
-            try:
-                with open(file_path, 'r') as f:
-                    data = json.load(f)  # Load the JSON data
-
-                    logging.info("########## FILE: " + filename)
-                    if isinstance(data, list): # Check if the loaded data is a list (array)
-                        for element in data:
-                            try:
-                                match = getAdaMatchesStats(element)
-                                #matches += match
-                                if len(match) > 0:
-                                    insertMatchInDB(match[0])
-                                #break
-                                # with open("scrapper/newData/aDa/matches_stats/" + filename.replace('Links', 'Stats'), 'a', encoding='utf-8') as file:
-                                #     json.dump(matches, file, ensure_ascii=False, indent=4)
-                                #     matches = []
-                                
-                                #time.sleep(2)
-                            except Exception as e:
-                                logging.info(e)
-                                errors.append(e)
-                                exc_type, exc_obj, exc_tb = sys.exc_info()
-                                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                                logging.info(exc_type, fname, exc_tb.tb_lineno)
-                                matches = []
-                                continue
-                    else:
-                        logging.info(f"Warning: File '{filename}' does not contain a JSON array. Skipping.")
-            except Exception as e:
-                logging.info(e)
-            #break
-
-    logging.info(errors)
-    return errors
 
 def insertMatchInDB(match):
     ca_file = "ca.pem"
