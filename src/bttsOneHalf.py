@@ -8,10 +8,32 @@ import psycopg2
 import psycopg2.extras
 import json
 import logging
+import pika
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# quiet pika logs
+logging.getLogger("pika").setLevel(logging.WARNING)
+
+def publish_match(match_data, rabbitQueue):
+    connection = pika.BlockingConnection(pika.ConnectionParameters("172.17.0.2"))
+    channel = connection.channel()
+
+    # Ensure queue exists
+    channel.queue_declare(queue=rabbitQueue, durable=True)
+
+    # Publish message
+    channel.basic_publish(
+        exchange="",
+        routing_key=rabbitQueue,
+        body=json.dumps(match_data),
+        properties=pika.BasicProperties(
+            delivery_mode=2,  # make message persistent
+        ),
+    )
+    logging.info(f"Published data in queue '{rabbitQueue}': {match_data} ")
+    connection.close()
 
 # testing strategy: https://www.financial-spread-betting.com/sports/Goals-betting-system.html#respond
 # get matches from database that would be considered for over2.5 strategy
@@ -225,10 +247,12 @@ def getBTTSMatchesByDateFromDB(date_str):
                     away_over_streak_length = int(away_overLastStreak.split('/')[1])
                     away_over_streak_value = int(away_overLastStreak.split('/')[0])
 
+                    teams_goals_avg = float((home_total_goals_avg_at_home_pre + away_total_goals_avg_at_away_pre) / 2)
 
                     #if (btts_streak_length >= 6 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 6 and float(over_streak_value/over_streak_length) >= 0.75) and home_total_goals_avg_at_home_pre >= 2 and away_total_goals_avg_at_away_pre >= 2:
                     ##working: if home_total_goals_avg_at_home_pre >= 3 and away_total_goals_avg_at_away_pre >= 3 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
-                    if (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
+                    if teams_goals_avg >= 3.5 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
+                    #if (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
                         # logging.info("BTTS streak: " + bttsLastStreak)
                         # logging.info("OVER streak: " + overLastStreak)
                         # logging.info("\n\n")

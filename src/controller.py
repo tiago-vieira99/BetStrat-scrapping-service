@@ -14,6 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 import time
 import logging
+import threading
 
 def set_chrome_options() -> Options:
     """Sets chrome options for Selenium.
@@ -42,11 +43,17 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 @app.route('/last-matches/<int:n>', methods=['POST'])
 def get_last_n_matches(n):
-    allLeagues = True #used only for historic-data, so always true
-    lastMatchesList = {}
     data = request.get_json()
+    thread = threading.Thread(target=scrape_last_n_matches, args=(data,n))
+    thread.start()
+    return jsonify({"status": "started"}), 202
+
+
+def scrape_last_n_matches(data, n):
+    allLeagues = True #used only for historic-data, so always true
 
     for key, value in data.items():
+        lastMatchesList = {}
         driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
         driver.maximize_window()
         #time.sleep(1)
@@ -56,6 +63,7 @@ def get_last_n_matches(n):
             lastMatches = scrapping.getLastNMatchesFromWF(value['url'], n, key, allLeagues, value['season'], source_code)
             lastMatchesList[key] = {}
             lastMatchesList[key]['lastMatches'] = lastMatches
+            bttsOneHalf.publish_match(lastMatchesList, "historic_last_matches")
         except Exception as e:
             logging.error("ERROR getting last matches for " + key)
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -63,7 +71,7 @@ def get_last_n_matches(n):
             logging.info(exc_type, fname, exc_tb.tb_lineno)
             continue
 
-    return jsonify(lastMatchesList)
+    return "done."
 
 @app.route('/next-matches', methods=['POST'])
 def get_next_match():
@@ -125,8 +133,8 @@ def over25_get_next_matches_links():
     after_tomorrow_link = "https://www.academiadasapostas.com/stats/livescores/2025/" + after_tomorrow_month + "/" + day_after_tomorrow_formatted
     adaLinks = []
     adaLinks.append(tomorrow_link)
-    #adaLinks.append(after_tomorrow_link)
-    #adaLinks.append("https://www.academiadasapostas.com/stats/livescores/2025/08/16")
+    adaLinks.append(after_tomorrow_link)
+    #adaLinks.append("https://www.academiadasapostas.com/stats/livescores/2025/09/04")
     #adaLinks.append("https://www.academiadasapostas.com/stats/livescores/2025/08/17")
     matchesLinks = []
 
@@ -137,9 +145,54 @@ def over25_get_next_matches_links():
     return matchesLinks
 
 
+@app.route('/kelly-strats/matches-results-over25', methods=['POST'])
+def kelly_over25_matches_results():
+    data = request.get_json()
+    thread = threading.Thread(target=scrapeMatchesResultsInBackground, args=(data, "over25-results"))
+    thread.start()
+    return jsonify({"status": "started"}), 202
+
+
+@app.route('/kelly-strats/matches-results-btts-one-half', methods=['POST'])
+def kelly_btts_one_half_matches_results():
+    data = request.get_json()
+    thread = threading.Thread(target=scrapeMatchesResultsInBackground, args=(data, "btts-one-half-results"))
+    thread.start()
+    return jsonify({"status": "started"}), 202
+
+
+def scrapeMatchesResultsInBackground(data, strategy):
+    print(data)
+    try:
+        for element in data:
+            try:
+                match = aDaScrappings.getMatchFinalResultFromAdA(element)
+                logging.info(match)
+                bttsOneHalf.publish_match(match, strategy)
+                time.sleep(2)
+            except Exception as e:
+                logging.info(e)
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                logging.info(exc_type, fname, exc_tb.tb_lineno)
+                continue
+    except Exception as e:
+        logging.info(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
+        return ({'error': str(e)})
+
+
 @app.route('/kelly-strats/next-matches', methods=['POST'])
 def over25_get_next_matches():
     data = request.get_json()
+    thread = threading.Thread(target=scrapeMatchesInBackground, args=(data,))
+    thread.start()
+    return jsonify({"status": "started"}), 202
+
+
+def scrapeMatchesInBackground(data):
     try:
         matchesToBet = {}
         over25Matches = []
@@ -147,14 +200,14 @@ def over25_get_next_matches():
         for element in data:
             try:
                 match = aDaScrappings.getAdaMatchesStats(element)
-                # if len(match) > 0:
-                #     aDaScrappings.insertMatchInDB(match[0])
                 if filter_criteria_over25_match(match[0]):
                     logging.info(match[0])
                     over25Matches.append(match[0])
+                    bttsOneHalf.publish_match(match[0], "Over25")
                 if filter_criteria_btts_match(match[0]):
                     logging.info(match[0])
                     bttsOneHalfMatches.append(match[0])
+                    bttsOneHalf.publish_match(match[0], "BTTSOneHalf")
                 time.sleep(2)
             except Exception as e:
                 logging.info(e)
@@ -164,13 +217,15 @@ def over25_get_next_matches():
                 continue
         matchesToBet['over25'] = over25Matches
         matchesToBet['bttsOneHalf'] = bttsOneHalfMatches
+        print(len(over25Matches))
+        print(len(bttsOneHalfMatches))
         return matchesToBet
     except Exception as e:
         logging.info(e)
         exc_type, exc_obj, exc_tb = sys.exc_info()
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         logging.info(exc_type, fname, exc_tb.tb_lineno)
-        return jsonify({'error': str(e)})
+        return ({'error': str(e)})
 
 def filter_criteria_over25_match(match):
     last_home_team_matches = match['last_home_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
@@ -257,12 +312,12 @@ def filter_criteria_over25_match(match):
     return False
 
 
-@app.route('/database/insert-new-matches', methods=['GET'])
+@app.route('/database/insert-new-matches', methods=['POST'])
 def btts_get_next_matches():
     try:
         matchesToBet = []
-        for d in range(21,32):
-            matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/07/" + str("%02d" % d))
+        for d in range(1,32):
+            matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/08/" + str("%02d" % d))
             for element in matchesLinks:
                 try:
                     match = aDaScrappings.getAdaMatchesStats(element)
@@ -370,7 +425,7 @@ def btts_get_matches_from_database():
 def over25_get_matches_from_database():
     return_list = []
     results = []
-    for j in range(7, 8):
+    for j in range(8, 9):
         try:
             for i in range(1, 32):
                 date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
@@ -408,4 +463,4 @@ def over25_get_matches_from_database():
 
 if __name__ == '__main__':
     logging.info("scrapper service is running...")
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=True, threaded=True)

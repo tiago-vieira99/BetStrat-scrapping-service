@@ -532,3 +532,28 @@ def getFinishedMatchFirstHalfGoalsFromAdA(url):
         return table.find_all('td', 'ht-score')[0].text.strip()        
     else:
         raise Exception(f'Failed to scrape data from {url}. Error: {response.status_code}')
+
+
+def getMatchFinalResultFromAdA(url):
+    response = requests.get(url)
+    matchStats = OrderedDict()
+    logging.info('url: ' + url)
+    logging.info('status: ' + str(response.status_code))
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        logging.info("getting match final result: " + str(url))
+
+        matchDict = OrderedDict()
+
+        result_table = soup.find('td', class_='stats-game-head-date')
+
+        ft_result = result_table.find('li', class_='f-score').text.strip().replace(' ', '')
+        match_status = result_table.find('li', class_='gamestatus').text.strip()
+
+        if 'Terminado' in match_status:
+            ht_result = getFinishedMatchFirstHalfGoalsFromAdA(url + "/live")
+
+            matchDict['match_url'] = url
+            matchDict['ht_result'] = ht_result
+            matchDict['ft_result'] = ft_result
+            return matchDict
