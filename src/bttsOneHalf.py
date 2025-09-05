@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logging.getLogger("pika").setLevel(logging.WARNING)
 
 def publish_match(match_data, rabbitQueue):
-    connection = pika.BlockingConnection(pika.ConnectionParameters("172.17.0.2"))
+    connection = pika.BlockingConnection(pika.ConnectionParameters("rabbit"))
     channel = connection.channel()
 
     # Ensure queue exists
