@@ -74,7 +74,7 @@ def scrape_last_n_matches(data, n):
     return "done."
 
 @app.route('/last-match', methods=['POST'])
-def get_last_n_matches():
+def get_last_margin_wins_matches():
     allLeagues = True #used only for historic-data, so always true
     lastMatchesList = {}
     data = request.get_json()
