@@ -101,10 +101,6 @@ def get_last_margin_wins_matches():
 
 @app.route('/next-matches', methods=['POST'])
 def get_next_match():
-    allLeagues = False
-    if request.args.get("allleagues") == 'true':
-        allLeagues = True
-
     nextMatchesList = {}
     data = request.get_json()
 
@@ -114,6 +110,9 @@ def get_next_match():
         source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
         driver.quit() #very important
         try:
+            allLeagues = False
+            if value['allleagues'] == 'true':
+                allLeagues = True
             nextMatches = scrapping.getNextMatchFromWF(value['url'], key, value['season'], allLeagues, source_code)
             nextMatchesList[key] = {}
             nextMatchesList[key]['nextMatches'] = nextMatches
