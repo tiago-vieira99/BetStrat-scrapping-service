@@ -67,9 +67,9 @@ def getNextMatchFromWF(url, team, season, allLeagues, source_code):
                 if len(r[13]) < 4 and r[13] == '-:-':
                     date = datetime.strptime(r[3], "%d/%m/%Y")
                     if r[7] == 'H':
-                        matches.append(Match(date.strftime('%Y-%m-%d'), team, r[11], '', '', competition).to_dict(), url)
+                        matches.append(Match(date.strftime('%Y-%m-%d'), team, r[11], '', '', competition, '').to_dict())
                     else:
-                        matches.append(Match(date.strftime('%Y-%m-%d'), r[11], team, '', '', competition).to_dict(), url)            
+                        matches.append(Match(date.strftime('%Y-%m-%d'), r[11], team, '', '', competition, '').to_dict())            
 
         logging.info(str(len(matches)) + " matches scrapped for " + team)
         matches.sort(key=lambda match: datetime.strptime(match["date"], "%Y-%m-%d"))
@@ -146,12 +146,12 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
 
                 if ':' in ftResult:
                     if r[7] == 'H':
-                        matches.append(Match(r[3], team, r[11], ftResult, htResult, competition).to_dict(), url)
+                        matches.append(Match(r[3], team, r[11], ftResult, htResult, competition, '').to_dict())
                     else:
                         ftResult = ftResult.split(':')[1] + ':' + ftResult.split(':')[0]
                         if ':' in htResult:
                             htResult = htResult.split(':')[1] + ':' + htResult.split(':')[0]
-                        matches.append(Match(r[3], r[11], team, ftResult, htResult, competition).to_dict(), url)    
+                        matches.append(Match(r[3], r[11], team, ftResult, htResult, competition, '').to_dict())    
                 else:
                     logging.info(r)            
 

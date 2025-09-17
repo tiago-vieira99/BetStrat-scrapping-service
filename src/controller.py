@@ -89,7 +89,7 @@ def get_last_margin_wins_matches():
             lastMatches = scrapping.getLastNMatchesFromWF(value['url'], 1, key, allLeagues, value['season'], source_code)
             lastMatchesList[key] = {}
             lastMatchesList[key]['lastMatches'] = lastMatches
-            bttsOneHalf.publish_match(lastMatchesList, "margin_wins_last_matches")
+            bttsOneHalf.publish_match(lastMatchesList, "progressive_last_matches")
         except Exception as e:
             logging.error("ERROR getting last matches for " + key)
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -119,6 +119,9 @@ def get_next_match():
             nextMatchesList[key]['nextMatches'] = nextMatches
         except Exception as e:
             logging.error("ERROR getting next match for " + key)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logging.info(exc_type, fname, exc_tb.tb_lineno)
             continue
 
     
