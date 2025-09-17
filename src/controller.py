@@ -111,7 +111,7 @@ def get_next_match():
         driver.quit() #very important
         try:
             allLeagues = False
-            if value['allleagues'] == 'true':
+            if value['allLeagues'] == 'true':
                 allLeagues = True
             nextMatches = scrapping.getNextMatchFromWF(value['url'], key, value['season'], allLeagues, source_code)
             nextMatchesList[key] = {}
