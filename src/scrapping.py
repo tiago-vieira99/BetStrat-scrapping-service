@@ -156,12 +156,12 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
 
                 if ':' in ftResult:
                     if r[7] == 'H':
-                        matches.append(Match(r[3], team, r[11], ftResult, htResult, competition, "http://www.worlfootbal.net" + match_urls[i]).to_dict())
+                        matches.append(Match(r[3], team, r[11], ftResult, htResult, competition, "http://www.worlfootbal.net" + match_urls[i] + "liveticker/").to_dict())
                     else:
                         ftResult = ftResult.split(':')[1] + ':' + ftResult.split(':')[0]
                         if ':' in htResult:
                             htResult = htResult.split(':')[1] + ':' + htResult.split(':')[0]
-                        matches.append(Match(r[3], r[11], team, ftResult, htResult, competition, "http://www.worlfootbal.net" + match_urls[i]).to_dict())    
+                        matches.append(Match(r[3], r[11], team, ftResult, htResult, competition, "http://www.worlfootbal.net" + match_urls[i] + "liveticker/").to_dict())    
                 else:
                     logging.info(r)            
 

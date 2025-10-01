@@ -345,8 +345,8 @@ def filter_criteria_over25_match(match):
 def btts_get_next_matches():
     try:
         matchesToBet = []
-        for d in range(1,32):
-            matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/08/" + str("%02d" % d))
+        for d in range(16,29):
+            matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/09/" + str("%02d" % d))
             for element in matchesLinks:
                 try:
                     match = aDaScrappings.getAdaMatchesStats(element)
@@ -415,7 +415,7 @@ def filter_criteria_btts_match(match):
 def btts_get_matches_from_database():
     return_list = []
     results = []
-    for j in range(7, 8):
+    for j in range(9, 10):
         try:
             for i in range(1, 32):
                 date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
@@ -454,7 +454,7 @@ def btts_get_matches_from_database():
 def over25_get_matches_from_database():
     return_list = []
     results = []
-    for j in range(8, 9):
+    for j in range(9, 10):
         try:
             for i in range(1, 32):
                 date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
