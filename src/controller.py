@@ -173,6 +173,13 @@ def over25_get_next_matches_links():
     return matchesLinks
 
 
+@app.route('/kelly-strats/matches-results-under25', methods=['POST'])
+def kelly_under25_matches_results():
+    data = request.get_json()
+    thread = threading.Thread(target=scrapeMatchesResultsInBackground, args=(data, "under25-results"))
+    thread.start()
+    return jsonify({"status": "started"}), 202
+
 @app.route('/kelly-strats/matches-results-over25', methods=['POST'])
 def kelly_over25_matches_results():
     data = request.get_json()
@@ -224,6 +231,7 @@ def scrapeMatchesInBackground(data):
     try:
         matchesToBet = {}
         over25Matches = []
+        under25Matches = []
         bttsOneHalfMatches = []
         for element in data:
             try:
@@ -231,11 +239,15 @@ def scrapeMatchesInBackground(data):
                 if filter_criteria_over25_match(match[0]):
                     logging.info(match[0])
                     over25Matches.append(match[0])
-                    bttsOneHalf.publish_match(match[0], "Over25")
+                    #bttsOneHalf.publish_match(match[0], "Over25")
                 if filter_criteria_btts_match(match[0]):
                     logging.info(match[0])
-                    bttsOneHalfMatches.append(match[0])
-                    bttsOneHalf.publish_match(match[0], "BTTSOneHalf")
+                    bttsOneHalfMatches.append(match[0]) 
+                    #bttsOneHalf.publish_match(match[0], "BTTSOneHalf")
+                if filter_criteria_under25_match(match[0]):
+                    logging.info(match[0])
+                    under25Matches.append(match[0]) 
+                    #bttsOneHalf.publish_match(match[0], "Under25")
                 time.sleep(2)
             except Exception as e:
                 logging.info(e)
@@ -245,7 +257,9 @@ def scrapeMatchesInBackground(data):
                 continue
         matchesToBet['over25'] = over25Matches
         matchesToBet['bttsOneHalf'] = bttsOneHalfMatches
+        matchesToBet['under25'] = under25Matches
         print(len(over25Matches))
+        print(len(under25Matches))
         print(len(bttsOneHalfMatches))
         return matchesToBet
     except Exception as e:
@@ -337,6 +351,91 @@ def filter_criteria_over25_match(match):
         # logging.info('last_away_team_matches_overs' + str(last_away_team_matches_overs))
         # logging.info('total_goals_previous_away_team_match' + str(total_goals_previous_away_team_match))
         # logging.info('last_away_team_matches_scored' + str(last_away_team_matches_scored))
+        return True
+    return False
+
+
+def filter_criteria_under25_match(match):
+    last_home_team_matches = match['last_home_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
+    last_away_team_matches = match['last_away_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
+    home_total_goals_avg_at_home_pre = float(match['home_total_goals_avg_at_home_pre'])
+    away_total_goals_avg_at_away_pre = float(match['away_total_goals_avg_at_away_pre'])
+    
+    last_home_data = json.loads(last_home_team_matches)  # Parse the JSON string
+    last_away_data = json.loads(last_away_team_matches)  # Parse the JSON string
+
+    filtered_comps = ["Colômbia - Primera A", "Chile - Copa Chile", "Uruguai - Primera División", "Mundo - Amigáveis de clubes", "Perú - Primera División", "Estados Unidos da América - US Open Cup", "Equador - Primera B", "Lituânia - A Lyga", "Estados Unidos da América - USL Championship", "Uruguai - Segunda División", "República da Irlanda - Premier Division", "Malásia - Super League", "Argentina - Primera Nacional", "Noruega - Eliteserien", "Argentina - Copa de la Superliga", "Finlândia - Veikkausliiga", "República da Irlanda - FAI Cup", "Colômbia - Copa Colombia", "Lituânia - Cup", "Vietname - V,League 1", "Singapura - Premier League", "Jamaica - Premier League", "Vietname - V.League 1", "Ásia - AFC Champions League", "Bielorrússia - 1. Division", "Rússia - FNL", "Roménia - Liga I", "México - Liga de Expansión MX", "Portugal - Taça da Liga", "Rússia - Cup", "Rússia - Premier League", "Portugal - Segunda Liga", "Costa Rica - Primera División", "Bélgica - First Division B", "Ucrânia - Premier League", "Eslovénia - 1, SNL", "Itália - Serie B", "Israel - Liga Leumit", "África do Sul - PSL", "Catar - Stars League", "Eslováquia - Super Liga", "África - CAF Champions League", "Algéria - Ligue 1", "Egipto - Premier League", "Grécia - Cup", "Roménia - Cupa României", "Moldávia - Divizia Națională", "Austrália - A-League", "Azerbaijão - Cup", "Suécia - Svenska Cupen", "Bulgária - Cup", "Eslováquia - Cup", "Tunísia - Ligue 1", "Algéria - Coupe Nationale", "Arábia Saudita - Pro League", "Ucrânia - Cup", "Croácia - 1. HNL", "Eslovénia - 2. SNL", "Croácia - 2. HNL", "Europa - UEFA Youth League", "Iraque - Iraqi League"]
+
+    ### HOME TEAM RULES
+    # Rule 1: Previous three home games must have ended under 2.5 goals in at least 2 of the 3.
+    # Rule 2: One or more of the score lines must contain 0 goals for the home or away side.
+
+    ### HOME conditions
+    last_home_team_matches_iterated = 0
+    last_home_team_matches_unders = 0
+    last_score_lines_with_zero = 0 
+    for i in range(0, len(last_home_data)):
+        match_result = ''
+        
+        if str(last_home_data[i].split('|')[2].strip()) == str(match['home_team']) and last_home_team_matches_iterated < 3:
+            last_home_team_matches_iterated += 1
+            if 'ET' in last_home_data[i].split('|')[3].strip():
+                match_result = last_home_data[i].split('|')[3].split('ET')[0].strip()
+            elif 'PG' in last_home_data[i].split('|')[3].strip():
+                match_result = last_home_data[i].split('|')[3].split('PG')[0].strip()
+            elif last_home_data[i].split('|')[3].strip() == '-':
+                continue
+            else:
+                match_result = last_home_data[i].split('|')[3].strip()
+            if len(match_result) > 1:
+                if (int(match_result.split('-')[0]) + int(match_result.split('-')[1])) < 3:
+                    last_home_team_matches_unders += 1
+                if int(match_result.split('-')[0]) == 0 or int(match_result.split('-')[1]) == 0:
+                    last_score_lines_with_zero += 1
+
+
+    ## HOME Team eligibility evaluation
+    home_team_eligle = False
+    if last_score_lines_with_zero >= 1 and last_home_team_matches_unders >= 2:
+        home_team_eligle = True
+
+
+    ### AWAY TEAM RULES
+    # Rule 3: Last three away games must be UNDER 2.5 goals in at least 2 or 3 of the 3.
+    # Rule 4: The AWAY side must not have scored in at least 1 of the last 3 away games.
+
+
+    ### AWAY conditions
+    last_away_team_matches_iterated = 0
+    last_away_team_matches_unders = 0
+    last_away_team_matches_scored = 0
+    for i in range(0, len(last_away_data)):
+        match_result = ''
+        
+        if str(last_away_data[i].split('|')[4].strip()) == str(match['away_team']) and last_away_team_matches_iterated < 3:
+            last_away_team_matches_iterated += 1
+            if 'ET' in last_away_data[i].split('|')[3].strip():
+                match_result = last_away_data[i].split('|')[3].split('ET')[0].strip()
+            elif 'PG' in last_away_data[i].split('|')[3].strip():
+                match_result = last_away_data[i].split('|')[3].split('PG')[0].strip()
+            elif last_away_data[i].split('|')[3].strip() == '-':
+                continue
+            else:
+                match_result = last_away_data[i].split('|')[3].strip()
+            if len(match_result) > 1:
+                if (int(match_result.split('-')[0]) + int(match_result.split('-')[1])) < 3:
+                    last_away_team_matches_unders += 1
+                if int(match_result.split('-')[1]) > 0:
+                    last_away_team_matches_scored += 1
+
+    ## AWAY Team eligibility evaluation
+    away_team_eligle = False
+    if  last_away_team_matches_unders >= 2 and last_away_team_matches_scored <= 2:
+        away_team_eligle = True
+
+
+    if home_team_eligle and away_team_eligle and str(match['competition']) in filtered_comps:
+        logging.info(str(match['home_team']) + ' - '  + str(match['away_team']))
         return True
     return False
 
