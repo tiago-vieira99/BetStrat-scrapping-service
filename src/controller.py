@@ -239,15 +239,15 @@ def scrapeMatchesInBackground(data):
                 if filter_criteria_over25_match(match[0]):
                     logging.info(match[0])
                     over25Matches.append(match[0])
-                    #bttsOneHalf.publish_match(match[0], "Over25")
+                    bttsOneHalf.publish_match(match[0], "Over25")
                 if filter_criteria_btts_match(match[0]):
                     logging.info(match[0])
                     bttsOneHalfMatches.append(match[0]) 
-                    #bttsOneHalf.publish_match(match[0], "BTTSOneHalf")
+                    bttsOneHalf.publish_match(match[0], "BTTSOneHalf")
                 if filter_criteria_under25_match(match[0]):
                     logging.info(match[0])
                     under25Matches.append(match[0]) 
-                    #bttsOneHalf.publish_match(match[0], "Under25")
+                    bttsOneHalf.publish_match(match[0], "Under25")
                 time.sleep(2)
             except Exception as e:
                 logging.info(e)
