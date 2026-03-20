@@ -54,7 +54,7 @@ def scrape_last_n_matches(data, n):
 
     for key, value in data.items():
         lastMatchesList = {}
-        driver = webdriver.Remote("http://172.17.0.2:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
         driver.maximize_window()
         #time.sleep(1)
         
