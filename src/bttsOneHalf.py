@@ -35,6 +35,7 @@ def publish_match(match_data, rabbitQueue):
     logging.info(f"Published data in queue '{rabbitQueue}': {match_data} ")
     connection.close()
 
+
 # testing strategy: https://www.financial-spread-betting.com/sports/Goals-betting-system.html#respond
 # get matches from database that would be considered for over2.5 strategy
 def getOVERMatchesByDateFromDB(date_str):
@@ -181,6 +182,163 @@ def getOVERMatchesByDateFromDB(date_str):
             conn.close()
 
 
+# get matches from database that would be considered for under2.5 strategy
+def getUNDERMatchesByDateFromDB(date_str):
+    ca_file = "ca.pem"
+    db_params = {
+        'dbname': 'defaultdb',
+        'user': 'avnadmin',
+        'password': 'AVNS_xilofcVMIxDNHVjsmDg',
+        'host': 'pg-186b9d39-betstrat-ea12.h.aivencloud.com',
+        'port': '23138',
+        'sslmode': 'require',
+        'sslrootcert': ca_file
+    }
+    
+    conn = None  # Initialize conn to None
+    try:
+         # Connect to the database
+        conn = psycopg2.connect(**db_params)
+        logging.info(f"Connected to database !")
+        logging.info("Getting data for " + date_str)
+
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        query = "SELECT date,season,timestamp,competition,home_team,away_team,ht_result,ft_result,last_home_team_matches,last_away_team_matches,home_total_goals_avg_at_home_pre,away_total_goals_avg_at_away_pre,under25_odd FROM backtesting.matches_stats ms WHERE date LIKE %s and last_home_team_matches != '[]' order by timestamp"
+        #query = "SELECT date,timestamp,competition,home_team,away_team,ht_result,ft_result,h2h_matches,last_home_team_matches,last_away_team_matches,home_total_goals_avg_at_home_pre,away_total_goals_avg_at_away_pre FROM backtesting.matches_stats ms WHERE date LIKE %s and h2h_matches != '[]' and competition in ('Ásia - AFC Champions League', 'Austrália - A-League', 'Áustria - 1. Liga', 'Bélgica - First Division B', 'Bélgica - Pro League', 'Bolívia - Primera División', 'Chile - Primera División', 'Costa Rica - Primera División', 'Dinamarca - 1st Division', 'Dinamarca - Superliga', 'Inglaterra - FA Cup', 'Inglaterra - Taça da Liga', 'Alemanha - Bundesliga', 'Estónia - Meistriliiga', 'Alemanha - DFB Pokal' , 'Alemanha - 2. Bundesliga', 'Islândia - Úrvalsdeild', 'Índia - I-League', 'Indonésia - Liga 1', 'Itália - Coppa Italia', 'Luxemburgo - National Division','Malta - Premier League','México - Liga de Expansión MX','México - Liga MX','Países Baixos - Eerste Divisie', 'Países Baixos - Eredivisie', 'Irlanda do Norte - Premiership', 'Noruega - Eliteserien', 'Noruega - 1. Division','Paraguai - Division Profesional', 'Polónia - Cup', 'Arábia Saudita - Pro League', 'Singapura - Premier League', 'Suécia - Superettan','Suíça - Challenge League', 'Suíça - Super League','Emirados Árabes Unidos - Arabian Gulf League','Estados Unidos da América - MLS','Estados Unidos da América - USL Championship','Estados Unidos da América - US Open Cup')"
+        like_pattern = f"%{date_str}%"  # Construct the LIKE pattern
+        cursor.execute(query, (like_pattern,))
+
+        matches = cursor.fetchall()  # Fetch all results
+        matches_to_bet = []
+
+        
+    ### AWAY TEAM RULES
+    # Rule 3: Last three away games must be UNDER 2.5 goals in at least 2 or 3 of the 3.
+    # Rule 4: The AWAY side must not have scored in at least 1 of the last 3 away games.
+
+        for match in matches:
+            try:
+                last_home_team_matches = match['last_home_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
+                last_away_team_matches = match['last_away_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
+                home_total_goals_avg_at_home_pre = float(match['home_total_goals_avg_at_home_pre'])
+                away_total_goals_avg_at_away_pre = float(match['away_total_goals_avg_at_away_pre'])
+                
+                last_home_data = json.loads(last_home_team_matches)  # Parse the JSON string
+                last_away_data = json.loads(last_away_team_matches)  # Parse the JSON string
+
+                ### HOME TEAM RULES
+                # Rule 1: Previous three home games must have ended under 2.5 goals in at least 2 of the 3.
+                # Rule 2: One or more of the score lines must contain 0 goals for the home or away side.
+
+                ### HOME conditions
+                last_home_team_matches_iterated = 0
+                last_home_team_matches_unders = 0
+                last_score_lines_with_zero = 0 
+                for i in range(0, len(last_home_data)):
+                    match_result = ''
+                    
+                    if str(last_home_data[i].split('|')[2].strip()) == str(match['home_team']) and last_home_team_matches_iterated < 3:
+                        last_home_team_matches_iterated += 1
+                        if 'ET' in last_home_data[i].split('|')[3].strip():
+                            match_result = last_home_data[i].split('|')[3].split('ET')[0].strip()
+                        elif 'PG' in last_home_data[i].split('|')[3].strip():
+                            match_result = last_home_data[i].split('|')[3].split('PG')[0].strip()
+                        elif last_home_data[i].split('|')[3].strip() == '-':
+                            continue
+                        else:
+                            match_result = last_home_data[i].split('|')[3].strip()
+                        if len(match_result) > 1:
+                            if (int(match_result.split('-')[0]) + int(match_result.split('-')[1])) < 3:
+                                last_home_team_matches_unders += 1
+                            if int(match_result.split('-')[0]) == 0 or int(match_result.split('-')[1]) == 0:
+                                last_score_lines_with_zero += 1
+
+
+                ## HOME Team eligibility evaluation
+                home_team_eligle = False
+                if last_score_lines_with_zero >= 1 and last_home_team_matches_unders >= 2:
+                    home_team_eligle = True
+
+
+                ### AWAY TEAM RULES
+                # Rule 3: Last three away games must be UNDER 2.5 goals in at least 2 or 3 of the 3.
+                # Rule 4: The AWAY side must not have scored in at least 1 of the last 3 away games.
+
+
+                ### AWAY conditions
+                last_away_team_matches_iterated = 0
+                last_away_team_matches_unders = 0
+                last_away_team_matches_scored = 0
+                for i in range(0, len(last_away_data)):
+                    match_result = ''
+                    
+                    if str(last_away_data[i].split('|')[4].strip()) == str(match['away_team']) and last_away_team_matches_iterated < 3:
+                        last_away_team_matches_iterated += 1
+                        if 'ET' in last_away_data[i].split('|')[3].strip():
+                            match_result = last_away_data[i].split('|')[3].split('ET')[0].strip()
+                        elif 'PG' in last_away_data[i].split('|')[3].strip():
+                            match_result = last_away_data[i].split('|')[3].split('PG')[0].strip()
+                        elif last_away_data[i].split('|')[3].strip() == '-':
+                            continue
+                        else:
+                            match_result = last_away_data[i].split('|')[3].strip()
+                        if len(match_result) > 1:
+                            if (int(match_result.split('-')[0]) + int(match_result.split('-')[1])) < 3:
+                                last_away_team_matches_unders += 1
+                            if int(match_result.split('-')[1]) > 0:
+                                last_away_team_matches_scored += 1
+
+                ## AWAY Team eligibility evaluation
+                away_team_eligle = False
+                if  last_away_team_matches_unders >= 2 and last_away_team_matches_scored <= 2:
+                    away_team_eligle = True
+
+
+                if home_team_eligle and away_team_eligle and float(match['under25_odd'] >= 0) and float(match['under25_odd'] <= 200):
+                    home__ft_score, away__ft_score = map(int, match['ft_result'].split('-'))
+                    home__ht_score, away__ht_score = map(int, match['ht_result'].split('-'))
+                    home_2ht_score = home__ft_score - home__ht_score
+                    away_2ht_score = away__ft_score - away__ht_score
+                    match['2ht_result'] = str(home_2ht_score) + '-' + str(away_2ht_score)
+                    backtestingMatch = {}
+                    backtestingMatch['01. timestamp'] = match['timestamp']
+                    backtestingMatch['02. date'] = match['date']
+                    backtestingMatch['03. competition'] = match['competition']
+                    backtestingMatch['04. match'] = match['home_team'] + " - " + match['away_team']
+                    backtestingMatch['05. ft_result'] = match['ft_result']
+                    #backtestingMatch['06. ht_result'] = match['ht_result']
+                    #backtestingMatch['07. 2ht_result'] = match['2ht_result']
+                    backtestingMatch['08. under25_odd'] = match['under25_odd']
+                    #backtestingMatch['09. season'] = match['season']
+                    #backtestingMatch['10. home_total_goals_avg_at_home_pre'] = home_total_goals_avg_at_home_pre
+                    #backtestingMatch['11. away_total_goals_avg_at_away_pre'] = away_total_goals_avg_at_away_pre
+                    matches_to_bet.append(backtestingMatch)
+            except Exception as e:
+                logging.info(f"Error decoding JSON for match ID {match.get('id', 'Unknown')}: {e}")
+                logging.info(match['competition'] + " ## " + match['home_team'] + " - " + match['away_team'] +  " ## " + match['ft_result'])
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                logging.info(exc_type, fname, exc_tb.tb_lineno)
+                continue
+            #break
+
+        #logging.info(len(matches_to_bet))
+        return matches_to_bet
+
+    except psycopg2.Error as e:
+        logging.info(f"PostgreSQL error: {e}")
+        if conn:
+            conn.rollback()
+        return False
+
+    finally:
+        if conn:
+            cursor = conn.cursor()  # Create a cursor before closing it
+            cursor.close()
+            conn.close()
+
+
 # get matches from database that would be considered for btts_one_half strategy
 def getBTTSMatchesByDateFromDB(date_str):
     ca_file = "ca.pem"
@@ -211,7 +369,11 @@ def getBTTSMatchesByDateFromDB(date_str):
         matches = cursor.fetchall()  # Fetch all results
         matches_to_bet = []
 
+        comps_to_avoid = ['Inglaterra - League Two', 'Inglaterra - League One','França - National', 'Alemanha - Regionalliga', 'Alemanha - Oberliga']
+
         for match in matches:
+            if match['competition'] in comps_to_avoid:
+                continue
             try:
                 h2h_matches_json = match['h2h_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
                 last_home_team_matches = match['last_home_team_matches'].replace("', '", "\", \"").replace("', ", "\", ").replace(", '", ", \"").replace("']", "\"]").replace("['", "[\"")
@@ -251,8 +413,9 @@ def getBTTSMatchesByDateFromDB(date_str):
 
                     #if (btts_streak_length >= 6 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 6 and float(over_streak_value/over_streak_length) >= 0.75) and home_total_goals_avg_at_home_pre >= 2 and away_total_goals_avg_at_away_pre >= 2:
                     ##working: if home_total_goals_avg_at_home_pre >= 3 and away_total_goals_avg_at_away_pre >= 3 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
-                    if teams_goals_avg >= 3.5 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
-                    #if (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
+                    #if teams_goals_avg >= 3.5 and home_total_goals_avg_at_home_pre >= 0 and away_total_goals_avg_at_away_pre >= 0 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
+                    #if home_total_goals_avg_at_home_pre >= 0 and away_total_goals_avg_at_away_pre >= 0 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
+                    if home_total_goals_avg_at_home_pre >= 0 and away_total_goals_avg_at_away_pre >= 0 and btts_streak_length >= 5 and over_streak_length >= 5 and ((home_btts_streak_length >= 5 and home_over_streak_length >= 5) or (away_btts_streak_length >= 5 and away_over_streak_length >= 5)):                        
                         # logging.info("BTTS streak: " + bttsLastStreak)
                         # logging.info("OVER streak: " + overLastStreak)
                         # logging.info("\n\n")
@@ -271,6 +434,12 @@ def getBTTSMatchesByDateFromDB(date_str):
                         backtestingMatch['07. 2ht_result'] = match['2ht_result']
                         backtestingMatch['08. home_total_goals_avg_at_home_pre'] = home_total_goals_avg_at_home_pre
                         backtestingMatch['09. away_total_goals_avg_at_away_pre'] = away_total_goals_avg_at_away_pre
+                        backtestingMatch['10. h2h btts streak rate'] = round(float(btts_streak_value/btts_streak_length), 2)
+                        backtestingMatch['11. h2h over streak rate'] = round(float(over_streak_value/over_streak_length), 2)
+                        backtestingMatch['12. home btts streak rate'] = round(float(home_btts_streak_value/home_btts_streak_length), 2)
+                        backtestingMatch['13. home over streak rate'] = round(float(home_over_streak_value/home_over_streak_length), 2)
+                        backtestingMatch['14. away btts streak rate'] = round(float(away_btts_streak_value/away_btts_streak_length), 2)
+                        backtestingMatch['15. away over streak rate'] = round(float(away_over_streak_value/away_over_streak_length), 2)
                         matches_to_bet.append(backtestingMatch)
             except Exception as e:
                 logging.info(f"Error decoding JSON for match ID {match.get('id', 'Unknown')}: {e}")

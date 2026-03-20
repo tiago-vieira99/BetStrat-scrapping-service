@@ -69,7 +69,7 @@ def getNextMatchFromWF(url, team, season, allLeagues, source_code):
             if (len(r) > 15) and (flag is True):
                 if allLeagues is False and r[1] != 'Round':
                     continue
-                if len(r[13]) < 4 and r[13] == '-:-':
+                if len(r[7]) < 4 and r[7] == '-:-':
                     date = datetime.strptime(r[3], "%d/%m/%Y")
                     if r[7] == 'H':
                         matches.append(Match(date.strftime('%Y-%m-%d'), team, r[11], '', '', competition, "http://www.worlfootbal.net" + match_urls[i]).to_dict())
@@ -88,7 +88,7 @@ def getWFSourceHtmlCode(url, driver):
         driver.set_page_load_timeout(30)  # Increased timeout
         driver.delete_all_cookies()
         driver.get(url)
-        logging.info(f"Navigated to {url}")
+        logging.info(f"Navigated to {url}") 
 
         try:
             button = WebDriverWait(driver, 10).until(
@@ -115,55 +115,67 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
     if source_code is not None:
         soup = BeautifulSoup(source_code, 'html.parser')
         # Perform scraping operations using BeautifulSoup here
-        table = soup.find('table', class_="standard_tabelle")
-    
-        # then we can iterate through each row and extract either header or row values:
-        header = []
-        rows = []
-        match_urls = []
-        for i, row in enumerate(table.find_all('tr')):
-            rows.append([el.text.strip() for el in row])
-            if len(row.find_all('a')) > 0:
-                match_urls.append(row.find_all('a')[-1]['href'])
-            else:
-                match_urls.append('')
+        table = soup.find('table')
 
-        flag = False
-        competition = ''
-        for i, r in enumerate(rows):
-            #logging.info(r)
-            if len(r) < 10:
-                if ('Friendlies' in r[1]) or (season not in r[1]):
-                    flag = False
-                else:
-                    flag = True
-                    competition = re.sub(r'(\d{4}(?:/\d{4})?)\s.*$', r'\1', r[1])
-            if (len(r) > 15) and (flag is True) and bool(re.search(r'\b\d+:\d+\b', r[13])):# and '(' in r[13]:
-                if allLeagues is False and r[1] != 'Round':
-                    continue
-                ftResult = ''
-                htResult = ''
-                if ('pso' in r[13] or 'aet' in r[13] or 'dec' in r[13]) and ',' in r[13]:
-                    ftResult = r[13].split(',')[1].split(')')[0].strip()
-                    htResult = r[13].split(',')[0].split('(')[1].strip().replace(',','')
-                elif 'n.P.' in r[13]:
-                    ftResult = r[13].split(',')[1].strip()
-                    htResult = r[13].split(',')[0].split('(')[1].strip().replace(',','')
-                else:
-                    ftResult = r[13].split(' ')[0]
-                    if (len(r[13].split(' ')) > 1):
-                        htResult = r[13].split(' ')[1].replace('(','').replace(')','').replace(',','')
+        current_competition_name = None
 
-                if ':' in ftResult:
-                    if r[7] == 'H':
-                        matches.append(Match(r[3], team, r[11], ftResult, htResult, competition, "http://www.worlfootbal.net" + match_urls[i] + "liveticker/").to_dict())
-                    else:
-                        ftResult = ftResult.split(':')[1] + ':' + ftResult.split(':')[0]
-                        if ':' in htResult:
-                            htResult = htResult.split(':')[1] + ':' + htResult.split(':')[0]
-                        matches.append(Match(r[3], r[11], team, ftResult, htResult, competition, "http://www.worlfootbal.net" + match_urls[i] + "liveticker/").to_dict())    
-                else:
-                    logging.info(r)            
+        for row in table.find_all('tr'):
+            if 'hs-head--competition' in row.get('class', []):
+                # This is a competition header row
+                title_tag = row.find('th')
+                if title_tag:
+                    current_competition_name = title_tag.text.strip()
+            elif row.get('data-match_id') and current_competition_name and 'finished' in row.get('class', []):
+                # This is a match data row
+                cols = row.find_all('td')
+                
+                if len(cols) >= 8:
+                    date = cols[0].text.strip()
+                    home_away_indicator = cols[3].text.strip()
+                    opponent_name = cols[5].find('a').text.strip() if cols[5].find('a') else None
+                    
+                    ft_result = None
+                    ht_result = None
+                    match_url_suffix = None
+
+                    # Extract FT Result (match-result-0) and HT Result (match-result-1)
+                    ft_result_span = cols[7].find('span', class_='match-result-0')
+                    if ft_result_span:
+                        ft_result = ft_result_span.find('a').text.strip() if ft_result_span.find('a') else None
+                        match_url_suffix = ft_result_span.find('a').get('href') if ft_result_span.find('a') else None
+
+                    ht_result_span = cols[7].find('span', class_='match-result-1')
+                    if ht_result_span:
+                        ht_result = ht_result_span.find('a').text.strip() if ht_result_span.find('a') else None
+                    
+                    # Determine home_team and away_team based on 'H/A' indicator for MY_TEAM
+                    home_team = None
+                    away_team = None
+                    if home_away_indicator == 'H':
+                        home_team = team
+                        away_team = opponent_name
+                    elif home_away_indicator == 'A':
+                        home_team = opponent_name
+                        away_team = team
+
+                    # If results are like "0:0", indicating an upcoming match or rescheduled, treat as None or specific placeholder
+                    if ft_result == '-:-' or ft_result is None:
+                        ft_result = None
+                    if ht_result == '-:-' or ht_result is None:
+                        ht_result = None
+
+                    # Create Match object and append to list
+                    if home_team and away_team and current_competition_name and match_url_suffix:
+                        matches.append(Match(
+                            date.replace('.', '/'),
+                            home_team,
+                            away_team,
+                            ft_result,
+                            ht_result,
+                            current_competition_name,
+                            match_url_suffix
+                        ).to_dict())
+
 
         logging.info(str(len(matches)) + " matches scrapped for " + team)
         matches.sort(key=lambda match: datetime.strptime(match["date"], "%d/%m/%Y"))
@@ -191,24 +203,24 @@ def getLeagueTeamsFromWF(urlLeaguesList, driver):
             if source_code is not None:
                 soup = BeautifulSoup(source_code, 'html.parser')
                 # Perform scraping operations using BeautifulSoup here
-                tables = soup.find_all('table', class_="standard_tabelle")
+                tables = soup.find('div', class_="module-standing").find_all('table')
             
                 # then we can iterate through each row and extract either header or row values:
                 header = []
                 rows = []
-                if len(tables) > 2:
-                    totalNumTables = len(tables)-1
-                else:
-                    totalNumTables = len(tables)
-                for j in range(1, totalNumTables):
-                    table = tables[j]
-                    for i, row in enumerate(table.find_all('tr')):
-                        if i != 0:
-                            rows.append([el.text.strip() for el in row])
+                # if len(tables) > 2:
+                #     totalNumTables = len(tables)-1
+                # else:
+                #     totalNumTables = len(tables)
+                # for j in range(1, totalNumTables):
+                #     table = tables[j]
+                for i, row in enumerate(tables[0].find_all('tr')):
+                    if i != 0:
+                        rows.append([el.text.strip() for el in row])
 
                 logging.info("Number of teams collected: " + str(len(rows)))
                 for i, r in enumerate(rows):
-                    teams[r[5].split('\n')[0]] = i+1;
+                    teams[r[2].split('\n')[0]] = i+1;
                     # break
             else:
                 logging.info(f'Failed to scrape data from {url}.')

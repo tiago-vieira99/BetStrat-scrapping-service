@@ -15,6 +15,7 @@ from selenium.webdriver import ActionChains
 import time
 import logging
 import threading
+import ast
 
 def set_chrome_options() -> Options:
     """Sets chrome options for Selenium.
@@ -48,16 +49,16 @@ def get_last_n_matches(n):
     thread.start()
     return jsonify({"status": "started"}), 202
 
-
 def scrape_last_n_matches(data, n):
     allLeagues = True #used only for historic-data, so always true
 
     for key, value in data.items():
         lastMatchesList = {}
-        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+        driver = webdriver.Remote("http://172.17.0.2:4444", options=webdriver.ChromeOptions(), keep_alive=True)
         driver.maximize_window()
         #time.sleep(1)
-        source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
+        
+        source_code = scrapping.getWFSourceHtmlCode(value['url'].replace('/all-matches', f"/vs{value['season']}/all-matches"), driver)
         driver.quit() #very important
         try:
             lastMatches = scrapping.getLastNMatchesFromWF(value['url'], n, key, allLeagues, value['season'], source_code)
@@ -70,6 +71,7 @@ def scrape_last_n_matches(data, n):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             logging.info(exc_type, fname, exc_tb.tb_lineno)
             continue
+        #break
 
     return "done."
 
@@ -144,7 +146,7 @@ def get_all_league_teams():
 
 
 @app.route('/kelly-strats/next-matches-links', methods=['GET'])
-def over25_get_next_matches_links():
+def get_next_matches_links():
     today = datetime.date.today()
 
     # Calculate tomorrow and the day after tomorrow
@@ -160,10 +162,12 @@ def over25_get_next_matches_links():
     tomorrow_link = "https://www.academiadasapostas.com/stats/livescores/2025/" + tomorrow_month + "/" + tomorrow_formatted
     after_tomorrow_link = "https://www.academiadasapostas.com/stats/livescores/2025/" + after_tomorrow_month + "/" + day_after_tomorrow_formatted
     adaLinks = []
-    adaLinks.append(tomorrow_link)
-    adaLinks.append(after_tomorrow_link)
-    #adaLinks.append("https://www.academiadasapostas.com/stats/livescores/2025/09/04")
-    #adaLinks.append("https://www.academiadasapostas.com/stats/livescores/2025/08/17")
+    #adaLinks.append(tomorrow_link)
+    #adaLinks.append(after_tomorrow_link)
+    adaLinks.append("https://www.academiadasapostas.com/stats/livescores/2026/03/12")
+    adaLinks.append("https://www.academiadasapostas.com/stats/livescores/2026/03/13")
+    adaLinks.append("https://www.academiadasapostas.com/stats/livescores/2026/03/14")
+    adaLinks.append("https://www.academiadasapostas.com/stats/livescores/2026/03/15")
     matchesLinks = []
 
     for link in adaLinks:
@@ -219,15 +223,84 @@ def scrapeMatchesResultsInBackground(data, strategy):
         return ({'error': str(e)})
 
 
-@app.route('/kelly-strats/next-matches', methods=['POST'])
-def over25_get_next_matches():
+@app.route('/1xover/next-matches', methods=['POST'])
+def test_1xO25_matches():
     data = request.get_json()
+    try:
+        matchesToBet = []
+        for element in data:
+            try:
+                match = aDaScrappings.getAdaMatchesStats(element)
+
+                if len(match) > 0:
+                    if (float(match[0]["v1_odd"]) < float(match[0]["v2_odd"]) and float(match[0]["home_scored_goals_avg_at_home_pre"]) >= 2 and float(match[0]["away_conceded_goals_avg_at_away_pre"]) >= 2): 
+                        matchesToBet.append(match[0])
+            except Exception as e:
+                logging.info(e)
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                logging.info(exc_type, fname, exc_tb.tb_lineno)
+                print(match)
+                continue
+            #break
+        return matchesToBet
+    except Exception as e:
+        logging.info(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
+        return ({'error': str(e)})
+
+@app.route('/goalsfest-bm/next-matches', methods=['POST'])
+def test_goalsFestBetaminic_matches():
+    data = request.get_json()
+    try:
+        matchesToBet = []
+        for element in data:
+            try:
+                match = aDaScrappings.getAdaMatchesStats(element)
+
+                if len(match) > 0:
+
+                    num_last_home_team_overs = 0
+                    for last_match_home_team in ast.literal_eval(match[0]["last_home_team_matches"])[:5]:
+                        if int(last_match_home_team.split('|')[3].strip().split('-')[0]) + int(last_match_home_team.split('|')[3].strip().split('-')[1]) > 2:
+                            num_last_home_team_overs += 1
+
+                    num_last_away_team_overs = 0
+                    for last_match_away_team in ast.literal_eval(match[0]["last_away_team_matches"])[:5]:
+                        if int(last_match_away_team.split('|')[3].strip().split('-')[0]) + int(last_match_away_team.split('|')[3].strip().split('-')[1]) > 2:
+                            num_last_away_team_overs += 1
+
+                    if (float(match[0]["away_total_goals_avg_global_pre"]) >= 1 and float(match[0]["home_total_goals_avg_global_pre"]) >= 1 and num_last_home_team_overs >= 4 and num_last_away_team_overs >= 4 and float(match[0]["league_avg_goals"]) >= 3): 
+                        matchesToBet.append(match[0])
+            except Exception as e:
+                logging.info(e)
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                logging.info(exc_type, fname, exc_tb.tb_lineno)
+                print(match)
+                continue
+            #break
+        return matchesToBet
+    except Exception as e:
+        logging.info(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        logging.info(exc_type, fname, exc_tb.tb_lineno)
+        return ({'error': str(e)})
+
+
+def over25_get_next_matches():
+
     thread = threading.Thread(target=scrapeMatchesInBackground, args=(data,))
     thread.start()
     return jsonify({"status": "started"}), 202
 
 
-def scrapeMatchesInBackground(data):
+@app.route('/kelly-strats/next-matches', methods=['POST'])
+def scrapeMatchesInBackground():
+    data = request.get_json()
     try:
         matchesToBet = {}
         over25Matches = []
@@ -239,15 +312,15 @@ def scrapeMatchesInBackground(data):
                 if filter_criteria_over25_match(match[0]):
                     logging.info(match[0])
                     over25Matches.append(match[0])
-                    bttsOneHalf.publish_match(match[0], "Over25")
+                    #bttsOneHalf.publish_match(match[0], "Over25")
                 if filter_criteria_btts_match(match[0]):
                     logging.info(match[0])
                     bttsOneHalfMatches.append(match[0]) 
-                    bttsOneHalf.publish_match(match[0], "BTTSOneHalf")
+                    #bttsOneHalf.publish_match(match[0], "BTTSOneHalf")
                 if filter_criteria_under25_match(match[0]):
                     logging.info(match[0])
                     under25Matches.append(match[0]) 
-                    bttsOneHalf.publish_match(match[0], "Under25")
+                    #bttsOneHalf.publish_match(match[0], "Under25")
                 time.sleep(2)
             except Exception as e:
                 logging.info(e)
@@ -444,8 +517,8 @@ def filter_criteria_under25_match(match):
 def btts_get_next_matches():
     try:
         matchesToBet = []
-        for d in range(15,27):
-            matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2025/10/" + str("%02d" % d))
+        for d in range(1,32):
+            matchesLinks = aDaScrappings.getAdaMatchesLinks("https://www.academiadasapostas.com/stats/livescores/2020/08/" + str("%02d" % d))
             for element in matchesLinks:
                 try:
                     match = aDaScrappings.getAdaMatchesStats(element)
@@ -453,7 +526,8 @@ def btts_get_next_matches():
                         aDaScrappings.insertMatchInDB(match[0])
                     # if filter_criteria_btts_match(match[0]):
                     #     logging.info(match[0])
-                    #     matchesToBet.append(match[0])
+                    #    matchesToBet.append(match[0])
+                    #break
                 except Exception as e:
                     logging.info(e)
                     exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -505,7 +579,7 @@ def filter_criteria_btts_match(match):
 
         teams_goals_avg = float((home_total_goals_avg_at_home_pre + away_total_goals_avg_at_away_pre) / 2)
 
-        if teams_goals_avg >= 3.5 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
+        if teams_goals_avg >= 3.5 and home_total_goals_avg_at_home_pre >= 0 and away_total_goals_avg_at_away_pre >= 0 and (btts_streak_length >= 5 and float(btts_streak_value/btts_streak_length) >= 0.75) and (over_streak_length >= 5 and float(over_streak_value/over_streak_length) >= 0.75) and ( (home_btts_streak_length >= 5 and float(home_btts_streak_value/home_btts_streak_length) >= 0.75) and (home_over_streak_length >= 5 and float(home_over_streak_value/home_over_streak_length) >= 0.75) or (away_btts_streak_length >= 5 and float(away_btts_streak_value/away_btts_streak_length) >= 0.75) and (away_over_streak_length >= 5 and float(away_over_streak_value/away_over_streak_length) >= 0.75) ):
             return True
     return False
             
@@ -514,10 +588,10 @@ def filter_criteria_btts_match(match):
 def btts_get_matches_from_database():
     return_list = []
     results = []
-    for j in range(9, 10):
+    for j in range(8, 13):
         try:
-            for i in range(29, 32):
-                date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
+            for i in range(1, 32):
+                date = "2020-" + str("%02d" % j) + "-" + str("%02d" % i)
                 results += (bttsOneHalf.getBTTSMatchesByDateFromDB(date))
 
             # num_greens_over25 = 0
@@ -553,9 +627,9 @@ def btts_get_matches_from_database():
 def over25_get_matches_from_database():
     return_list = []
     results = []
-    for j in range(10, 11):
+    for j in range(11, 12):
         try:
-            for i in range(1, 32):
+            for i in range(1, 5):
                 date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
                 results += (bttsOneHalf.getOVERMatchesByDateFromDB(date))
 
@@ -587,7 +661,48 @@ def over25_get_matches_from_database():
 
     return results
 
+@app.route('/under-25/matches-from-database', methods=['GET'])
+def under25_get_matches_from_database():
+    return_list = []
+    results = []
+    for j in range(11, 12):
+        try:
+            for i in range(1, 5):
+                date = "2025-" + str("%02d" % j) + "-" + str("%02d" % i)
+                results += (bttsOneHalf.getUNDERMatchesByDateFromDB(date))
 
+            # num_greens_over25 = 0
+            # num_greens_btts1h = 0
+            # for m in results:
+            #     if ((int(m['05. ft_result'].split('-')[0]) + int(m['05. ft_result'].split('-')[1])) > 2):
+            #         num_greens_over25 += 1
+            #     if len(m['06. ht_result']) > 0 and bttsOneHalf.evalute_btts_one_half_result(m):
+            #         num_greens_btts1h += 1
+
+            # simulation = {}
+            # #simulation['matches'] = results
+            # simulation['month'] = j
+            # simulation['num_greens_over25'] = num_greens_over25
+            # simulation['num_greens_btts1h'] = num_greens_btts1h
+            # simulation['num_bets'] = len(results)
+            # if len(results) > 0:
+            #     simulation['success_o25'] = float(num_greens_over25/len(results))
+            #     simulation['success_btts1h'] = float(num_greens_btts1h/len(results))
+            # return_list.append(simulation)
+
+        except Exception as e:
+            logging.info(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            logging.info(exc_type, fname, exc_tb.tb_lineno)
+            continue
+
+    return results
+
+@app.route('/update-matches-from-database', methods=['POST'])
+def update_matches_from_database():
+    aDaScrappings.updateOddsInDBMatches()
+    return 'ok'
 
 if __name__ == '__main__':
     logging.info("scrapper service is running...")
