@@ -108,6 +108,7 @@ def getWFSourceHtmlCode(url, driver):
         return None
 
 
+# also includes next match!!
 def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
     logging.info("getting last " + str(n) + " match stats: " + str(url))
     matches = []
@@ -116,65 +117,73 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
         soup = BeautifulSoup(source_code, 'html.parser')
         # Perform scraping operations using BeautifulSoup here
         table = soup.find('table')
-
         current_competition_name = None
-
+        first_upcoming_match_added = False  # Track if we've added the first upcoming match
+        
         for row in table.find_all('tr'):
             if 'hs-head--competition' in row.get('class', []):
                 # This is a competition header row
                 title_tag = row.find('th')
                 if title_tag:
                     current_competition_name = title_tag.text.strip()
-            elif row.get('data-match_id') and current_competition_name and 'finished' in row.get('class', []):
-                # This is a match data row
-                cols = row.find_all('td')
+            elif row.get('data-match_id') and current_competition_name:
+                is_finished = 'finished' in row.get('class', [])
                 
-                if len(cols) >= 8:
-                    date = cols[0].text.strip()
-                    home_away_indicator = cols[3].text.strip()
-                    opponent_name = cols[5].find('a').text.strip() if cols[5].find('a') else None
+                # Process finished matches OR the first upcoming match
+                if is_finished or (not first_upcoming_match_added and not is_finished):
+                    cols = row.find_all('td')
                     
-                    ft_result = None
-                    ht_result = None
-                    match_url_suffix = None
+                    if len(cols) >= 8:
+                        # Check if match is rescheduled - skip if it is
+                        match_incident = cols[7].find('span', class_='match-incident')
+                        if match_incident and 'resch' in match_incident.text.lower():
+                            continue  # Skip rescheduled matches
 
-                    # Extract FT Result (match-result-0) and HT Result (match-result-1)
-                    ft_result_span = cols[7].find('span', class_='match-result-0')
-                    if ft_result_span:
-                        ft_result = ft_result_span.find('a').text.strip() if ft_result_span.find('a') else None
-                        match_url_suffix = ft_result_span.find('a').get('href') if ft_result_span.find('a') else None
-
-                    ht_result_span = cols[7].find('span', class_='match-result-1')
-                    if ht_result_span:
-                        ht_result = ht_result_span.find('a').text.strip() if ht_result_span.find('a') else None
-                    
-                    # Determine home_team and away_team based on 'H/A' indicator for MY_TEAM
-                    home_team = None
-                    away_team = None
-                    if home_away_indicator == 'H':
-                        home_team = team
-                        away_team = opponent_name
-                    elif home_away_indicator == 'A':
-                        home_team = opponent_name
-                        away_team = team
-
-                    # If results are like "0:0", indicating an upcoming match or rescheduled, treat as None or specific placeholder
-                    if ft_result == '-:-' or ft_result is None:
+                        date = cols[0].text.strip()
+                        home_away_indicator = cols[3].text.strip()
+                        opponent_name = cols[5].find('a').text.strip() if cols[5].find('a') else None
+                        
                         ft_result = None
-                    if ht_result == '-:-' or ht_result is None:
                         ht_result = None
-
-                    # Create Match object and append to list
-                    if home_team and away_team and current_competition_name and match_url_suffix:
-                        matches.append(Match(
-                            date.replace('.', '/'),
-                            home_team,
-                            away_team,
-                            ft_result,
-                            ht_result,
-                            current_competition_name,
-                            match_url_suffix
-                        ).to_dict())
+                        match_url_suffix = None
+                        # Extract FT Result (match-result-0) and HT Result (match-result-1)
+                        ft_result_span = cols[7].find('span', class_='match-result-0')
+                        if ft_result_span:
+                            ft_result = ft_result_span.find('a').text.strip() if ft_result_span.find('a') else None
+                            match_url_suffix = ft_result_span.find('a').get('href') if ft_result_span.find('a') else None
+                        ht_result_span = cols[7].find('span', class_='match-result-1')
+                        if ht_result_span:
+                            ht_result = ht_result_span.find('a').text.strip() if ht_result_span.find('a') else None
+                        
+                        # Determine home_team and away_team based on 'H/A' indicator for MY_TEAM
+                        home_team = None
+                        away_team = None
+                        if home_away_indicator == 'H':
+                            home_team = team
+                            away_team = opponent_name
+                        elif home_away_indicator == 'A':
+                            home_team = opponent_name
+                            away_team = team
+                        # If results are like "0:0", indicating an upcoming match or rescheduled, treat as None or specific placeholder
+                        if ft_result == '-:-' or ft_result is None:
+                            ft_result = None
+                        if ht_result == '-:-' or ht_result is None:
+                            ht_result = None
+                        # Create Match object and append to list
+                        if home_team and away_team and current_competition_name and match_url_suffix:
+                            matches.append(Match(
+                                date.replace('.', '/'),
+                                home_team,
+                                away_team,
+                                ft_result,
+                                ht_result,
+                                current_competition_name,
+                                match_url_suffix
+                            ).to_dict())
+                            
+                            # Mark that we've added the first upcoming match
+                            if not is_finished:
+                                first_upcoming_match_added = True
 
 
         logging.info(str(len(matches)) + " matches scrapped for " + team)
