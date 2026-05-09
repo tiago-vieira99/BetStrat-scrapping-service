@@ -13,6 +13,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 import time
 import logging
+import psycopg2
+import psycopg2.extras
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -128,6 +131,9 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
                     current_competition_name = title_tag.text.strip()
             elif row.get('data-match_id') and current_competition_name:
                 is_finished = 'finished' in row.get('class', [])
+
+                if 'Friendlies' in current_competition_name:
+                    continue  # Skip friendly matches
                 
                 # Process finished matches OR the first upcoming match
                 if is_finished or (not first_upcoming_match_added and not is_finished):
@@ -142,7 +148,11 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
                         date = cols[0].text.strip()
                         home_away_indicator = cols[3].text.strip()
                         opponent_name = cols[5].find('a').text.strip() if cols[5].find('a') else None
-                        
+                        teamUrl = (cols[5].find('a').get('href').rsplit('/', 2)[0] + '/')
+                        opponentNormalizedName = getTeamByUrlFromDB(teamUrl)
+                        if opponentNormalizedName is not None:
+                            opponent_name = opponentNormalizedName
+
                         ft_result = None
                         ht_result = None
                         match_url_suffix = None
@@ -164,6 +174,8 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
                         elif home_away_indicator == 'A':
                             home_team = opponent_name
                             away_team = team
+                            ft_result = ft_result.split(':')[1] + ':' + ft_result.split(':')[0] if ft_result else None
+                            ht_result = ht_result.split(':')[1] + ':' + ht_result.split(':')[0] if ht_result else None
                         # If results are like "0:0", indicating an upcoming match or rescheduled, treat as None or specific placeholder
                         if ft_result == '-:-' or ft_result is None:
                             ft_result = None
@@ -199,6 +211,46 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
         return lastMatches
     else:
         raise Exception(f'Failed to scrape data from {url}.')
+
+def getTeamByUrlFromDB(teamUrl):
+    ca_file = "ca.pem"
+    db_params = {
+        'dbname': 'defaultdb',
+        'user': 'avnadmin',
+        'password': 'AVNS_xilofcVMIxDNHVjsmDg',
+        'host': 'pg-186b9d39-betstrat-ea12.h.aivencloud.com',
+        'port': '23138',
+        'sslmode': 'require',
+        'sslrootcert': ca_file
+    }
+    
+    conn = None  # Initialize conn to None
+    try:
+         # Connect to the database
+        conn = psycopg2.connect(**db_params)
+        logging.info(f"Connected to database !")
+        logging.info("Getting data for " + teamUrl)
+
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        query = "SELECT name FROM historic_data.teams WHERE sport = 'Football' AND url LIKE %s "
+        like_pattern = f"%{teamUrl}%"  # Construct the LIKE pattern
+        cursor.execute(query, (like_pattern,))
+
+        teamName = cursor.fetchall()  # Fetch all results
+
+        return teamName[0]['name'] if teamName else None  # Return the name if found, else None
+
+    except psycopg2.Error as e:
+        logging.info(f"PostgreSQL error: {e}")
+        if conn:
+            conn.rollback()
+        return None
+    finally:
+        if conn:
+            cursor = conn.cursor()  # Create a cursor before closing it
+            cursor.close()
+            conn.close()
 
 def getLeagueTeamsFromWF(urlLeaguesList, driver):
     teams = {}
