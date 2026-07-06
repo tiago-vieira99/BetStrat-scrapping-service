@@ -110,6 +110,36 @@ def getWFSourceHtmlCode(url, driver):
         logging.error(f"Error getting source code for {url}: {e}", exc_info=True) # Log with traceback
         return None
 
+def getSpecificMatchFromWF(url, team, season, source_code):
+    logging.info("getting match for " + str(team) + ", season " + str(season) + " : " + str(url))
+    match_dict = {}
+    
+    if source_code is not None:
+        soup = BeautifulSoup(source_code, 'html.parser')
+        # Perform scraping operations using BeautifulSoup here
+        match = soup.find('div', class_='match')
+
+        logging.info(f"Match found: {match}")
+
+        if match:
+            # Check if match status is "Ended"
+            status = match.find('div', class_='match-status')
+            
+            if status and 'Ended' in status.get_text():
+                # Get final result (match-result-0)
+                final_result = match.find('div', class_='match-result match-result-0')
+                
+                # Get halftime result (match-result-1 inside match-result-intermediate)
+                ht_result_span = match.find('span', class_='match-result match-result-1')
+                
+                if final_result and ht_result_span:
+                    match_dict['ft_result'] = final_result.get_text()
+                    match_dict['ht_result'] = ht_result_span.get_text()
+        
+        return match_dict
+    else:
+        raise Exception(f'Failed to scrape data from {url}.')
+
 
 # also includes next match!!
 def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
