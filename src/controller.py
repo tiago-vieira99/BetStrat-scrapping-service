@@ -44,7 +44,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 @app.route('/specific-matches', methods=['POST'])
 def get_specific_matches_data():
     data = request.get_json()
-    thread = threading.Thread(target=scrape_specific_matches, args=(data))
+    thread = threading.Thread(target=scrape_specific_matches, args=(data,))
     thread.start()
     return jsonify({"status": "started"}), 202
 
@@ -52,21 +52,23 @@ def scrape_specific_matches(data):
     allLeagues = True #used only for historic-data, so always true
 
     for key, value in data.items():
+        logging.info("Getting specific match for: " + key + " - " + str(value['url']))
+
         matchesList = {}
         driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
         driver.maximize_window()
         time.sleep(1)
         
-        source_code = scrapping.getWFSourceHtmlCode("http://www.worldfootball.net" + value['url'], driver)
+        source_code = scrapping.getWFSourceHtmlCode("http://www.worldfootball.net" + str(value['url']), driver)
         driver.quit() #very important
         try:
-            specificMatch = scrapping.getSpecificMatchFromWF("http://www.worldfootball.net" + value['url'], key, value['season'], source_code)
+            specificMatch = scrapping.getSpecificMatchFromWF("http://www.worldfootball.net" + str(value['url']), key, value['season'], source_code)
             specificMatch['url'] = value['url']
             matchesList[key] = {}
             matchesList[key]['specificMatch'] = specificMatch
             bttsOneHalf.publish_match(matchesList, "specific_matches")
         except Exception as e:
-            logging.error("ERROR getting specific match: " + value['url'] + " for " + key)
+            logging.error("ERROR getting specific match: " + str(value['url']) + " for " + key)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             logging.info(exc_type, fname, exc_tb.tb_lineno)

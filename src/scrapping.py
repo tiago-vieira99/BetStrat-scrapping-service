@@ -119,8 +119,6 @@ def getSpecificMatchFromWF(url, team, season, source_code):
         # Perform scraping operations using BeautifulSoup here
         match = soup.find('div', class_='match')
 
-        logging.info(f"Match found: {match}")
-
         if match:
             # Check if match status is "Ended"
             status = match.find('div', class_='match-status')
@@ -131,10 +129,19 @@ def getSpecificMatchFromWF(url, team, season, source_code):
                 
                 # Get halftime result (match-result-1 inside match-result-intermediate)
                 ht_result_span = match.find('span', class_='match-result match-result-1')
+
+                # Extract datetime from data-datetime attribute
+                datetime_str = match.get('data-datetime')
+
+                # Parse and format
+                match_date = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%SZ')
+                formatted_date = match_date.strftime('%d/%m/%Y')
                 
                 if final_result and ht_result_span:
                     match_dict['ft_result'] = final_result.get_text()
                     match_dict['ht_result'] = ht_result_span.get_text()
+                    match_dict['date'] = formatted_date
+                    logging.info(f"Scraped match data: {match_dict}")
         
         return match_dict
     else:
