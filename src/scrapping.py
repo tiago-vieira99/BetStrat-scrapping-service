@@ -15,7 +15,7 @@ import time
 import logging
 import psycopg2
 import psycopg2.extras
-
+import base64
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
