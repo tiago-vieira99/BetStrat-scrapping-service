@@ -295,7 +295,22 @@ def getLeagueTeamsFromWF(urlLeaguesList, driver):
     for url in str(urlLeaguesList, 'utf-8').split('\n'):
         time.sleep(1)
         logging.info("getting league teams: " + str(url))
-        source_code = getWFSourceHtmlCode(url, driver)
+        #source_code = getWFSourceHtmlCode(url, driver)
+
+        # Use Zyte to extract the page
+        api_response = requests.post(
+           "https://api.zyte.com/v1/extract",
+            auth=("9bc522399527429ea79b40a3fcecc7f8", ""),  # Your API key goes in place of the dots
+            json={
+                "url": url,
+                "httpResponseBody": True,
+                "followRedirect": True,
+            },
+        )
+
+        source_code = api_response.json().get("httpResponseBody")
+        # Decode from Base64
+        source_code = base64.b64decode(source_code).decode('utf-8')
 
         try:
             if source_code is not None:
@@ -329,7 +344,7 @@ def getLeagueTeamsFromWF(urlLeaguesList, driver):
             logging.info(exc_type, fname, exc_tb.tb_lineno)
             continue
 
-    driver.close()
+    #driver.close()
     return teams
 
 def getLiveMatchStatsFromAdA(url):

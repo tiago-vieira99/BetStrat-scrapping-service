@@ -16,6 +16,8 @@ import time
 import logging
 import threading
 import ast
+import requests
+import base64
 
 def set_chrome_options() -> Options:
     """Sets chrome options for Selenium.
@@ -55,12 +57,22 @@ def scrape_specific_matches(data):
         logging.info("Getting specific match for: " + key + " - " + str(value['url']))
 
         matchesList = {}
-        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
-        driver.maximize_window()
-        time.sleep(1)
-        
-        source_code = scrapping.getWFSourceHtmlCode("http://www.worldfootball.net" + str(value['url']), driver)
-        driver.quit() #very important
+
+        # Use Zyte to extract the page
+        api_response = requests.post(
+           "https://api.zyte.com/v1/extract",
+            auth=("9bc522399527429ea79b40a3fcecc7f8", ""),  # Your API key goes in place of the dots
+            json={
+                "url": "http://www.worldfootball.net" + str(value['url']),
+                "httpResponseBody": True,
+                "followRedirect": True,
+            },
+        )
+
+        source_code = api_response.json().get("httpResponseBody")
+        # Decode from Base64
+        source_code = base64.b64decode(source_code).decode('utf-8')
+
         try:
             specificMatch = scrapping.getSpecificMatchFromWF("http://www.worldfootball.net" + str(value['url']), key, value['season'], source_code)
             specificMatch['url'] = value['url']
@@ -89,12 +101,28 @@ def scrape_last_n_matches(data, n):
 
     for key, value in data.items():
         lastMatchesList = {}
-        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
-        driver.maximize_window()
-        #time.sleep(1)
+        # driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+        # driver.maximize_window()
+        # #time.sleep(1)
         
-        source_code = scrapping.getWFSourceHtmlCode(value['url'].replace('/all-matches', f"/vs{value['season']}/all-matches"), driver)
-        driver.quit() #very important
+        # source_code = scrapping.getWFSourceHtmlCode(value['url'].replace('/all-matches', f"/vs{value['season']}/all-matches"), driver)
+        # driver.quit() #very important
+
+        # Use Zyte to extract the page
+        api_response = requests.post(
+           "https://api.zyte.com/v1/extract",
+            auth=("9bc522399527429ea79b40a3fcecc7f8", ""),  # Your API key goes in place of the dots
+            json={
+                "url": value['url'].replace('/all-matches', f"/vs{value['season']}/all-matches"),
+                "httpResponseBody": True,
+                "followRedirect": True,
+            },
+        )
+
+        source_code = api_response.json().get("httpResponseBody")
+        # Decode from Base64
+        source_code = base64.b64decode(source_code).decode('utf-8')
+
         try:
             lastMatches = scrapping.getLastNMatchesFromWF(value['url'], n, key, allLeagues, value['season'], source_code)
             lastMatchesList[key] = {}
@@ -117,11 +145,27 @@ def get_last_margin_wins_matches():
 
     for key, value in data.items():
         lastMatchesList = {}
-        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
-        driver.maximize_window()
-        #time.sleep(1)
-        source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
-        driver.quit() #very important
+        # driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+        # driver.maximize_window()
+        # #time.sleep(1)
+        # source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
+        # driver.quit() #very important
+
+        # Use Zyte to extract the page
+        api_response = requests.post(
+           "https://api.zyte.com/v1/extract",
+            auth=("9bc522399527429ea79b40a3fcecc7f8", ""),  # Your API key goes in place of the dots
+            json={
+                "url": value['url'],
+                "httpResponseBody": True,
+                "followRedirect": True,
+            },
+        )
+
+        source_code = api_response.json().get("httpResponseBody")
+        # Decode from Base64
+        source_code = base64.b64decode(source_code).decode('utf-8')
+
         try:
             lastMatches = scrapping.getLastNMatchesFromWF(value['url'], 1, key, allLeagues, value['season'], source_code)
             lastMatchesList[key] = {}
@@ -142,10 +186,26 @@ def get_next_match():
     data = request.get_json()
 
     for key, value in data.items():
-        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
-        driver.maximize_window()
-        source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
-        driver.quit() #very important
+        # driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+        # driver.maximize_window()
+        # source_code = scrapping.getWFSourceHtmlCode(value['url'], driver)
+        # driver.quit() #very important
+
+        # Use Zyte to extract the page
+        api_response = requests.post(
+           "https://api.zyte.com/v1/extract",
+            auth=("9bc522399527429ea79b40a3fcecc7f8", ""),  # Your API key goes in place of the dots
+            json={
+                "url": value['url'],
+                "httpResponseBody": True,
+                "followRedirect": True,
+            },
+        )
+
+        source_code = api_response.json().get("httpResponseBody")
+        # Decode from Base64
+        source_code = base64.b64decode(source_code).decode('utf-8')
+
         try:
             allLeagues = False
             if value['allLeagues'] == 'true':
@@ -167,17 +227,17 @@ def get_next_match():
 @app.route('/league-teams', methods=['POST'])
 def get_all_league_teams():
     try:
-        driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
-        driver.maximize_window()
+        # driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
+        # driver.maximize_window()
         
         if "worldfootball" in request.data.decode("utf-8"):
-            return jsonify(scrapping.getLeagueTeamsFromWF(request.data, driver))
+            return jsonify(scrapping.getLeagueTeamsFromWF(request.data, None))
         else:
             return 'url not supported'
     except Exception as e:
         return jsonify({'error': str(e)})
-    finally:
-        driver.quit() #very important
+    # finally:
+    #     driver.quit() #very important
 
 
 @app.route('/kelly-strats/next-matches-links', methods=['GET'])
