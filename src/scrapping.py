@@ -150,7 +150,7 @@ def getSpecificMatchFromWF(url, team, season, source_code):
 
 # also includes next match!!
 def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
-    logging.info("getting last " + str(n) + " match stats: " + str(url))
+    logging.info("getting last " + str(n) + " match stats for: " + str(team) + " from: " + str(url))
     matches = []
     
     if source_code is not None:
@@ -159,6 +159,11 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
         table = soup.find('table')
         current_competition_name = None
         first_upcoming_match_added = False  # Track if we've added the first upcoming match
+
+        # Method 1: Extract from canonical URL
+        canonical_link = soup.find('link', {'rel': 'canonical'})
+        href = canonical_link['href']
+        team_name_in_url = href.split('/teams/te')[1].split('/')[1]  # Extract "bnei-sachnin-fc"
         
         for row in table.find_all('tr'):
             if 'hs-head--competition' in row.get('class', []):
@@ -213,6 +218,19 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
                             away_team = team
                             ft_result = ft_result.split(':')[1] + ':' + ft_result.split(':')[0] if ft_result else None
                             ht_result = ht_result.split(':')[1] + ':' + ht_result.split(':')[0] if ht_result else None
+                        else:
+                            # Extract teams from URL
+                            teams_part = match_url_suffix.split('/')[-2]  # "us-lecce_udinese-calcio"
+                            home_team_in_url, away_team_in_url = teams_part.split('_')
+                            if team_name_in_url == home_team_in_url:
+                                home_team = team
+                                away_team = opponent_name
+                            elif team_name_in_url == away_team_in_url:
+                                home_team = opponent_name
+                                away_team = team
+                                ft_result = ft_result.split(':')[1] + ':' + ft_result.split(':')[0] if ft_result else None
+                                ht_result = ht_result.split(':')[1] + ':' + ht_result.split(':')[0] if ht_result else None
+
                         # If results are like "0:0", indicating an upcoming match or rescheduled, treat as None or specific placeholder
                         if ft_result == '-:-' or ft_result is None:
                             ft_result = None
@@ -265,8 +283,8 @@ def getTeamByUrlFromDB(teamUrl):
     try:
          # Connect to the database
         conn = psycopg2.connect(**db_params)
-        logging.info(f"Connected to database !")
-        logging.info("Getting data for " + teamUrl)
+        logging.debug(f"Connected to database !")
+        logging.debug("Getting data for " + teamUrl)
 
         cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 

@@ -128,6 +128,7 @@ def scrape_last_n_matches(data, n):
             lastMatchesList[key] = {}
             lastMatchesList[key]['lastMatches'] = lastMatches
             bttsOneHalf.publish_match(lastMatchesList, "historic_last_matches")
+            logging.info("published " + str(len(lastMatches)) + " matches for: " + str(key))
         except Exception as e:
             logging.error("ERROR getting last matches for " + key)
             exc_type, exc_obj, exc_tb = sys.exc_info()
