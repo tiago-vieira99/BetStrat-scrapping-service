@@ -67,6 +67,7 @@ def scrape_specific_matches(data):
                 "httpResponseBody": True,
                 "followRedirect": True,
             },
+            timeout=60
         )
 
         source_code = api_response.json().get("httpResponseBody")
@@ -109,6 +110,7 @@ def scrape_last_n_matches(data, n):
         # driver.quit() #very important
 
         # Use Zyte to extract the page
+        time.sleep(1)  # Add a delay of 1 second before making the request
         api_response = requests.post(
            "https://api.zyte.com/v1/extract",
             auth=("9bc522399527429ea79b40a3fcecc7f8", ""),  # Your API key goes in place of the dots
@@ -117,13 +119,14 @@ def scrape_last_n_matches(data, n):
                 "httpResponseBody": True,
                 "followRedirect": True,
             },
+            timeout=60,
         )
 
-        source_code = api_response.json().get("httpResponseBody")
-        # Decode from Base64
-        source_code = base64.b64decode(source_code).decode('utf-8')
-
         try:
+            source_code = api_response.json().get("httpResponseBody")
+            # Decode from Base64
+            source_code = base64.b64decode(source_code).decode('utf-8')
+
             lastMatches = scrapping.getLastNMatchesFromWF(value['url'], n, key, allLeagues, value['season'], source_code)
             lastMatchesList[key] = {}
             lastMatchesList[key]['lastMatches'] = lastMatches
@@ -161,6 +164,7 @@ def get_last_margin_wins_matches():
                 "httpResponseBody": True,
                 "followRedirect": True,
             },
+            timeout=60,
         )
 
         source_code = api_response.json().get("httpResponseBody")
@@ -201,6 +205,7 @@ def get_next_match():
                 "httpResponseBody": True,
                 "followRedirect": True,
             },
+            timeout=60,
         )
 
         source_code = api_response.json().get("httpResponseBody")
