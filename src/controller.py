@@ -100,7 +100,8 @@ def get_last_n_matches(n):
 def scrape_last_n_matches(data, n):
     allLeagues = True #used only for historic-data, so always true
 
-    for key, value in data.items():
+    for i, (key, value) in enumerate(data.items(), 1):
+        print(f"Processing {i}/{len(data)}")
         lastMatchesList = {}
         # driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
         # driver.maximize_window()
