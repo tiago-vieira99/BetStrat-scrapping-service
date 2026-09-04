@@ -123,7 +123,7 @@ def getSpecificMatchFromWF(url, team, season, source_code):
             # Check if match status is "Ended"
             status = match.find('div', class_='match-status')
             
-            if status and 'Ended' in status.get_text():
+            if status and ('Ended' in status.get_text() or 'Finished' in status.get_text()):
                 # Get final result (match-result-0)
                 final_result = match.find('div', class_='match-result match-result-0')
                 
