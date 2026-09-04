@@ -53,7 +53,8 @@ def get_specific_matches_data():
 def scrape_specific_matches(data):
     allLeagues = True #used only for historic-data, so always true
 
-    for key, value in data.items():
+    for i, (key, value) in enumerate(data.items(), 1):
+        print(f"Processing {i}/{len(data)}\n")
         logging.info("Getting specific match for: " + key + " - " + str(value['url']))
 
         matchesList = {}
@@ -70,11 +71,10 @@ def scrape_specific_matches(data):
             timeout=60
         )
 
-        source_code = api_response.json().get("httpResponseBody")
-        # Decode from Base64
-        source_code = base64.b64decode(source_code).decode('utf-8')
-
         try:
+            source_code = api_response.json().get("httpResponseBody")
+            # Decode from Base64
+            source_code = base64.b64decode(source_code).decode('utf-8')
             specificMatch = scrapping.getSpecificMatchFromWF("http://www.worldfootball.net" + str(value['url']), key, value['season'], source_code)
             specificMatch['url'] = value['url']
             matchesList[key] = {}
@@ -101,7 +101,7 @@ def scrape_last_n_matches(data, n):
     allLeagues = True #used only for historic-data, so always true
 
     for i, (key, value) in enumerate(data.items(), 1):
-        print(f"Processing {i}/{len(data)}")
+        print(f"Processing {i}/{len(data)}\n")
         lastMatchesList = {}
         # driver = webdriver.Remote("http://selenium:4444", options=webdriver.ChromeOptions(), keep_alive=True)
         # driver.maximize_window()

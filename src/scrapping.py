@@ -163,6 +163,7 @@ def getLastNMatchesFromWF(url, n, team, allLeagues, season, source_code):
         # Method 1: Extract from canonical URL
         canonical_link = soup.find('link', {'rel': 'canonical'})
         href = canonical_link['href']
+        logging.info(f"Canonical URL: {href}")
         team_name_in_url = href.split('/teams/te')[1].split('/')[1]  # Extract "bnei-sachnin-fc"
         
         for row in table.find_all('tr'):
